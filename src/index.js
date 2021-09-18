@@ -3,7 +3,8 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
 
 import '/src/base.css';
-import portal from '/res/room/portalwoinside.fbx';
+import portal from '/res/room/portal.fbx';
+import stoneText from '/res/room/stonetext.jpg';
 
 
 class World{
@@ -98,21 +99,28 @@ class World{
         wall4.rotation.y = 0;
         this._scene.add(wall4);
         wall4.position.set(0, 50, -50);
+        this._BuildPortal(1, 0, 0, 50, Math.PI/2);
+      }
 
 
-        const loader = new FBXLoader();
+      _BuildPortal(scale, positionX, positionY, positionZ, rotationY){
+        const fbxLoader = new FBXLoader();
+        const textLoader = new THREE.TextureLoader();
         let _scene = this._scene;
-        loader.load(portal, function(obj){
-            obj.scale.x = 0.1;
-            obj.scale.y = 0.1;
-            obj.scale.z = 0.1;
+        fbxLoader.load(portal, function(obj){
+            var texture = textLoader.load(stoneText);
+            var mat = new THREE.MeshStandardMaterial({map:texture});
+            obj["children"][0].material = mat;
+            mat.roughness = 0.5;
+            obj.scale.set(scale, scale, scale);
+            obj.position.set(positionX, positionY, positionZ);
+            obj.rotation.y = rotationY;
             _scene.add(obj);
         }, undefined, function ( error ) {
 
           console.error( error );
         
         });
-
       }
 
 
