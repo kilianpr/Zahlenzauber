@@ -5,6 +5,7 @@ import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
 import '/src/base.css';
 import portal from '/res/room/portal.fbx';
 import stoneText from '/res/room/stonetext.jpg';
+import * as dat from 'dat.gui';
 
 
 class World{
@@ -14,6 +15,8 @@ class World{
     }
 
     _Initialize(){
+
+      const gui = new dat.GUI();
 
         this._threejs = new THREE.WebGLRenderer({
             antialias: true,
@@ -35,8 +38,19 @@ class World{
         const near = 1.0;
         const far = 1000.0;
         this._camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-        this._camera.position.set(0, 40, -31);
-        this._camera.lookAt(0, 30, 50);
+        this._camera.position.set(47, 36, -29);
+        this.pointLook = {x: -31, y: 8, z:53.5}
+        this._camera.lookAt(this.pointLook.x, this.pointLook.y, this.pointLook.z);
+        console.log(this._camera)
+
+
+        gui.add(this._camera.position, 'x', -100, 100);
+        gui.add(this._camera.position, 'y', -100, 100);
+        gui.add(this._camera.position, 'z', -100, 100);
+        gui.add(this.pointLook, 'x', -100, 100);
+        gui.add(this.pointLook, 'y', -100, 100);
+        gui.add(this.pointLook, 'z', -100, 100);
+
 
         this._scene = new THREE.Scene();
 
@@ -49,10 +63,10 @@ class World{
         this._scene.add(light);
 
 
-        const controls = new OrbitControls(
+        /*const controls = new OrbitControls(
             this._camera, this._threejs.domElement);
         controls.target.set(0, 0, 0);
-        controls.update();
+        controls.update();*/
 
         this._BuildRoom();
         this._RAF();
@@ -99,11 +113,13 @@ class World{
         wall4.rotation.y = 0;
         this._scene.add(wall4);
         wall4.position.set(0, 50, -50);
-        this._BuildPortal(1, 0, 0, 50, Math.PI/2);
+        this._BuildPortal(0, 0, 50);
+        this._BuildPortal(25, 0, 50);
+        this._BuildPortal(-25, 0, 50);
       }
 
 
-      _BuildPortal(scale, positionX, positionY, positionZ, rotationY){
+      _BuildPortal(positionX, positionY, positionZ){
         const fbxLoader = new FBXLoader();
         const textLoader = new THREE.TextureLoader();
         let _scene = this._scene;
@@ -112,15 +128,12 @@ class World{
             var mat = new THREE.MeshStandardMaterial({map:texture});
             obj["children"][0].material = mat;
             mat.roughness = 0.5;
-            obj.scale.set(scale, scale, scale);
             obj.position.set(positionX, positionY, positionZ);
-            obj.rotation.y = rotationY;
+            obj.rotation.y = Math.PI/2;
             _scene.add(obj);
-        }, undefined, function ( error ) {
-
-          console.error( error );
-        
-        });
+          }, undefined, function ( error ) {
+            console.error( error );
+          });
       }
 
 
@@ -140,7 +153,9 @@ class World{
           }
     
           this._RAF();
-    
+          
+          this._camera.lookAt(this.pointLook.x, this.pointLook.y, this.pointLook.z);
+          this._camera.updateProjectionMatrix();
           this._threejs.render(this._scene, this._camera);
           this._Step(t - this._previousRAF);
           this._previousRAF = t;
