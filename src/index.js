@@ -3,6 +3,7 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
 
 import '/src/base.css';
+import portal from '/res/room/portalwoinside.fbx';
 
 
 class World{
@@ -33,7 +34,7 @@ class World{
         const near = 1.0;
         const far = 1000.0;
         this._camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-        this._camera.position.set(0, 27, -47);
+        this._camera.position.set(0, 40, -31);
         this._camera.lookAt(0, 30, 50);
 
         this._scene = new THREE.Scene();
@@ -97,6 +98,21 @@ class World{
         wall4.rotation.y = 0;
         this._scene.add(wall4);
         wall4.position.set(0, 50, -50);
+
+
+        const loader = new FBXLoader();
+        let _scene = this._scene;
+        loader.load(portal, function(obj){
+            obj.scale.x = 0.1;
+            obj.scale.y = 0.1;
+            obj.scale.z = 0.1;
+            _scene.add(obj);
+        }, undefined, function ( error ) {
+
+          console.error( error );
+        
+        });
+
       }
 
 
@@ -108,7 +124,7 @@ class World{
       }
 
 
-      //renders the scene and commits the elapsed time to the _Step function
+      //renders the scene and passes the elapsed time to the _Step function
       _RAF() {
         requestAnimationFrame((t) => {
           if (this._previousRAF === null) {
