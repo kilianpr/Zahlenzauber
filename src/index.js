@@ -1,14 +1,17 @@
 import * as THREE from 'three';
+import * as dat from 'dat.gui';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
 
 import '/src/base.css';
 import portal from '/res/room/portal.fbx';
 import stoneText from '/res/room/stonetext.jpg';
-import * as dat from 'dat.gui';
+import smoke from '/res/room/smoke.png';
+
 
 
 class World{
+
 
     constructor(){
         this._Initialize();
@@ -63,10 +66,10 @@ class World{
         this._scene.add(light);
 
 
-        /*const controls = new OrbitControls(
+        const controls = new OrbitControls(
             this._camera, this._threejs.domElement);
         controls.target.set(0, 0, 0);
-        controls.update();*/
+        controls.update();
 
         this._BuildRoom();
         this._RAF();
@@ -137,6 +140,9 @@ class World{
       }
 
 
+      
+
+
       //updates the camera and renderer size
       _OnWindowResize() {
         this._camera.aspect = window.innerWidth / window.innerHeight;
@@ -151,7 +157,7 @@ class World{
           if (this._previousRAF === null) {
             this._previousRAF = t;
           }
-    
+          
           this._RAF();
           
           this._camera.lookAt(this.pointLook.x, this.pointLook.y, this.pointLook.z);
