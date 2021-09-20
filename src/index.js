@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import * as dat from 'dat.gui';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
+import {ParticleSystem} from './particles.js';
 
 import '/src/base.css';
 import portal from '/res/room/portal.fbx';
@@ -38,7 +39,7 @@ class World{
 
         const fov = 60;
         const aspect = 1920 / 1080;
-        const near = 1.0;
+        const near = 0.1;
         const far = 1000.0;
         this._camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
         this._camera.position.set(47, 36, -29);
@@ -72,6 +73,16 @@ class World{
         controls.update();
 
         this._BuildRoom();
+        this._particlesLeft = new ParticleSystem({
+          parent: this._scene,
+          camera: this._camera,
+          centerPos: new THREE.Vector3(44, 0, 44)
+        });
+        this._particlesRight = new ParticleSystem({
+          parent: this._scene,
+          camera: this._camera,
+          centerPos: new THREE.Vector3(-44, 0, 44)
+        });
         this._RAF();
 
     }
@@ -178,6 +189,9 @@ class World{
         if (this._controls) {
           this._controls.Update(timeElapsedS);
         }
+
+        this._particlesLeft.Step(timeElapsedS);
+        this._particlesRight.Step(timeElapsedS);
       }
 
 }
