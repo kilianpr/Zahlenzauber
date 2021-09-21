@@ -1,6 +1,6 @@
 import fire from '/res/particles/fire.png'
 import * as THREE from 'three';
-import water from '/res/particles/water.jpg'
+import watertexture from '/res/particles/water.png'
 
 
 const _VS = `
@@ -146,9 +146,9 @@ class ParticleSystem {
       const life = (Math.random() * 0.75 + 0.25) * 2.0;
       this._particles.push({
           position: new THREE.Vector3(
-              (Math.random() * 2 - 1) * 1.0 + this._centerPos.x,
-              (Math.random() * 2 - 1) * 1.0 + this._centerPos.y,
-              (Math.random() * 2 - 1) * 1.0 + this._centerPos.z),
+              (Math.random() * 2 - 1) * 1.0 + this._centerPos.x, //adds x-coordinate given in constructor
+              (Math.random() * 2 - 1) * 1.0 + this._centerPos.y, //adds y-coordinate given in constructor
+              (Math.random() * 2 - 1) * 1.0 + this._centerPos.z), //adds z-coordinate given in constructor
           size: (Math.random() * 0.5 + 0.5) * 4.0,
           colour: new THREE.Color(),
           alpha: 1.0,
@@ -239,4 +239,32 @@ class ParticleSystem {
 }
 
 
+class PortalParticles{
+
+  constructor(params) {
+    this._camera = params.camera;
+    this._ellipseParams = params.ellipseParams;
+    
+    this._path = new THREE.Shape().absellipse(this._ellipseParams.aX, this._ellipseParams.aY, this._ellipseParams.xRadius, this._ellipseParams.yRadius);
+    this._geometry = new THREE.ShapeBufferGeometry(this._path);
+    this._texture = new THREE.TextureLoader().load(watertexture);
+    this._texture.repeat.x = .1;
+    this._texture.repeat.y = .1;
+    this._texture.wrapS = THREE.RepeatWrapping;
+    this._texture.wrapT = THREE.RepeatWrapping;
+
+    this._material = new THREE.MeshBasicMaterial({map: this._texture});
+    this._material.side = THREE.DoubleSide;
+    this._ellipse = new THREE.Mesh(this._geometry, this._material);
+    params.parent.add(this._ellipse);
+    this._ellipse.translateZ(this._ellipseParams.Z);
+
+  }
+
+
+
+}
+
+
 export {ParticleSystem};
+export {PortalParticles};

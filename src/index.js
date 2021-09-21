@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import * as dat from 'dat.gui';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
-import {ParticleSystem} from './particles.js';
+import {ParticleSystem, PortalParticles} from './particles.js';
 
 import '/src/base.css';
 import portal from '/res/room/portal.fbx';
@@ -48,12 +48,12 @@ class World{
         console.log(this._camera)
 
 
-        gui.add(this._camera.position, 'x', -100, 100);
+        /*gui.add(this._camera.position, 'x', -100, 100);
         gui.add(this._camera.position, 'y', -100, 100);
         gui.add(this._camera.position, 'z', -100, 100);
         gui.add(this.pointLook, 'x', -100, 100);
         gui.add(this.pointLook, 'y', -100, 100);
-        gui.add(this.pointLook, 'z', -100, 100);
+        gui.add(this.pointLook, 'z', -100, 100);*/
 
 
         this._scene = new THREE.Scene();
@@ -73,6 +73,7 @@ class World{
         controls.update();
 
         this._BuildRoom();
+
         this._particlesLeft = new ParticleSystem({
           parent: this._scene,
           camera: this._camera,
@@ -83,6 +84,23 @@ class World{
           camera: this._camera,
           centerPos: new THREE.Vector3(-44, 0, 44)
         });
+
+        this._ellipse = new PortalParticles({
+          parent: this._scene,
+          camera: this._camera,
+          ellipseParams: {
+            aX: 0,
+            aY: 12,
+            Z: 49,
+            xRadius: 12,
+            yRadius: 18
+          }
+        }
+        )
+
+        const axesHelper = new THREE.AxesHelper( 5 );
+        this._scene.add( axesHelper );
+        
         this._RAF();
 
     }
@@ -171,8 +189,7 @@ class World{
           
           this._RAF();
           
-          this._camera.lookAt(this.pointLook.x, this.pointLook.y, this.pointLook.z);
-          this._camera.updateProjectionMatrix();
+          
           this._threejs.render(this._scene, this._camera);
           this._Step(t - this._previousRAF);
           this._previousRAF = t;
