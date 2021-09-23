@@ -15,7 +15,7 @@ module.exports = {
 
         rules: [
         { 
-            test: /\.(gltf|glb|bin|fbx)$/,
+            test: /\.(gltf|glb|bin|fbx|obj)$/,
             use: 'file-loader',
         },
         {

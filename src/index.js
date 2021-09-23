@@ -2,12 +2,14 @@ import * as THREE from 'three';
 import * as dat from 'dat.gui';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
+import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader.js';
 import {ParticleSystem, PortalParticles} from './particles.js';
 
 import '/src/base.css';
-import portal from '/res/room/portal.fbx';
+import portal from '/res/room/portal.obj';
 import stoneText from '/res/room/stonetext.jpg';
 import smoke from '/res/room/smoke.png';
+import { Box3 } from 'three';
 
 
 
@@ -85,19 +87,6 @@ class World{
           centerPos: new THREE.Vector3(-44, 0, 44)
         });
 
-        this._ellipse = new PortalParticles({
-          parent: this._scene,
-          camera: this._camera,
-          ellipseParams: {
-            aX: 0,
-            aY: 12,
-            Z: 49,
-            xRadius: 12,
-            yRadius: 18
-          }
-        }
-        )
-
         const axesHelper = new THREE.AxesHelper( 5 );
         this._scene.add( axesHelper );
         
@@ -145,24 +134,34 @@ class World{
         wall4.rotation.y = 0;
         this._scene.add(wall4);
         wall4.position.set(0, 50, -50);
-        this._BuildPortal(0, 0, 50);
-        this._BuildPortal(25, 0, 50);
-        this._BuildPortal(-25, 0, 50);
+        this._BuildPortal(0, 0, 50, 20);
+        this._BuildPortal(25, 0, 50, 20);
+        this._BuildPortal(-25, 0, 50, 20);
       }
 
 
-      _BuildPortal(positionX, positionY, positionZ){
-        const fbxLoader = new FBXLoader();
+      _BuildPortal(positionX, positionY, positionZ, width){
+        const parent = this;
+        const objLoader = new OBJLoader();
         const textLoader = new THREE.TextureLoader();
-        let _scene = this._scene;
-        fbxLoader.load(portal, function(obj){
+        objLoader.load(portal, function(obj){
             var texture = textLoader.load(stoneText);
             var mat = new THREE.MeshStandardMaterial({map:texture});
             obj["children"][0].material = mat;
-            mat.roughness = 0.5;
             obj.position.set(positionX, positionY, positionZ);
             obj.rotation.y = Math.PI/2;
-            _scene.add(obj);
+            var box = new THREE.Box3().setFromObject(obj);
+            let initWidth = box.max.x - box.min.x;
+            if (Math.round(initWidth) !== width){
+              obj.scale.set(width/initWidth, width/initWidth, width/initWidth);
+            }
+            var box = new THREE.Box3().setFromObject(obj);
+            const helper = new THREE.Box3Helper( box, 0xffff00 );
+            parent._scene.add( helper );
+            let height = 0.9*(box.max.y - box.min.y);
+            console.log(height, width);
+            let plane = new PortalParticles(parent, 0.75*width, height, positionX, positionY+height/2, positionZ-0.2)
+            parent._scene.add(obj);
           }, undefined, function ( error ) {
             console.error( error );
           });

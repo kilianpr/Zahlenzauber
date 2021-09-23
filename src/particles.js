@@ -241,24 +241,31 @@ class ParticleSystem {
 
 class PortalParticles{
 
-  constructor(params) {
-    this._camera = params.camera;
-    this._ellipseParams = params.ellipseParams;
-    
-    this._path = new THREE.Shape().absellipse(this._ellipseParams.aX, this._ellipseParams.aY, this._ellipseParams.xRadius, this._ellipseParams.yRadius);
-    this._geometry = new THREE.ShapeBufferGeometry(this._path);
+  constructor(parent, width, height, positionX, positionY, positionZ) {
+  
+    this._geometry = new THREE.PlaneGeometry(width, height);
     this._texture = new THREE.TextureLoader().load(watertexture);
-    this._texture.repeat.x = .1;
-    this._texture.repeat.y = .1;
+    this._texture.repeat.x = 2;
+    this._texture.repeat.y = 2;
     this._texture.wrapS = THREE.RepeatWrapping;
     this._texture.wrapT = THREE.RepeatWrapping;
 
     this._material = new THREE.MeshBasicMaterial({map: this._texture});
     this._material.side = THREE.DoubleSide;
-    this._ellipse = new THREE.Mesh(this._geometry, this._material);
-    params.parent.add(this._ellipse);
-    this._ellipse.translateZ(this._ellipseParams.Z);
+    this._material.transparent = true;
+    this._material.opacity = 0.5;
+    this._plane = new THREE.Mesh(this._geometry, this._material);
+    this._plane.position.set(positionX, positionY, positionZ);
 
+    this._light = new THREE.SpotLight( 0xffffff, 10000 );
+    this._light.position.set(positionX, positionY, positionZ+0);
+    this._light.distance = 20;
+    this._light.target = this._plane;
+
+   
+    parent._scene.add(this._plane);
+    parent._scene.add(this._light);
+    return this._plane;
   }
 
 
