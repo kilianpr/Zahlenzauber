@@ -159,7 +159,6 @@ class World{
             const helper = new THREE.Box3Helper( box, 0xffff00 );
             parent._scene.add( helper );
             let height = 0.9*(box.max.y - box.min.y);
-            console.log(height, width);
             let plane = new PortalParticles(parent, 0.75*width, height, positionX, positionY+height/2, positionZ-0.2)
             parent._scene.add(obj);
           }, undefined, function ( error ) {

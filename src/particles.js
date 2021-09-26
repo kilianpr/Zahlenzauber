@@ -243,7 +243,7 @@ class PortalParticles{
 
   constructor(parent, width, height, positionX, positionY, positionZ) {
   
-    this._geometry = new THREE.PlaneGeometry(width, height);
+    this._geometry = new THREE.PlaneGeometry(width, height, 4);
     this._texture = new THREE.TextureLoader().load(watertexture);
     this._texture.repeat.x = 2;
     this._texture.repeat.y = 2;
@@ -253,18 +253,32 @@ class PortalParticles{
     this._material = new THREE.MeshBasicMaterial({map: this._texture});
     this._material.side = THREE.DoubleSide;
     this._material.transparent = true;
-    this._material.opacity = 0.5;
     this._plane = new THREE.Mesh(this._geometry, this._material);
     this._plane.position.set(positionX, positionY, positionZ);
 
-    this._light = new THREE.SpotLight( 0xffffff, 10000 );
-    this._light.position.set(positionX, positionY, positionZ+0);
-    this._light.distance = 20;
-    this._light.target = this._plane;
+    const position = this._plane.geometry.attributes.position;
+    const vertex = new THREE.Vector3();
+ 
+    console.log(this._plane.geometry.attributes);
 
-   
+
+    for ( let vertexIndex = 0; vertexIndex < position.count; vertexIndex ++ ) {
+
+      vertex.fromBufferAttribute( position, vertexIndex );
+      vertex.z += 10; //This does not change anything in the geometry!
+
+           
+  
+  }
+
+    this._light = new THREE.RectAreaLight( 0xffffff, 3,  width, height );
+    this._light.position.set(positionX, positionY, positionZ);
+    this._light.lookAt(positionX, 0, 0);
+
+
     parent._scene.add(this._plane);
     parent._scene.add(this._light);
+
     return this._plane;
   }
 
