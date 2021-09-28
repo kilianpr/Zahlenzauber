@@ -60,14 +60,11 @@ class World{
 
         this._scene = new THREE.Scene();
 
-        let light = new THREE.DirectionalLight();
-        light.target.position.set(0, 50, 50);
-        this._scene.add(light);
-        this._scene.add(light.target);
-
-        light = new THREE.AmbientLight(0xFFFFFF, 0.25);
-        this._scene.add(light);
-
+        //this._threejs.shadowMap.enabled = true;
+        
+        this._light = new THREE.DirectionalLight(0xfff5b6, 1, 100);
+        this._light.position.set(50, 50, -50);
+        this._scene.add(this._light);
 
         const controls = new OrbitControls(
             this._camera, this._threejs.domElement);
@@ -159,7 +156,7 @@ class World{
             const helper = new THREE.Box3Helper( box, 0xffff00 );
             parent._scene.add( helper );
             let height = 0.9*(box.max.y - box.min.y);
-            let plane = new PortalParticles(parent, 0.75*width, height, positionX, positionY+height/2, positionZ-0.2)
+            parent._portalParticles = new PortalParticles(parent, 0.75*width, height, positionX, positionY+height/2, positionZ-0.2)
             parent._scene.add(obj);
           }, undefined, function ( error ) {
             console.error( error );
@@ -207,6 +204,7 @@ class World{
 
         this._particlesLeft.Step(timeElapsedS);
         this._particlesRight.Step(timeElapsedS);
+        this._portalParticles.Step(timeElapsedS);
       }
 
 }

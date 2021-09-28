@@ -75,6 +75,11 @@ class ParticleSystem {
 
     this._centerPos = params.centerPos;
 
+    let light = new THREE.PointLight(0xe25822, 1, 100);
+    light.position.set(this._centerPos.x, this._centerPos.y, this._centerPos.z);
+    params.parent.add(light);
+    console.log("Added light")
+
     this._material = new THREE.ShaderMaterial({
         uniforms: uniforms,
         vertexShader: _VS,
@@ -239,47 +244,81 @@ class ParticleSystem {
 }
 
 
+
+const _VSPortal = `
+uniform float randomMultiplier;
+uniform float time;
+varying vec2 vUv;
+varying vec3 vPosition;
+  void main() {
+    vUv = uv;
+
+    vPosition = position;
+
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position.x, position.y, 0.5*sin((sqrt(pow(position.x, 2.0) +  pow(position.y, 2.0))-time/10.0)*2.0), 1.0);
+  }
+`;
+
+const _FSPortal = `
+uniform float time;
+uniform sampler2D myTexture;
+varying vec2 vUv;
+varying vec3 vPosition;
+  void main() {
+    vec2 displacedUV = vec2(vUv.x + 0.1 * sin(vUv.y*100. + time), vUv.y);
+    gl_FragColor = texture2D(myTexture, displacedUV);
+    gl_FragColor.a = 0.8;
+  }
+`;
 class PortalParticles{
 
   constructor(parent, width, height, positionX, positionY, positionZ) {
   
-    this._geometry = new THREE.PlaneGeometry(width, height, 4);
-    this._texture = new THREE.TextureLoader().load(watertexture);
+    this._geometry = new THREE.PlaneGeometry(width, height, 100, 100);
+    /*this._texture = new THREE.TextureLoader().load(watertexture);
     this._texture.repeat.x = 2;
     this._texture.repeat.y = 2;
     this._texture.wrapS = THREE.RepeatWrapping;
-    this._texture.wrapT = THREE.RepeatWrapping;
+    this._texture.wrapT = THREE.RepeatWrapping;*/
 
-    this._material = new THREE.MeshBasicMaterial({map: this._texture});
-    this._material.side = THREE.DoubleSide;
-    this._material.transparent = true;
+    const uniforms = {
+      myTexture: {
+          value: new THREE.TextureLoader().load(watertexture),
+      },
+      time: {
+        value: 0
+      },
+
+    };
+
+    this._material = new THREE.ShaderMaterial({
+      uniforms: uniforms,
+      vertexShader: _VSPortal,
+      fragmentShader: _FSPortal,
+      side: THREE.DoubleSide,
+      shadowSide: THREE.DoubleSide,
+      transparent: true,
+      blending: THREE.NormalBlending,
+    })
     this._plane = new THREE.Mesh(this._geometry, this._material);
-    this._plane.position.set(positionX, positionY, positionZ);
-
-    const position = this._plane.geometry.attributes.position;
-    const vertex = new THREE.Vector3();
- 
-    console.log(this._plane.geometry.attributes);
+    this._plane.position.set(positionX, positionY, positionZ-.8);
 
 
-    for ( let vertexIndex = 0; vertexIndex < position.count; vertexIndex ++ ) {
 
-      vertex.fromBufferAttribute( position, vertexIndex );
-      vertex.z += 10; //This does not change anything in the geometry!
-
-           
-  
-  }
-
-    this._light = new THREE.RectAreaLight( 0xffffff, 3,  width, height );
+    this._light = new THREE.RectAreaLight( 0xffffff, 1,  width, height );
     this._light.position.set(positionX, positionY, positionZ);
     this._light.lookAt(positionX, 0, 0);
 
 
     parent._scene.add(this._plane);
     parent._scene.add(this._light);
+  }
 
-    return this._plane;
+  Step(timeElapsed) {
+    if (!this._material.uniforms.time.value){
+      this._material.uniforms.time.value = 0.0;
+    }
+    this._material.uniforms.time.value += timeElapsed*10;
   }
 
 
