@@ -3,7 +3,8 @@ import * as dat from 'dat.gui';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader.js';
-import {ParticleSystem, PortalParticles} from './particles.js';
+import {ParticleSystem} from './particles.js';
+import {Portal} from './portal.js';
 
 import '/src/base.css';
 import portal from '/res/room/portal.obj';
@@ -47,7 +48,6 @@ class World{
         this._camera.position.set(47, 36, -29);
         this.pointLook = {x: -31, y: 8, z:53.5}
         this._camera.lookAt(this.pointLook.x, this.pointLook.y, this.pointLook.z);
-        console.log(this._camera)
 
 
         /*gui.add(this._camera.position, 'x', -100, 100);
@@ -131,40 +131,14 @@ class World{
         wall4.rotation.y = 0;
         this._scene.add(wall4);
         wall4.position.set(0, 50, -50);
-        this._BuildPortal(0, 0, 50, 20);
-        this._BuildPortal(25, 0, 50, 20);
-        this._BuildPortal(-25, 0, 50, 20);
+
+        this._portalA = new Portal(this, 20, 0, 0, 50);
+        this._portalB = new Portal(this, 20, 25, 0, 50);
+        this._portalC = new Portal(this, 20, -25, 0, 50);
       }
 
 
-      _BuildPortal(positionX, positionY, positionZ, width){
-        const parent = this;
-        const objLoader = new OBJLoader();
-        const textLoader = new THREE.TextureLoader();
-        objLoader.load(portal, function(obj){
-            var texture = textLoader.load(stoneText);
-            var mat = new THREE.MeshStandardMaterial({map:texture});
-            obj["children"][0].material = mat;
-            obj.position.set(positionX, positionY, positionZ);
-            obj.rotation.y = Math.PI/2;
-            var box = new THREE.Box3().setFromObject(obj);
-            let initWidth = box.max.x - box.min.x;
-            if (Math.round(initWidth) !== width){
-              obj.scale.set(width/initWidth, width/initWidth, width/initWidth);
-            }
-            var box = new THREE.Box3().setFromObject(obj);
-            const helper = new THREE.Box3Helper( box, 0xffff00 );
-            parent._scene.add( helper );
-            let height = 0.9*(box.max.y - box.min.y);
-            parent._portalParticles = new PortalParticles(parent, 0.75*width, height, positionX, positionY+height/2, positionZ-0.2)
-            parent._scene.add(obj);
-          }, undefined, function ( error ) {
-            console.error( error );
-          });
-      }
-
-
-      
+         
 
 
       //updates the camera and renderer size
@@ -204,7 +178,9 @@ class World{
 
         this._particlesLeft.Step(timeElapsedS);
         this._particlesRight.Step(timeElapsedS);
-        this._portalParticles.Step(timeElapsedS);
+        this._portalA._animation.Step(timeElapsedS);
+        this._portalB._animation.Step(timeElapsedS);
+        this._portalC._animation.Step(timeElapsedS);
       }
 
 }
