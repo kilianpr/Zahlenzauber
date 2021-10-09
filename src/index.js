@@ -7,10 +7,12 @@ import {ParticleSystem} from './particles.js';
 import {Portal} from './portal.js';
 
 import '/src/base.css';
+import bricksText from '/res/room/blue-bricks.jpg';
+import floorText from '/res/room/floorText.jpg';
 import portal from '/res/room/portal.obj';
 import stoneText from '/res/room/stonetext.jpg';
 import smoke from '/res/room/smoke.png';
-import { Box3 } from 'three';
+import { Box3, TextureLoader } from 'three';
 
 
 
@@ -94,22 +96,35 @@ class World{
 
     //builds a room with 4 walls
     _BuildRoom(){
+
+        const textLoader = new THREE.TextureLoader();
+        const floor = textLoader.load(floorText);
+        floor.wrapS = THREE.RepeatWrapping;
+        floor.wrapT = THREE.RepeatWrapping;
+        floor.repeat.set( 4, 4 );
+
         const planeGeo = new THREE.PlaneGeometry(100, 100)
         const ground = new THREE.Mesh(
             planeGeo,
             new THREE.MeshStandardMaterial({
                 color: 0x808080,
+                map: floor
               }));
         ground.castShadow = false;
         ground.receiveShadow = true;
         ground.rotation.x = -Math.PI / 2;
         this._scene.add(ground);
 
+        const bricks = textLoader.load(bricksText);
+        bricks.wrapS = THREE.RepeatWrapping;
+        bricks.wrapT = THREE.RepeatWrapping;
+        bricks.repeat.set( 4, 4 );
 
         const wall1 = new THREE.Mesh(
             planeGeo,
             new THREE.MeshStandardMaterial({
                 color: 0x070722,
+                map: bricks
               }));
         wall1.rotation.x = 0;
         wall1.rotation.y = -Math.PI /2;
