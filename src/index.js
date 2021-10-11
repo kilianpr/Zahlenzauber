@@ -11,7 +11,7 @@ import {SpeechBubble} from './welcome.js';
 import '/src/base.css';
 import bricksText from '/res/room/blue-bricks.jpg';
 import floorText from '/res/room/floorText.jpg';
-import { Box3, Vector3} from 'three';
+import { Box3} from 'three';
 
 
 
@@ -43,13 +43,15 @@ class World{
       }, false);
 
       const fov = 60;
-      const aspect = 1920 / 1080;
+      const aspect = window.innerWidth / window.innerHeight;
       const near = 0.1;
       const far = 1000.0;
       this._camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-      this._camera.position.set(0, 10, -30);
-      this.pointLook = {x: 0, y:10, z:50}
+      this._camera.position.set(0, 8, -20);
+      this.pointLook = {x: 0, y:8, z:50}
       this._camera.lookAt(this.pointLook.x, this.pointLook.y, this.pointLook.z);
+      this._camera.updateWorldMatrix( true, false );
+
 
 
       /*gui.add(this._camera.position, 'x', -100, 100);
@@ -89,8 +91,7 @@ class World{
       const axesHelper = new THREE.AxesHelper( 5 );
       this._scene.add( axesHelper );
 
-      this._bubble = new SpeechBubble(this._camera, "Herzlich Willkommen");
-      this._bubble.moveBubble(new THREE.Vector3(0, 0, 0));
+      this._bubble = new SpeechBubble(this._camera, "Herzlich Willkommen!", new THREE.Vector3(0, 5, 0));
       this._LoadAnimatedModel()
       this._RAF();
 
@@ -164,7 +165,7 @@ class World{
         this._camera.aspect = window.innerWidth / window.innerHeight;
         this._camera.updateProjectionMatrix();
         this._threejs.setSize(window.innerWidth, window.innerHeight);
-        this._bubble.moveBubble(new Vector3(0,0,0));
+        this._bubble.moveBubble(new THREE.Vector3(0,5,0));
       }
 
 

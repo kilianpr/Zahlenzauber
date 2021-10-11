@@ -11,49 +11,52 @@ body {
     position:absolute;
     top:0;
     left:0;
-    font-size: large;
-    user-select: none;  
+    user-select: none; 
 }
 
 .bubble
 {
-position: absolute;
-width: 250px;
-height: 120px;
-padding: 0px;
-background: #FFFFFF;
--webkit-border-radius: 10px;
--moz-border-radius: 10px;
-border-radius: 10px;
-border: #7F7F7F solid 4px;
+    text-align: center;
+    position: absolute;
+    box-sizing: border-box;
+    padding: 0px;
+    background: #FFFFFF;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    border: #7F7F7F solid 3px;
 }
 
 .bubble:after
 {
-content: '';
-position: absolute;
-border-style: solid;
-border-width: 15px 15px 15px 0;
-border-color: transparent #FFFFFF;
-display: block;
-width: 0;
-z-index: 1;
-margin-top: -15px;
-left: -15px;
-top: 50%;
+    content: '';
+    position: absolute;
+    border-style: solid;
+    border-width: 0 15px 15px;
+    border-color: #FFFFFF transparent;
+    display: block;
+    width: 0;
+    z-index: 1;
+    top: -15px;
+    left: 50%;
 }
 
 .bubble:before
 {
-content: '';
-position: absolute;
-border-style: solid;
-border-width: 18px 18px 18px 0;
-border-color: transparent #7F7F7F;
-display: block;
-width: 0;
-z-index: 0;
-margin-top: -18px;
-left: -22px;
-top: 50%;
+    content: '';
+    position: absolute;
+    border-style: solid;
+    border-width: 0 17px 17px;
+    border-color: #7F7F7F transparent;
+    display: block;
+    width: 0;
+    z-index: 0;
+    top: -20px;
+    left: 50%;
+}
+
+.text
+{
+    padding: 1em;
+    font-size: 2em;
 }
