@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+const TWEEN = require('@tweenjs/tween.js');
 import * as dat from 'dat.gui';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
@@ -6,12 +7,12 @@ import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader.js';
 import {ParticleSystem} from './particles.js';
 import {BasicCharacterController} from '/src/controller.js';
 import {Portal} from './portal.js';
-import {SpeechBubble} from './welcome.js';
+import {SpeechBubble, LoadingScreen} from './welcome.js';
 
 import '/src/base.css';
 import bricksText from '/res/room/blue-bricks.jpg';
 import floorText from '/res/room/floorText.jpg';
-import { Box3} from 'three';
+import {Box3} from 'three';
 
 
 
@@ -47,8 +48,8 @@ class World{
       const near = 0.1;
       const far = 1000.0;
       this._camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-      this._camera.position.set(0, 8, -20);
-      this.pointLook = {x: 0, y:8, z:50}
+      this._camera.position.set(0, 200, -10);
+      this.pointLook = {x: 0, y:0, z:0}
       this._camera.lookAt(this.pointLook.x, this.pointLook.y, this.pointLook.z);
       this._camera.updateWorldMatrix( true, false );
 
@@ -66,8 +67,8 @@ class World{
 
       //this._threejs.shadowMap.enabled = true;
       
-      this._light = new THREE.DirectionalLight(0xfff5b6, 1, 100);
-      this._light.position.set(50, 50, -50);
+      this._light = new THREE.DirectionalLight(0xfff5b6, 0.5);
+      this._light.position.set(50, 50, -20);
       this._scene.add(this._light);
 
       //const controls = new OrbitControls(
@@ -77,7 +78,7 @@ class World{
 
       this._BuildRoom();
 
-      this._particlesLeft = new ParticleSystem({
+      /*this._particlesLeft = new ParticleSystem({
         parent: this._scene,
         camera: this._camera,
         centerPos: new THREE.Vector3(44, 0, 44)
@@ -86,16 +87,43 @@ class World{
         parent: this._scene,
         camera: this._camera,
         centerPos: new THREE.Vector3(-44, 0, 44)
-      });
+      });*/
 
       const axesHelper = new THREE.AxesHelper( 5 );
       this._scene.add( axesHelper );
 
-      this._bubble = new SpeechBubble(this._camera, "Herzlich Willkommen!", new THREE.Vector3(0, 5, 0));
+      this._Interact();
       this._LoadAnimatedModel()
       this._RAF();
 
+      
     }
+
+
+    _Interact(){
+      this._loadingScreen = new LoadingScreen();
+      this._bubble = new SpeechBubble(this._camera, "Herzlich Willkommen!", new THREE.Vector3(0, 5, 0));
+      const parent = this;
+      THREE.DefaultLoadingManager.onLoad = function() {
+        parent._loadingScreen.remove();
+        const coords = { x: parent._camera.position.x, y: parent._camera.position.y, z: parent._camera.position.z, 
+          xLook: parent.pointLook.x, yLook: parent.pointLook.y, zLook: parent.pointLook.z };
+        new TWEEN.Tween(coords)
+        .to({ x: 0, y: 8, z: -20, xLook:0, yLook:8, zLook: 50}, 3000)
+        .onComplete(function(){
+          parent._bubble.show();
+        })
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .onUpdate(() =>{
+          parent._camera.position.set(coords.x, coords.y, coords.z),
+          parent._camera.lookAt(coords.xLook, coords.yLook, coords.zLook);
+        }
+        )
+        .delay(2000)
+        .start();
+      };
+    }
+
 
 
     //builds a room with 4 walls
@@ -165,7 +193,7 @@ class World{
         this._camera.aspect = window.innerWidth / window.innerHeight;
         this._camera.updateProjectionMatrix();
         this._threejs.setSize(window.innerWidth, window.innerHeight);
-        this._bubble.moveBubble(new THREE.Vector3(0,5,0));
+        this._bubble.move(new THREE.Vector3(0,5,0));
       }
 
 
@@ -190,6 +218,7 @@ class World{
           this._threejs.render(this._scene, this._camera);
           this._Step(t - this._previousRAF);
           this._previousRAF = t;
+          TWEEN.update(t);
         });
       }
 
@@ -204,8 +233,8 @@ class World{
           this._controls.Update(timeElapsedS);
         }
 
-        this._particlesLeft.Step(timeElapsedS);
-        this._particlesRight.Step(timeElapsedS);
+        //this._particlesLeft.Step(timeElapsedS);
+        //this._particlesRight.Step(timeElapsedS);
 
         //supresses error message since this may be called before the model is actually loaded causing a NullPointerException
         try{

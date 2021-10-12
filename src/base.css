@@ -25,6 +25,8 @@ body {
     -moz-border-radius: 10px;
     border-radius: 10px;
     border: #7F7F7F solid 3px;
+    opacity: 0;
+    transition: opacity 1s;
 }
 
 .bubble:after
@@ -55,8 +57,18 @@ body {
     left: 50%;
 }
 
-.text
-{
+.text{
     padding: 1em;
     font-size: 2em;
+}
+
+.loading{
+    height: 100vh;
+    width: 100vw;
+    background-color: black;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 1;
+    transition: opacity 2s; 
 }
