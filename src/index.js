@@ -92,8 +92,8 @@ class World{
       const axesHelper = new THREE.AxesHelper( 5 );
       this._scene.add( axesHelper );
 
-      this._Interact();
       this._LoadAnimatedModel()
+      this._Interact();
       this._RAF();
 
       
@@ -109,9 +109,10 @@ class World{
         const coords = { x: parent._camera.position.x, y: parent._camera.position.y, z: parent._camera.position.z, 
           xLook: parent.pointLook.x, yLook: parent.pointLook.y, zLook: parent.pointLook.z };
         new TWEEN.Tween(coords)
-        .to({ x: 0, y: 8, z: -20, xLook:0, yLook:8, zLook: 50}, 3000)
+        .to({ x: 0, y: 12, z: -20, xLook:0, yLook:12, zLook: 50}, 3000)
         .onComplete(function(){
           parent._bubble.show();
+          parent._controls.wave();
         })
         .easing(TWEEN.Easing.Quadratic.Out)
         .onUpdate(() =>{
@@ -119,7 +120,7 @@ class World{
           parent._camera.lookAt(coords.xLook, coords.yLook, coords.zLook);
         }
         )
-        .delay(2000)
+        .delay(700)
         .start();
       };
     }

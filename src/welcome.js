@@ -8,9 +8,7 @@ class SpeechBubble {
     }
 
     move(position){
-        console.log(position);
         position.project(this._camera);
-        console.log(position);
         const x = (position.x *  .5 + .5) * document.body.clientWidth;
         const y = (position.y * -.5 + .5) * document.body.clientHeight;
         this._element.style.transform = `translate(-50%, -50%) translate(${x}px,${y}px)`;  

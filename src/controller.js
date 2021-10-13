@@ -87,8 +87,55 @@ class BasicCharacterController {
             loader.load(run, (a) => {_OnLoad('run', a);});
             loader.load(runbackwards, (a) => {_OnLoad('runbackwards', a);});
             loader.load(jump, (a) => {_OnLoad('jump', a);});
+            loader.load(wave, (a) => {_OnLoad('wave', a);});
         });
     }
+
+
+    _setKeysTrue(keys){
+      Object.keys(this._input._keys).forEach((key)=>{
+        if (keys.includes(key)){
+          if (!this._input._keys[key]){
+            this._input._keys[key] = true;
+            console.log(this._input._keys);
+          }
+        }
+        else{
+          this._input._keys[key] = false;
+        }
+      })
+    }
+
+    idle(){
+      this._setKeysTrue([]);
+    }
+
+    walk(){
+      this._setKeysTrue(["forward"]);
+    }
+
+
+    run(){
+      this._setKeysTrue(["forward", "shift"]);
+    }
+
+    walkbackwards(){
+      this._setKeysTrue(["backward"]);
+    }
+
+    runbackwards(){
+      this._setKeysTrue(["backward", "shift"]);
+    }
+
+    jump(){
+      this._setKeysTrue(["space"]);
+    }
+
+    wave(){
+      this._setKeysTrue(["wave"]);
+    }
+
+
 
     Update(timeInSeconds) {
         if (!this._target || !this._stateMachine._currentState) {
@@ -186,7 +233,13 @@ class BasicCharacterControllerInput {
         right: false,
         space: false,
         shift: false,
+        wave: false
       };
+    }
+
+
+
+    _startInput(){
       document.addEventListener('keydown', (e) => this._onKeyDown(e), false);
       document.addEventListener('keyup', (e) => this._onKeyUp(e), false);
     }
@@ -216,6 +269,9 @@ class BasicCharacterControllerInput {
         case "ShiftRight": //SHIFT Right
           this._keys.shift = true;
           break;
+        case "KeyH": // h
+          this._keys.wave = true;
+          break;
       }
     }
   
@@ -243,6 +299,9 @@ class BasicCharacterControllerInput {
         case "ShiftLeft": // SHIFT Left
         case "ShiftRight": //SHIFT Right
           this._keys.shift = false;
+          break;
+        case "KeyH": // h
+          this._keys.wave = false;
           break;
       }
     }
@@ -297,6 +356,7 @@ _Init() {
     this._AddState('run', RunState);
     this._AddState('runbackwards', RunbackwardsState);
     this._AddState('jump', JumpState);
+    this._AddState('wave', WaveState);
 }
 }
 
@@ -431,9 +491,11 @@ class IdleState extends State {
 
     Update(timeElapsed, input){
         if (input._keys.forward) {
-            this._parent.SetState('walk');
+          this._parent.SetState('walk');
         } else if (input._keys.backward) {
-            this._parent.SetState('walkbackwards');
+          this._parent.SetState('walkbackwards');
+        } else if (input._keys.wave) {
+          this._parent.SetState('wave');
         }
         if (input._keys.space){
           this._parent.SetState('jump');
@@ -552,6 +614,8 @@ class JumpState extends State{
   }
 
   Enter(prevState){
+    console.log("jump")
+    this._parent._proxy._input._keys.space = false;
     const curAction = this._parent._proxy._animations['jump'].action;
     const mixer = curAction.getMixer();
     mixer.addEventListener('finished', this._FinishedCallback);
@@ -589,6 +653,73 @@ class JumpState extends State{
 
   _Cleanup() {
     const action = this._parent._proxy._animations['jump'].action;
+    
+    action.getMixer().removeEventListener('finished', this._CleanupCallback);
+  }
+
+  Exit() {
+    this._Cleanup();
+  }
+
+  Update(_){
+
+  }
+}
+
+
+class WaveState extends State{
+
+  constructor(parent){
+    super(parent);
+
+    this._FinishedCallback = () => {
+      this._Finished();
+    }
+  }
+
+  get Name(){
+    return 'wave';
+  }
+
+  Enter(prevState){
+    this._parent._proxy._input._keys.wave = false;
+    const curAction = this._parent._proxy._animations['wave'].action;
+    const mixer = curAction.getMixer();
+    mixer.addEventListener('finished', this._FinishedCallback);
+
+    if(prevState){
+      const prevAction = this._parent._proxy._animations[prevState.Name].action;
+      
+      curAction.reset();  
+      curAction.setLoop(THREE.LoopOnce, 1);
+      curAction.clampWhenFinished = true;
+      curAction.crossFadeFrom(prevAction, 1, true);
+    }
+    curAction.play();
+  }
+
+  _Finished() {
+    this._Cleanup();
+    if (this._parent._proxy._input._keys.forward){
+      if(this._parent._proxy._input._keys.shift){
+        this._parent.SetState('run');
+        return;
+      }
+      this._parent.SetState('walk');
+    } else if (this._parent._proxy._input._keys.backward){
+        if(this._parent._proxy._input._keys.shift){
+          this._parent.SetState('runbackwards');
+          return;
+        }
+      this._parent.SetState('walkbackwards');
+    }
+    else{
+      this._parent.SetState('idle');
+    }
+  }
+
+  _Cleanup() {
+    const action = this._parent._proxy._animations['wave'].action;
     
     action.getMixer().removeEventListener('finished', this._CleanupCallback);
   }
