@@ -1,3 +1,13 @@
+:root{
+    --fs-large: 6rem;
+    --fs-medium: 4rem;
+    --fs-small: 2rem;
+}
+
+html {
+    font-size: 10px;
+}
+
 body {
     display: relative;
     width: 100%;
@@ -58,8 +68,8 @@ body {
 }
 
 .text{
+    font-size: var(--fs-medium);
     padding: 1em;
-    font-size: 2em;
 }
 
 .loading{
@@ -72,3 +82,20 @@ body {
     opacity: 1;
     transition: opacity 2s; 
 }
+
+.interact-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: var(--fs-medium);
+    padding: .5em 1em;
+}
+
+
+.interact img{
+    width: var(--fs-large);
+    display: block;
+}
+
+
+

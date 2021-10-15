@@ -135,6 +135,10 @@ class BasicCharacterController {
       this._setKeysTrue(["wave"]);
     }
 
+    getPosition(){
+      return this._target.position;
+    }
+
 
 
     Update(timeInSeconds) {
@@ -163,10 +167,6 @@ class BasicCharacterController {
     
         const acc = this._acceleration.clone();
   
-        if (this._stateMachine._currentState.Name == 'spell') {
-          acc.multiplyScalar(0.0);
-        } 
-  
         if (this._input._keys.shift) {
           acc.multiplyScalar(2.0);
         }
@@ -178,12 +178,12 @@ class BasicCharacterController {
           velocity.z -= acc.z * timeInSeconds;
         }
   
-        if (this._input._keys.left && this._stateMachine._currentState.Name !== 'spell') {
+        if (this._input._keys.left) {
           _A.set(0, 1, 0);
           _Q.setFromAxisAngle(_A, 4.0 * Math.PI * timeInSeconds * this._acceleration.y);
           _R.multiply(_Q);
         }
-        if (this._input._keys.right && this._stateMachine._currentState.Name !== 'spell') {
+        if (this._input._keys.right) {
           _A.set(0, 1, 0);
           _Q.setFromAxisAngle(_A, 4.0 * -Math.PI * timeInSeconds * this._acceleration.y);
           _R.multiply(_Q);

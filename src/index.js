@@ -102,10 +102,11 @@ class World{
 
     _Interact(){
       this._loadingScreen = new LoadingScreen();
-      this._bubble = new SpeechBubble(this._camera, "Herzlich Willkommen!", new THREE.Vector3(0, 5, 0));
+      this._bubble = new SpeechBubble(this._camera, ["Herzlich Willkommen!", "Ich bin Falk, der Zahlenzauberer"], new THREE.Vector3(0, 5, 0));
       const parent = this;
       THREE.DefaultLoadingManager.onLoad = function() {
         parent._loadingScreen.remove();
+        console.log(parent._controls.getPosition())
         const coords = { x: parent._camera.position.x, y: parent._camera.position.y, z: parent._camera.position.z, 
           xLook: parent.pointLook.x, yLook: parent.pointLook.y, zLook: parent.pointLook.z };
         new TWEEN.Tween(coords)
