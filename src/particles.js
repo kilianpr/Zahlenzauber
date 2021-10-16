@@ -194,6 +194,7 @@ class ParticleSystem {
   }
 
   _UpdateParticles(timeElapsed) {
+    console.log("updateParticles")
     for (let p of this._particles) {
       p.life -= timeElapsed;
     }

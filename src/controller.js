@@ -11,6 +11,7 @@ import runbackwards from '/res/anim/runbackwards.fbx';
 import jump from '/res/anim/jump.fbx';
 import wave from '/res/anim/wave.fbx';
 import idle2 from '/res/anim/idle2.fbx';
+import spell from '/res/anim/spell.fbx';
 
 class BasicCharacterControllerProxy {
     constructor(animations, target, input) {
@@ -88,6 +89,7 @@ class BasicCharacterController {
             loader.load(runbackwards, (a) => {_OnLoad('runbackwards', a);});
             loader.load(jump, (a) => {_OnLoad('jump', a);});
             loader.load(wave, (a) => {_OnLoad('wave', a);});
+            loader.load(spell, (a) => {_OnLoad('spell', a);});
         });
     }
 
@@ -133,6 +135,10 @@ class BasicCharacterController {
 
     wave(){
       this._setKeysTrue(["wave"]);
+    }
+
+    spell(){
+      this._setKeysTrue(["spell"]);
     }
 
     getPosition(){
@@ -233,7 +239,8 @@ class BasicCharacterControllerInput {
         right: false,
         space: false,
         shift: false,
-        wave: false
+        wave: false,
+        spell: false
       };
     }
 
@@ -308,14 +315,14 @@ class BasicCharacterControllerInput {
   }
 
 class FiniteStateMachine {
-constructor() {
-    this._states = {};
-    this._currentState = null;
-}
+  constructor() {
+      this._states = {};
+      this._currentState = null;
+  }
 
-_AddState(name, type) {
-    this._states[name] = type;
-}
+  _AddState(name, type) {
+      this._states[name] = type;
+  }
 
 SetState(name) {
     const prevState = this._currentState;
@@ -357,6 +364,7 @@ _Init() {
     this._AddState('runbackwards', RunbackwardsState);
     this._AddState('jump', JumpState);
     this._AddState('wave', WaveState);
+    this._AddState('spell', SpellState);
 }
 }
 
@@ -405,7 +413,7 @@ class WalkState extends State {
         this._parent.SetState('jump');
       }
 
-      if(input._keys.forward){
+      else if(input._keys.forward){
         if(input._keys.shift){
           this._parent.SetState('run');
         }
@@ -496,6 +504,8 @@ class IdleState extends State {
           this._parent.SetState('walkbackwards');
         } else if (input._keys.wave) {
           this._parent.SetState('wave');
+        } else if (input._keys.spell){
+          this._parent.SetState('spell');
         }
         if (input._keys.space){
           this._parent.SetState('jump');
@@ -720,6 +730,74 @@ class WaveState extends State{
 
   _Cleanup() {
     const action = this._parent._proxy._animations['wave'].action;
+    
+    action.getMixer().removeEventListener('finished', this._CleanupCallback);
+  }
+
+  Exit() {
+    this._Cleanup();
+  }
+
+  Update(_){
+
+  }
+
+}
+
+
+class SpellState extends State{
+
+  constructor(parent){
+    super(parent);
+
+    this._FinishedCallback = () => {
+      this._Finished();
+    }
+  }
+
+  get Name(){
+    return 'spell';
+  }
+
+  Enter(prevState){
+    this._parent._proxy._input._keys.spell = false;
+    const curAction = this._parent._proxy._animations['spell'].action;
+    const mixer = curAction.getMixer();
+    mixer.addEventListener('finished', this._FinishedCallback);
+
+    if(prevState){
+      const prevAction = this._parent._proxy._animations[prevState.Name].action;
+      
+      curAction.reset();  
+      curAction.setLoop(THREE.LoopOnce, 1);
+      curAction.clampWhenFinished = true;
+      curAction.crossFadeFrom(prevAction, 1, true);
+    }
+    curAction.play();
+  }
+
+  _Finished() {
+    this._Cleanup();
+    if (this._parent._proxy._input._keys.forward){
+      if(this._parent._proxy._input._keys.shift){
+        this._parent.SetState('run');
+        return;
+      }
+      this._parent.SetState('walk');
+    } else if (this._parent._proxy._input._keys.backward){
+        if(this._parent._proxy._input._keys.shift){
+          this._parent.SetState('runbackwards');
+          return;
+        }
+      this._parent.SetState('walkbackwards');
+    }
+    else{
+      this._parent.SetState('idle');
+    }
+  }
+
+  _Cleanup() {
+    const action = this._parent._proxy._animations['spell'].action;
     
     action.getMixer().removeEventListener('finished', this._CleanupCallback);
   }

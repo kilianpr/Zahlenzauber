@@ -7,7 +7,7 @@ import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader.js';
 import {ParticleSystem} from './particles.js';
 import {BasicCharacterController} from '/src/controller.js';
 import {Portal} from './portal.js';
-import {SpeechBubble, LoadingScreen} from './welcome.js';
+import {SpeechBubble, LoadingScreen, Message} from './welcome.js';
 
 import '/src/base.css';
 import bricksText from '/res/room/blue-bricks.jpg';
@@ -65,29 +65,17 @@ class World{
 
       this._scene = new THREE.Scene();
 
-      //this._threejs.shadowMap.enabled = true;
+      this._threejs.shadowMap.enabled = true;
       
       this._light = new THREE.DirectionalLight(0xfff5b6, 0.5);
       this._light.position.set(50, 50, -20);
       this._scene.add(this._light);
 
-      //const controls = new OrbitControls(
-      //    this._camera, this._threejs.domElement);
-      //controls.target.set(0, 0, 0);
-      //controls.update();
+      this.controls = new OrbitControls(
+          this._camera, document.body);
 
       this._BuildRoom();
 
-      /*this._particlesLeft = new ParticleSystem({
-        parent: this._scene,
-        camera: this._camera,
-        centerPos: new THREE.Vector3(44, 0, 44)
-      });
-      this._particlesRight = new ParticleSystem({
-        parent: this._scene,
-        camera: this._camera,
-        centerPos: new THREE.Vector3(-44, 0, 44)
-      });*/
 
       const axesHelper = new THREE.AxesHelper( 5 );
       this._scene.add( axesHelper );
@@ -95,14 +83,20 @@ class World{
       this._LoadAnimatedModel()
       this._Interact();
       this._RAF();
-
       
     }
 
 
     _Interact(){
       this._loadingScreen = new LoadingScreen();
-      this._bubble = new SpeechBubble(this._camera, ["Herzlich Willkommen!", "Ich bin Falk, der Zahlenzauberer"], new THREE.Vector3(0, 5, 0));
+      this._bubble = new SpeechBubble(
+        this._camera, [
+          new Message("Herzlich Willkommen!", () => {this._controls.wave()}), 
+          new Message("Ich bin Falk, </br> der Zahlenzauberer. Ja lol ey. Why not actually?", () => {
+            this._controls.spell();
+            this._makeFire();
+          })], 
+        new THREE.Vector3(0, 5, 0));
       const parent = this;
       THREE.DefaultLoadingManager.onLoad = function() {
         parent._loadingScreen.remove();
@@ -187,7 +181,18 @@ class World{
       }
 
 
-         
+    _makeFire(){
+      this._particlesLeft = new ParticleSystem({
+        parent: this._scene,
+        camera: this._camera,
+        centerPos: new THREE.Vector3(44, 0, 44)
+      });
+      this._particlesRight = new ParticleSystem({
+        parent: this._scene,
+        camera: this._camera,
+        centerPos: new THREE.Vector3(-44, 0, 44)
+      });
+    }
 
 
       //updates the camera and renderer size
@@ -213,7 +218,6 @@ class World{
           if (this._previousRAF === null) {
             this._previousRAF = t;
           }
-          
           this._RAF();
           
           
@@ -235,8 +239,13 @@ class World{
           this._controls.Update(timeElapsedS);
         }
 
-        //this._particlesLeft.Step(timeElapsedS);
-        //this._particlesRight.Step(timeElapsedS);
+
+        if (this._particlesLeft && this._particlesRight){
+          this._particlesLeft.Step(timeElapsedS);
+          this._particlesRight.Step(timeElapsedS);
+          //console.log("Update")
+        }
+        
 
         //supresses error message since this may be called before the model is actually loaded causing a NullPointerException
         try{

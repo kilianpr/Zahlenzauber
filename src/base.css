@@ -1,6 +1,6 @@
 :root{
-    --fs-large: 6rem;
-    --fs-medium: 4rem;
+    --fs-large: 4rem;
+    --fs-medium: 3rem;
     --fs-small: 2rem;
 }
 
@@ -26,6 +26,7 @@ body {
 
 .bubble
 {
+    max-width: 33%;
     text-align: center;
     position: absolute;
     box-sizing: border-box;
@@ -70,6 +71,7 @@ body {
 .text{
     font-size: var(--fs-medium);
     padding: 1em;
+    white-space: pre-wrap;
 }
 
 .loading{
@@ -88,13 +90,18 @@ body {
     flex-direction: row;
     justify-content: space-between;
     font-size: var(--fs-medium);
-    padding: .5em 1em;
+    padding: 0 1em .5em 1em;
 }
 
 
 .interact img{
     width: var(--fs-large);
     display: block;
+    cursor: pointer;
+}
+
+.interact img:hover{
+    filter: invert();
 }
 
 

@@ -38,7 +38,7 @@ class SpeechBubble {
 
         this._element.classList.add("overlay", "bubble");
         this._textDiv.classList.add("text");
-        this._textDiv.textContent = this._content[this._currentContent];
+        this._textDiv.innerHTML = this._content[this._currentContent].text;
         interactDiv.classList.add("interact-container");
         lastDiv.classList.add("interact");
         nextDiv.classList.add("interact");
@@ -51,10 +51,11 @@ class SpeechBubble {
     nextContent(){
         parent = this;
         if (this._currentContent < this._content.length -1){
+            parent._currentContent += 1
             this._element.style.opacity="0";
             setTimeout(function(){
-                parent._currentContent += 1
-                parent._textDiv.textContent = parent._content[parent._currentContent];
+                parent._textDiv.innerHTML = parent._content[parent._currentContent].text;
+                parent._content[parent._currentContent].action();
                 parent._element.style.opacity="1";
             }, 1100);
         }
@@ -63,10 +64,11 @@ class SpeechBubble {
     lastContent(){
         parent = this;
         if (this._currentContent > 0){
+            parent._currentContent -= 1
             this._element.style.opacity="0";
             setTimeout(function(){
-                parent._currentContent -= 1
-                parent._textDiv.textContent = parent._content[parent._currentContent];
+                parent._textDiv.innerHTML = parent._content[parent._currentContent].text;
+                parent._content[parent._currentContent].action();
                 parent._element.style.opacity="1";
             }, 1100);
         }
@@ -95,4 +97,12 @@ class LoadingScreen {
 
 }
 
-export{SpeechBubble, LoadingScreen};
+
+class Message{
+    constructor(text, action){
+        this.text = text;
+        this.action = action;
+    }
+}
+
+export{SpeechBubble, LoadingScreen, Message};
