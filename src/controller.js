@@ -145,6 +145,14 @@ class BasicCharacterController {
       return this._target.position;
     }
 
+    isReady(){
+      return (this._target ? true : false);
+    }
+
+    enableControls(){
+      this._input._startInput();
+    }
+
 
 
     Update(timeInSeconds) {

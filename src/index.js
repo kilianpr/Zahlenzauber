@@ -103,6 +103,7 @@ class World{
           new Message("Herzlich Willkommen!", () => {this._controls.wave()}, false), 
           new Message("Ich bin Falk, </br> der Zahlenzauberer. Ja lol ey. Why not actually?", () => {
             this._controls.spell();
+            this._controls.enableControls();
             setTimeout(() => {
               parent._particlesLeft.show();
               parent._particlesRight.show();
@@ -236,6 +237,11 @@ class World{
             this._previousRAF = t;
           }
           this._RAF();
+
+          if (this._controls.isReady()){
+            let position = new THREE.Vector3(this._controls.getPosition().x,this._controls.getPosition().y+5, this._controls.getPosition().z);
+            this._bubble.move(position);
+          }
                     
           this._threejs.render(this._scene, this._camera);
           this._Step(t - this._previousRAF);

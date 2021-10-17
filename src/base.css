@@ -15,6 +15,7 @@ body {
     margin: 0;
     padding: 0;
     overscroll-behavior: none;
+    overflow: hidden;
 }
 
 .overlay{
@@ -38,6 +39,7 @@ body {
     border: #7F7F7F solid 3px;
     opacity: 0;
     transition: opacity 1s;
+    overflow: none;
 }
 
 .bubble:after
