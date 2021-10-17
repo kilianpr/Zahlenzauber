@@ -1,6 +1,7 @@
 import fire from '/res/particles/fire.png'
 import * as THREE from 'three';
 import watertexture from '/res/particles/water.png'
+import * as TWEEN from '@tweenjs/tween.js';
 
 
 const _VS = `
@@ -64,6 +65,7 @@ class LinearSpline {
 
 class ParticleSystem {
   constructor(params) {
+    this.visible = false;
     const uniforms = {
         diffuseTexture: {
             value: new THREE.TextureLoader().load(fire)
@@ -74,11 +76,14 @@ class ParticleSystem {
     };
 
     this._centerPos = params.centerPos;
+    this._camera = params.camera;
+    this._scene = params.scene;
 
-    let light = new THREE.PointLight(0xe25822, 1, 100);
-    light.position.set(this._centerPos.x, this._centerPos.y, this._centerPos.z);
-    params.parent.add(light);
-    console.log("Added light")
+    this._light = new THREE.PointLight(0xe25822, 0, 100);
+    this._light.position.set(this._centerPos.x, this._centerPos.y, this._centerPos.z);
+    this._scene.add(this._light);
+
+
 
     this._material = new THREE.ShaderMaterial({
         uniforms: uniforms,
@@ -91,7 +96,6 @@ class ParticleSystem {
         vertexColors: true
     });
 
-    this._camera = params.camera;
     this._particles = [];
 
     this._geometry = new THREE.BufferGeometry();
@@ -102,7 +106,7 @@ class ParticleSystem {
 
     this._points = new THREE.Points(this._geometry, this._material);
 
-    params.parent.add(this._points);
+    this._scene.add(this._points);
 
     this._alphaSpline = new LinearSpline((t, a, b) => {
       return a + t * (b - a);
@@ -125,19 +129,19 @@ class ParticleSystem {
     this._sizeSpline.AddPoint(0.0, 1.0);
     this._sizeSpline.AddPoint(0.5, 5.0);
     this._sizeSpline.AddPoint(1.0, 1.0);
-
-    document.addEventListener('keyup', (e) => this._onKeyUp(e), false);
   
     this._UpdateGeometry();
   }
 
-  _onKeyUp(event) {
-    switch(event.keyCode) {
-      case 32: // SPACE
-        this._AddParticles();
-        break;
-    }
+  show() {
+    this.visible = true;
+    new TWEEN.Tween(this._light)
+    .to({intensity: 5}, 2000)
+    .easing(TWEEN.Easing.Quadratic.Out)
+    .start();
+    
   }
+
 
   _AddParticles(timeElapsed) {
     if (!this.gdfsghk) {
@@ -166,6 +170,7 @@ class ParticleSystem {
   }
 
   _UpdateGeometry() {
+    this._geometry.computeBoundingSphere(); //fixed not rendering of particles at certain angles
     const positions = [];
     const sizes = [];
     const colours = [];
@@ -194,7 +199,6 @@ class ParticleSystem {
   }
 
   _UpdateParticles(timeElapsed) {
-    console.log("updateParticles")
     for (let p of this._particles) {
       p.life -= timeElapsed;
     }
@@ -220,21 +224,6 @@ class ParticleSystem {
       drag.z = Math.sign(p.velocity.z) * Math.min(Math.abs(drag.z), Math.abs(p.velocity.z));
       p.velocity.sub(drag);
     }
-
-    this._particles.sort((a, b) => {
-      const d1 = this._camera.position.distanceTo(a.position);
-      const d2 = this._camera.position.distanceTo(b.position);
-
-      if (d1 > d2) {
-        return -1;
-      }
-
-      if (d1 < d2) {
-        return 1;
-      }
-
-      return 0;
-    });
   }
 
   Step(timeElapsed) {
@@ -242,6 +231,10 @@ class ParticleSystem {
     this._UpdateParticles(timeElapsed);
     this._UpdateGeometry();
   }
+
+
+
+
 }
 
 export {ParticleSystem};

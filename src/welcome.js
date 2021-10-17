@@ -49,29 +49,30 @@ class SpeechBubble {
     }
 
     nextContent(){
-        parent = this;
         if (this._currentContent < this._content.length -1){
-            parent._currentContent += 1
-            this._element.style.opacity="0";
-            setTimeout(function(){
-                parent._textDiv.innerHTML = parent._content[parent._currentContent].text;
-                parent._content[parent._currentContent].action();
-                parent._element.style.opacity="1";
-            }, 1100);
+            this._currentContent += 1
+            this.changeContentAndAnimate(this);
         }
     }
 
     lastContent(){
         parent = this;
         if (this._currentContent > 0){
-            parent._currentContent -= 1
-            this._element.style.opacity="0";
-            setTimeout(function(){
-                parent._textDiv.innerHTML = parent._content[parent._currentContent].text;
-                parent._content[parent._currentContent].action();
-                parent._element.style.opacity="1";
-            }, 1100);
+            this._currentContent -= 1
+            this.changeContentAndAnimate(this);
         }
+    }
+
+    changeContentAndAnimate(parent){
+        parent._element.style.opacity="0";
+        setTimeout(function(){
+            parent._textDiv.innerHTML = parent._content[parent._currentContent].text;
+            if ((parent._content[parent._currentContent].unique && !parent._content[parent._currentContent].executed) || !parent._content[parent._currentContent].unique){
+                parent._content[parent._currentContent].action();
+                parent._content[parent._currentContent].executed = true;
+            }
+            parent._element.style.opacity="1";
+        }, 1100);
     }
 
     show(){
@@ -99,9 +100,11 @@ class LoadingScreen {
 
 
 class Message{
-    constructor(text, action){
+    constructor(text, action, unique){
         this.text = text;
         this.action = action;
+        this.unique = unique;
+        this.executed = false;
     }
 }
 
