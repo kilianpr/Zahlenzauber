@@ -19,6 +19,16 @@ varying vec3 vPosition;
   }
 `;
 
+const _SPortalNone = `
+uniform float randomMultiplier;
+uniform float time;
+varying vec2 vUv;
+varying vec3 vPosition;
+  void main(){
+
+  }
+`
+
 const _FSPortal = `
 uniform float time;
 uniform sampler2D myTexture;
@@ -64,6 +74,11 @@ class Portal{
         
         );
     }
+
+    showAnimation(){
+      this._animation.visible = true;
+    }
+    
 }
 
 
@@ -72,6 +87,7 @@ class Animation{
     constructor(parent, width, height, positionX, positionY, positionZ){
         this._geometry = new THREE.PlaneGeometry(width, height, 100, 100);
 
+        this.visible = false;
 
     const uniforms = {
       myTexture: {
@@ -85,11 +101,10 @@ class Animation{
 
     this._material = new THREE.ShaderMaterial({
       uniforms: uniforms,
-      vertexShader: _VSPortal,
-      fragmentShader: _FSPortal,
       side: THREE.DoubleSide,
+      fragmentShader: _FSPortal,
+      vertexShader: _VSPortal,
       shadowSide: THREE.DoubleSide,
-      transparent: true,
       blending: THREE.NormalBlending,
     })
     this._plane = new THREE.Mesh(this._geometry, this._material);

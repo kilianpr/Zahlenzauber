@@ -63,7 +63,7 @@ class LinearSpline {
 }
 
 
-class ParticleSystem {
+class Fire {
   constructor(params) {
     this.visible = false;
     const uniforms = {
@@ -148,17 +148,17 @@ class ParticleSystem {
       this.gdfsghk = 0.0;
     }
     this.gdfsghk += timeElapsed;
-    const n = Math.floor(this.gdfsghk * 75.0);
-    this.gdfsghk -= n / 75.0;
+    const n = Math.floor(this.gdfsghk * 45.0);
+    this.gdfsghk -= n / 45.0;
 
     for (let i = 0; i < n; i++) {
-      const life = (Math.random() * 0.75 + 0.25) * 2.0;
+      const life = (Math.random() * 0.75 + 0.25) * 1.0;
       this._particles.push({
           position: new THREE.Vector3(
               (Math.random() * 2 - 1) * 1.0 + this._centerPos.x, //adds x-coordinate given in constructor
               (Math.random() * 2 - 1) * 1.0 + this._centerPos.y, //adds y-coordinate given in constructor
               (Math.random() * 2 - 1) * 1.0 + this._centerPos.z), //adds z-coordinate given in constructor
-          size: (Math.random() * 0.5 + 0.5) * 4.0,
+          size: (Math.random() * 0.5 + 0.5) * (window.innerHeight)/250,
           colour: new THREE.Color(),
           alpha: 1.0,
           life: life,
@@ -231,10 +231,6 @@ class ParticleSystem {
     this._UpdateParticles(timeElapsed);
     this._UpdateGeometry();
   }
-
-
-
-
 }
 
-export {ParticleSystem};
+export {Fire};
