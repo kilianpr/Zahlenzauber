@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import * as dat from 'dat.gui';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader.js';
@@ -36,10 +35,6 @@ class World{
     }
 
     _Initialize(){
-      //const gui = new dat.GUI();
-
-      const parent = this;
-
       this._threejs = new THREE.WebGLRenderer({
           antialias: true,
       });
@@ -58,14 +53,6 @@ class World{
       this._cameraLook = {x: 0, y:0, z:0}
       this._camera.lookAt(this._cameraLook.x, this._cameraLook.y, this._cameraLook.z);
       this._camera.updateWorldMatrix( true, false );
-
-      /*gui.add(this._camera.position, 'x', -100, 100);
-      gui.add(this._camera.position, 'y', -100, 100);
-      gui.add(this._camera.position, 'z', -100, 100);
-      gui.add(this._cameraLook, 'x', -100, 100);
-      gui.add(this._cameraLook, 'y', -100, 100);
-      gui.add(this._cameraLook, 'z', -100, 100);*/
-
       this._scene = new THREE.Scene();
       
       this._light = new THREE.DirectionalLight(0xfff5b6, 0.2);

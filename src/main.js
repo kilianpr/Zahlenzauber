@@ -1,4 +1,5 @@
 import { SpeechBubble, Message, LoadingScreen } from "./welcome";
+import {CamTween} from "./camtween";
 import { World} from "./index";
 import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
@@ -7,6 +8,7 @@ class Main{
 
     _world;
     _previousRAF;
+    _curStatus = 0;
 
     constructor(){
         this.main();
@@ -31,7 +33,7 @@ class Main{
 
     _Interact(){
         this._loadingScreen = new LoadingScreen();
-        this._speechBubble = new SpeechBubble(this._world._camera, new THREE.Vector3(0, 7, 0));
+        this._speechBubble = new SpeechBubble(this._world, new THREE.Vector3(0, 7, 0));
         let message1 = new Message("Herzlich Willkommen!", () => {this._world._controls.wave()}, false, true, false);
         let message2 = new Message("Ich bin Merlin, </br> der Zahlenzauberer.", () => {
                         this._world._controls.spell();
@@ -44,20 +46,7 @@ class Main{
                             this._world._portalC.showAnimation();
                         }, 1000)
                     }, true);
-        let message3 = new Message("Klicke auf Start um loszulegen", () => {
-                        const coords = { x: this._world._camera.position.x, y: this._world._camera.position.y, z: this._world._camera.position.z,
-                                        xLook:0, yLook:12, zLook: 50};
-                        new TWEEN.Tween(coords)
-                        .to({ x: 30, y: 30, z: -40, xlook: 0, ylook: 12, zLook: 50}, 3000)
-                        .easing(TWEEN.Easing.Quadratic.Out)
-                        .onUpdate(() =>{
-                            this._world._camera.position.set(coords.x, coords.y, coords.z)
-                            this._world._camera.lookAt(coords.xLook, coords.yLook, coords.zLook);
-                            this._speechBubble.remove();
-                        })
-                        .delay(700)
-                        .start();
-                        }, false)
+        let message3 = new Message("Klicke auf Start um loszulegen", () => {}, true, false, true)
         this._speechBubble.addMessage(message1);
         this._speechBubble.addMessage(message2);
         this._speechBubble.addMessage(message3);
@@ -111,19 +100,13 @@ class Main{
         const parent = this;
         console.log("onLoad")
         this._loadingScreen.remove();
-        const coords = { x: this._world._camera.position.x, y: this._world._camera.position.y, z: this._world._camera.position.z, 
-          xLook: this._world._cameraLook.x, yLook: this._world._cameraLook.y, zLook: this._world._cameraLook.z };
-        new TWEEN.Tween(coords)
-        .to({ x: 0, y: 12, z: -20, xLook:0, yLook:12, zLook: 50}, 3000)
+        let toPos = new THREE.Vector3(0, 12, -20);
+        let toLook = new THREE.Vector3(0, 12,  50);
+        const tween = new CamTween(this._world, toPos, toLook, 3000).getTween();
+        tween
         .onComplete(function(){
-          parent._speechBubble.firstShow();
-        })
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .onUpdate(() =>{
-          parent._world._camera.position.set(coords.x, coords.y, coords.z),
-          parent._world._camera.lookAt(coords.xLook, coords.yLook, coords.zLook);
-        }
-        )
+                parent._speechBubble.firstShow();
+            })
         .delay(700)
         .start();
       }

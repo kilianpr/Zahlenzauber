@@ -22,12 +22,16 @@ body {
     position:absolute;
     top: 0;
     left: 0;
-    max-width: 33%;
+    width: 40%;
     max-height: 33%;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    padding-left: 1%; 
+    padding-right: 1%;
+    opacity: 1;
+    transition: opacity 1s;
 }
 
 .overlay{
@@ -35,6 +39,7 @@ body {
 }
 
 .bubble{
+    width: 70%;
     text-align: center;
     position: relative;
     box-sizing: border-box;
@@ -96,13 +101,23 @@ body {
 .interact{
     width: var(--fs-large);
     display: block;
-    cursor: pointer;
+    cursor: default;
     opacity: 0;
     transition: opacity 1s;
 }
 
 .interact:hover{
     filter: invert();
+}
+
+.button-txt{
+    border: black solid 2px;
+    background-color: white;
+    font-size: var(--fs-large);
+}
+
+.button-nav{
+    width: 15%;
 }
 
 @media (max-width: 800px){
