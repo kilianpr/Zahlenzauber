@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import * as TWEEN from '@tweenjs/tween.js';
 import * as dat from 'dat.gui';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
@@ -7,7 +6,6 @@ import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader.js';
 import {Fire} from './particles.js';
 import {BasicCharacterController} from '/src/controller.js';
 import {Portal} from './portal.js';
-import {SpeechBubble, LoadingScreen, Message} from './welcome.js';
 
 import '/src/base.css';
 import bricksText from '/res/room/blue-bricks.jpg';

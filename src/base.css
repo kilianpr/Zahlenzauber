@@ -18,18 +18,25 @@ body {
     overflow: hidden;
 }
 
-.overlay{
+.bubble-wrapper{
     position:absolute;
-    top:0;
-    left:0;
+    top: 0;
+    left: 0;
+    max-width: 33%;
+    max-height: 33%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.overlay{
     user-select: none; 
 }
 
-.bubble
-{
-    max-width: 33%;
+.bubble{
     text-align: center;
-    position: absolute;
+    position: relative;
     box-sizing: border-box;
     padding: 0px;
     background: #FFFFFF;
@@ -42,8 +49,7 @@ body {
     overflow: none;
 }
 
-.bubble:after
-{
+.bubble:after{
     content: '';
     position: absolute;
     border-style: solid;
@@ -56,8 +62,7 @@ body {
     left: 50%;
 }
 
-.bubble:before
-{
+.bubble:before{
     content: '';
     position: absolute;
     border-style: solid;
@@ -87,23 +92,23 @@ body {
     transition: opacity 2s; 
 }
 
-.interact-container{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    font-size: var(--fs-medium);
-    padding: 0 1em .5em 1em;
-}
 
-
-.interact img{
+.interact{
     width: var(--fs-large);
     display: block;
     cursor: pointer;
+    opacity: 0;
+    transition: opacity 1s;
 }
 
-.interact img:hover{
+.interact:hover{
     filter: invert();
+}
+
+@media (max-width: 800px){
+    .text{
+        font-size: var(--fs-small) !important;
+    }
 }
 
 

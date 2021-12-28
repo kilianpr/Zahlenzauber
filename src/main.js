@@ -31,7 +31,7 @@ class Main{
 
     _Interact(){
         this._loadingScreen = new LoadingScreen();
-        this._speechBubble = new SpeechBubble(this._world._camera, new THREE.Vector3(0, 5, 0));
+        this._speechBubble = new SpeechBubble(this._world._camera, new THREE.Vector3(0, 7, 0));
         let message1 = new Message("Herzlich Willkommen!", () => {this._world._controls.wave()}, false, true, false);
         let message2 = new Message("Ich bin Merlin, </br> der Zahlenzauberer.", () => {
                         this._world._controls.spell();
@@ -116,7 +116,7 @@ class Main{
         new TWEEN.Tween(coords)
         .to({ x: 0, y: 12, z: -20, xLook:0, yLook:12, zLook: 50}, 3000)
         .onComplete(function(){
-          parent._speechBubble.show();
+          parent._speechBubble.firstShow();
         })
         .easing(TWEEN.Easing.Quadratic.Out)
         .onUpdate(() =>{
@@ -133,7 +133,7 @@ class Main{
         this._world._camera.aspect = window.innerWidth / window.innerHeight;
         this._world._camera.updateProjectionMatrix();
         this._world._threejs.setSize(window.innerWidth, window.innerHeight);
-        this._speechBubble.move(new THREE.Vector3(0,5,0));
+        this._speechBubble.move(new THREE.Vector3(0,7,0));
       }
 }
 
