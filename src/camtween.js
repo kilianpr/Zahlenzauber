@@ -19,7 +19,7 @@ class CamTween{
         const parent = this;
           return new TWEEN.Tween(this._coords)
           .to({ x: this._toPos.x, y: this._toPos.y, z: this._toPos.z, xLook: this._toLook.x, yLook: this._toLook.y, zLook: this._toLook.z}, this._duration)
-          .easing(TWEEN.Easing.Quadratic.Out)
+          .easing(TWEEN.Easing.Sinusoidal.InOut)
           .onUpdate(() =>{
             parent._world._camera.position.set(this._coords.x, this._coords.y, this._coords.z),
             parent._world._camera.lookAt(this._coords.xLook, this._coords.yLook, this._coords.zLook);
