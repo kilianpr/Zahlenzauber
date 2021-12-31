@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import arrowRight from '/res/icons/arrow-right.png'
 import arrowLeft from '/res/icons/arrow-left.png'
+import infoIcon from '/res/icons/info.svg'
 
 class InteractionBlocks{
     /*
@@ -14,6 +15,7 @@ class InteractionBlocks{
     _backButton; //the button to go back from the navigation
     _pointers; //three.js objects which point at clickable spots
     _loadingScreen; //loading screen which is shown in the very beginning
+    _navigationInfo; //information block about how to navigate on the website
 
     _wrapper; //wraps _speechBubble, _nextBtn, _lastBtn and _startBtn to position below the wizard
 
@@ -28,6 +30,7 @@ class InteractionBlocks{
         this._initLoadingScreen();
         this._initWrapper();
         this._initBackButton();
+        this._initNavigationInfo();
         this._initPointers();
     }
 
@@ -45,8 +48,10 @@ class InteractionBlocks{
         this._lastBubbleNext.classList.add('last-bubble-next');
 
         this._lastButton = new ImageButton(arrowLeft);
-        this._speechBubble = new SpeechBubble();
+        this._lastButton._element.style.width = '15%';
+        this._speechBubble = new SpeechBubble("Herzlich Willkommen!");
         this._nextButton = new ImageButton(arrowRight);
+        this._nextButton._element.style.width = '15%';
 
         this._lastBubbleNext.appendChild(this._lastButton._element);
         this._lastBubbleNext.appendChild(this._speechBubble._element);
@@ -61,7 +66,22 @@ class InteractionBlocks{
     }
 
     _initBackButton(){
+        this._backButton = new ImageButton(arrowLeft);
+        this._backButton._element.style.position = 'absolute';
+        this._backButton._element.style.top = '0';
+        this._backButton._element.style.left = '0';
+        document.body.appendChild(this._backButton._element);
+    }
 
+    _initNavigationInfo(){
+        this._navigationInfo = new InfoBox("Bewege den Magier, indem du auf die Portale klickst oder WASD drückst!");
+        this._navigationInfo._element.style.position = 'absolute';
+        this._navigationInfo._element.style.bottom = '2%';
+        this._navigationInfo._element.style.left = '0';
+        this._navigationInfo._element.style.right = '0';
+        this._navigationInfo._element.style.width = '50%';
+        this._navigationInfo._element.style.margin = 'auto';
+        document.body.appendChild(this._navigationInfo._element);
     }
 
     _initPointers(){
@@ -132,11 +152,56 @@ class HTMLInteractionBlock extends InteractionBlock{
     }
 }
 
-class SpeechBubble extends HTMLInteractionBlock{
+class InfoBox extends HTMLInteractionBlock{
+    _text;
     _textDiv;
 
-    constructor(){
+    constructor(text){
         super();
+        this._text = text;
+        this._create();
+    }
+
+    _create(){
+        super._create();
+        this._element.classList.add("overlay", "info-box");
+        this._infoIcon = document.createElement('img');
+        this._infoIcon.src = infoIcon;
+        this._element.appendChild(this._infoIcon);
+        this._textDiv = document.createElement('div');
+        this._textDiv.classList.add("text");
+        this._textDiv.innerHTML = this._text;
+        this._element.appendChild(this._textDiv);
+    }
+
+    setText(text){
+        const parent = this;
+        setTimeout(function () {
+            parent._textDiv.innerHTML = text;
+        }, 1100);
+    }
+
+    show(){
+        super.show();
+        this._element.style.display = 'flex';
+    }
+
+    hide(){
+        const parent = this;
+        super.hide();
+        setTimeout(function(){
+            parent._element.style.display = 'none';
+        }, 1000);
+    }
+}
+
+class SpeechBubble extends HTMLInteractionBlock{
+    _text;
+    _textDiv;
+
+    constructor(text){
+        super();
+        this._text = text;
         this._create();
     }
 
@@ -145,6 +210,7 @@ class SpeechBubble extends HTMLInteractionBlock{
         this._element.classList.add("overlay", "bubble");
         this._textDiv = document.createElement('div');
         this._textDiv.classList.add("text");
+        this._textDiv.innerHTML = this._text;
         this._element.appendChild(this._textDiv);
     }
 

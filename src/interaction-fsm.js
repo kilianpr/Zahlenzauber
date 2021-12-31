@@ -176,6 +176,14 @@ class LastMessageState extends InteractionState{
         }
         else if (prevState.Name == 'navigation'){
             this._parent._interactionBlocks._lastButton.show();
+            this._parent._interactionBlocks._backButton.hide();
+            this._parent._interactionBlocks._backButton.removeAction();
+            let toPos = new THREE.Vector3(0, 12, -20);
+            let toLook = new THREE.Vector3(0, 12,  50);
+            const tween = new CamTween(this._parent._world, toPos, toLook, 3000).getTween();
+            tween
+            .delay(700)
+            .start();
         }
         this._parent._interactionBlocks._speechBubble.setText(lastMessageText);
         this._parent._interactionBlocks._speechBubble.show();
@@ -202,23 +210,21 @@ class NavigationState extends InteractionState{
 
     Enter(prevState){
         if (prevState.Name == 'lastMessage'){
+            this._parent._interactionBlocks._navigationInfo.show();
             this._parent._interactionBlocks._lastButton.hide();
-            //this._parent._interactionBlocks._nextButton.hide();
+            this._parent._interactionBlocks._backButton.show();
+            this._parent._interactionBlocks._backButton.setAction(() => {this._parent.SetState('lastMessage')});
             let toPos = new THREE.Vector3(42, 12, -12);
             let toLook = new THREE.Vector3(0, 12, 50);
             const tween = new CamTween(this._parent._world, toPos, toLook, 3000).getTween();
             tween
-            .onComplete(() => {
-                this._parent._interactionBlocks._speechBubble.setText("Klicke auf eines der Portale oder bewege mich mit WASD um zu navigieren!");
-                this._parent._interactionBlocks._speechBubble.show();
-            })
             .delay(700)
             .start();
         }
     }
 
     Exit(){
-        this._parent._interactionBlocks._wrapper.hide();
+        this._parent._interactionBlocks._navigationInfo.hide();
     }
 }
 
