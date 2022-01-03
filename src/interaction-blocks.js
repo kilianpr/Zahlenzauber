@@ -142,18 +142,20 @@ class HTMLInteractionBlock extends InteractionBlock{
 
     show(){
         const parent = this;
-        setTimeout(function () {
-            if (!parent._onScreen){
-                parent._element.style.opacity = "1";
-                parent._onScreen = true;
-                return true;
-            }
-            return false;
-        }, 1100);
+        if (!parent._onScreen){
+            setTimeout(function () {
+
+                    parent._element.style.opacity = "1";
+                    parent._onScreen = true;
+                    return true;
+            }, 1100);
+        }
+        return false;
     }
 
     hide(){
         if (this._onScreen){
+            console.log('hidden')
             this._element.style.opacity = "0";
             this._onScreen = false;
             return true;

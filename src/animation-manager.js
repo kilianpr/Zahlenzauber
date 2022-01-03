@@ -21,6 +21,7 @@ class AnimationManager{
     _scence;
     _stateMachine;
     _mixer;
+    _isTurning;
 
   constructor(scene){
     this._animations = {};
@@ -48,9 +49,6 @@ class AnimationManager{
         this._mixer = new THREE.AnimationMixer(this._target);
 
         const manager = new THREE.LoadingManager();
-        manager.onLoad = () => {
-            this._stateMachine.SetState('idle');
-        };
 
         const _OnLoad = (animName, anim) => {
             const clip = anim.animations[0];
@@ -110,11 +108,11 @@ class AnimationManager{
     }
 
     turnRight(){
-        this._stateMachine.SetState('rightTurn');
+        this._stateMachine.SetState('rightturn');
     }
 
     turnLeft(){
-        this._stateMachine.SetState('leftTurn');
+        this._stateMachine.SetState('leftturn');
     }
 
     getPosition(){
@@ -132,7 +130,6 @@ class AnimationManager{
 
         if (this._mixer) {
             this._mixer.update(timeInSeconds);
-            console.log('update the mixer')
         }
     }
 }
@@ -219,7 +216,11 @@ class IdleState extends State {
           curAction.enabled = true;
           curAction.setEffectiveTimeScale(1.0);
           curAction.setEffectiveWeight(1.0);
-          curAction.crossFadeFrom(prevAction, 0.5, true);
+          if (prevState.Name == 'walk' || prevState.Name == 'run' || prevState.Name == 'walkbackwards' || prevState.Name == 'runbackwards' || prevState.Name == 'rightturn' || prevState.Name == 'leftturn'){
+            curAction.crossFadeFrom(prevAction, 0.2, true);
+          } else{
+            curAction.crossFadeFrom(prevAction, 0.5, true);
+          }
         }
         curAction.play();
 
@@ -380,7 +381,6 @@ class JumpState extends State{
 
   Enter(prevState){
     this.prevState = prevState;
-    console.log("jump")
     const curAction = this._parent._animations['jump'].action;
     const mixer = curAction.getMixer();
     mixer.addEventListener('finished', this._FinishedCallback);
@@ -446,7 +446,6 @@ class WaveState extends State{
   }
 
   _Cleanup() {
-    console.log("wave finished")
     const action = this._parent._animations['wave'].action;
     action.getMixer().removeEventListener('finished', this._FinishedCallback);
   }
@@ -488,6 +487,7 @@ class SpellState extends State{
 
   _Finished() {
     this._Cleanup();
+    console.log("Spell finished")
     this._parent.SetState('idle');
   }
 
@@ -523,7 +523,7 @@ class RightTurnState extends State{
         curAction.time = 0.0;
         curAction.setEffectiveTimeScale(1.0);
         curAction.setEffectiveWeight(1.0);
-        curAction.crossFadeFrom(prevAction, 0.1, true);
+        curAction.crossFadeFrom(prevAction, 0.3, true);
 
     }
     curAction.play();
@@ -558,7 +558,7 @@ class LeftTurnState extends State{
         curAction.time = 0.0;
         curAction.setEffectiveTimeScale(1.0);
         curAction.setEffectiveWeight(1.0);
-        curAction.crossFadeFrom(prevAction, 0.2, true);
+        curAction.crossFadeFrom(prevAction, 0.3, true);
 
     }
     curAction.play();

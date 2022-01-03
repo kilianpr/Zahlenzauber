@@ -1,6 +1,8 @@
 import {CamTween} from "./camtween";
 import * as THREE from 'three';
 import {DoubleClickNavigation} from './doubleclick.js';
+import * as TWEEN from '@tweenjs/tween.js';
+
 
 const firstMessageText = "Herzlich Willkommen!";
 const secondMessageText = "Ich bin Merlin, der Zahlenzauberer.";
@@ -143,13 +145,15 @@ class SecondMessageState extends InteractionState{
         if (prevState.Name == 'firstMessage'){
             this._parent._interactionBlocks._lastButton.show();
             if (!SecondMessageState._visited){
-                this._parent._controls.spell();
                 setTimeout(() => {
-                    this._parent._world._fireLeft.show();
-                    this._parent._world._fireRight.show();
-                    this._parent._world._portalA.showAnimation();
-                    this._parent._world._portalB.showAnimation();
-                    this._parent._world._portalC.showAnimation();
+                    this._parent._controls.spell();
+                    setTimeout(() =>{
+                        this._parent._world._fireLeft.show();
+                        this._parent._world._fireRight.show();
+                        this._parent._world._portalA.showAnimation();
+                        this._parent._world._portalB.showAnimation();
+                        this._parent._world._portalC.showAnimation();
+                    }, 1000);
                 }, 1000);
                 SecondMessageState._visited = true;
             }
@@ -185,6 +189,7 @@ class LastMessageState extends InteractionState{
     Enter(prevState){
         const parent = this;
         if (prevState.Name == 'secondMessage'){
+            console.log("HIDE");
             this._parent._interactionBlocks._nextButton.hide();
         }
         else if (prevState.Name == 'navigation'){
@@ -198,6 +203,34 @@ class LastMessageState extends InteractionState{
             tween
             .delay(700)
             .start();
+                setTimeout(() => {
+                    if (this._modelStillInPlace()){
+                        this._parent._doubleClickNav.setRotSpeed(Math.PI/2);
+                        this._parent._doubleClickNav.rotateToDefault();
+                        this._parent._controls.turnLeft();
+                        setTimeout(() => {
+                            this._parent._controls.idle();
+                        }, 2000);
+                    }
+                    else{
+                        this._parent._controls.walk();
+                        this._parent._doubleClickNav.setRotSpeed(Math.PI * 4);
+                        this._parent._doubleClickNav.rotateToDefault();
+                        new TWEEN.Tween(this._parent._controls._target.position)
+                        .to({
+                            x: 0,
+                            y: 0,
+                            z: 0
+                        }, (2000/20)*this._parent._controls._target.position.distanceTo(new THREE.Vector3(0, 0, 0)))
+                        .easing(TWEEN.Easing.myCustom.myEasingOut)
+                        .onComplete(() => {
+                            this._parent._controls.idle();
+                        })
+                        .start();
+                        console.log(this._parent._controls._target.position);
+                        console.log(this._parent._controls._target.rotation);
+                    }
+                }, 700);
         }
         this._parent._interactionBlocks._speechBubble.setText(lastMessageText);
         this._parent._interactionBlocks._speechBubble.show();
@@ -205,6 +238,14 @@ class LastMessageState extends InteractionState{
 
         this._parent._interactionBlocks._lastButton.setAction(() => {this._parent.SetState('secondMessage')});
         this._parent._interactionBlocks._startButton.setAction(() => {this._parent.SetState('navigation')});
+    }
+
+    _modelStillInPlace(){
+        console.log(this._parent._controls._target.position);
+        console.log(this._parent._controls._target.rotation);
+        return (this._parent._controls._target.position.x < 0.1 && this._parent._controls._target.position.x > -0.1 
+            && this._parent._controls._target.position.z < 0.1 && this._parent._controls._target.position.z > -0.1 
+            && this._parent._controls._target.rotation.y < 0.1 && this._parent._controls._target.rotation.y > -0.1);
     }
 
     Exit(){
@@ -230,7 +271,16 @@ class NavigationState extends InteractionState{
             this._parent._interactionBlocks._lastButton.hide();
             setTimeout(() => {
                 this._parent._interactionBlocks.remove(this._parent._interactionBlocks._wrapper);
-            }, 1000)
+            }, 1000);
+            setTimeout(() => {
+                this._parent._doubleClickNav.setRotSpeed(Math.PI/2);
+                this._parent._controls.turnRight();
+                this._parent._doubleClickNav._targetQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), 0);
+                setTimeout(() => {
+                    this._parent._controls.idle();
+                    this._parent._doubleClickNav.setRotSpeed(Math.PI * 4);
+                }, 2000);
+            }, 700);
             this._parent._interactionBlocks._navigationInfo.show();
             this._parent._interactionBlocks._backButton.show();
             this._parent._interactionBlocks._backButton.setAction(() => {this._parent.SetState('lastMessage')});
