@@ -193,6 +193,7 @@ class LastMessageState extends InteractionState{
             this._parent._interactionBlocks._nextButton.hide();
         }
         else if (prevState.Name == 'navigation'){
+            this._parent._doubleClickNav.removeDoubleClickAction();
             this._parent._interactionBlocks.putBack(this._parent._interactionBlocks._wrapper, 'block');
             this._parent._interactionBlocks._lastButton.show();
             this._parent._interactionBlocks._backButton.hide();
@@ -203,34 +204,28 @@ class LastMessageState extends InteractionState{
             tween
             .delay(700)
             .start();
+
+            if (this._modelStillInPlace()){
+                this._parent._doubleClickNav.setRotSpeed(Math.PI/2);
+                this._parent._doubleClickNav.rotateToDefault();
+                this._parent._controls.turnLeft();
                 setTimeout(() => {
-                    if (this._modelStillInPlace()){
-                        this._parent._doubleClickNav.setRotSpeed(Math.PI/2);
+                    this._parent._controls.idle();
+                }, 2000);
+            } else{
+                this._parent._controls.idle();
+                TWEEN.removeAll();
+                setTimeout(() => {
+                    this._parent._doubleClickNav.walkToPoint(new THREE.Vector3(0, 0, 0), () => { 
                         this._parent._doubleClickNav.rotateToDefault();
-                        this._parent._controls.turnLeft();
-                        setTimeout(() => {
-                            this._parent._controls.idle();
-                        }, 2000);
-                    }
-                    else{
-                        this._parent._controls.walk();
-                        this._parent._doubleClickNav.setRotSpeed(Math.PI * 4);
-                        this._parent._doubleClickNav.rotateToDefault();
-                        new TWEEN.Tween(this._parent._controls._target.position)
-                        .to({
-                            x: 0,
-                            y: 0,
-                            z: 0
-                        }, (2000/20)*this._parent._controls._target.position.distanceTo(new THREE.Vector3(0, 0, 0)))
-                        .easing(TWEEN.Easing.myCustom.myEasingOut)
-                        .onComplete(() => {
-                            this._parent._controls.idle();
-                        })
-                        .start();
-                        console.log(this._parent._controls._target.position);
-                        console.log(this._parent._controls._target.rotation);
-                    }
+                        this._parent._controls.idle();});
                 }, 700);
+                const tween = new CamTween(this._parent._world, toPos, toLook, 3000).getTween();
+                tween
+                .delay(700)
+                .start();
+            }
+                
         }
         this._parent._interactionBlocks._speechBubble.setText(lastMessageText);
         this._parent._interactionBlocks._speechBubble.show();
@@ -267,7 +262,6 @@ class NavigationState extends InteractionState{
         const parent = this;
         if (prevState.Name == 'lastMessage'){
             this._parent._doubleClickNav = new DoubleClickNavigation(this._parent._world, 20, this._parent._controls);
-            this._parent._doubleClickNav.addDoubleClickAction();
             this._parent._interactionBlocks._lastButton.hide();
             setTimeout(() => {
                 this._parent._interactionBlocks.remove(this._parent._interactionBlocks._wrapper);
@@ -279,6 +273,7 @@ class NavigationState extends InteractionState{
                 setTimeout(() => {
                     this._parent._controls.idle();
                     this._parent._doubleClickNav.setRotSpeed(Math.PI * 4);
+                    this._parent._doubleClickNav.addDoubleClickAction();
                 }, 2000);
             }, 700);
             this._parent._interactionBlocks._navigationInfo.show();

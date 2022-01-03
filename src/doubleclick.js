@@ -34,11 +34,12 @@ class DoubleClickNavigation{
     }
 
     addDoubleClickAction(){
-        this._renderer.domElement.addEventListener('dblclick', (e) => {this._onDoubleClick(e)}, false);
+        this._bindFunc =  this._onDoubleClick.bind(this);
+        this._renderer.domElement.addEventListener('dblclick', this._bindFunc, false);
     }
 
     removeDoubleClickAction(){
-        this._renderer.domElement.removeEventListener('dblclick', (e) => {this._onDoubleClick(e)}, false);
+        this._renderer.domElement.removeEventListener('dblclick', this._bindFunc, false);
     }
 
     _onDoubleClick(event){
@@ -52,27 +53,10 @@ class DoubleClickNavigation{
         if (intersects.length > 0){
 
             const p = intersects[0].point;
-            const distance = this._target.position.distanceTo(p)
 
             TWEEN.removeAll();
 
-            const rotationMatrix = new THREE.Matrix4();
-            rotationMatrix.lookAt(p, this._target.position, this._target.up);
-            this._targetQuaternion.setFromRotationMatrix(rotationMatrix);
-            const angle = this._target.quaternion.angleTo(this._targetQuaternion);
-            console.log('angle: '+angle);
-            this._controls.walk();
-            new TWEEN.Tween(this._target.position)
-            .to({
-                x: p.x,
-                y: p.y,
-                z: p.z
-            }, (2000/this._velocity)*distance)
-            .easing(TWEEN.Easing.myCustom.myEasingOut)
-            .onComplete(() => {
-                this._controls.idle();
-            })
-            .start();
+            this.walkToPoint(p, () => {this._controls.idle()});
          }
         }
 
@@ -82,6 +66,31 @@ class DoubleClickNavigation{
 
     setRotSpeed(rotSpeed){
         this._rotSpeed = rotSpeed;
+    }
+
+
+    rotateToDefault(){
+        this._targetQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);;
+    }
+
+    walkToPoint(p, onFinish){
+        const distance = this._target.position.distanceTo(p)
+        const rotationMatrix = new THREE.Matrix4();
+        rotationMatrix.lookAt(p, this._target.position, this._target.up);
+        this._targetQuaternion.setFromRotationMatrix(rotationMatrix);
+        
+        this._controls.walk();
+        new TWEEN.Tween(this._target.position)
+        .to({
+            x: p.x,
+            y: p.y,
+            z: p.z
+        }, (2000/this._velocity)*distance)
+        .easing(TWEEN.Easing.myCustom.myEasingOut)
+        .onComplete(() => {
+            onFinish();
+        })
+        .start();
     }
 
 
@@ -97,9 +106,7 @@ class DoubleClickNavigation{
         }
     }
 
-    rotateToDefault(){
-        this._targetQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);;
-    }
+    
 
 }
 
