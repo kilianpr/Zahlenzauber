@@ -1,16 +1,25 @@
 import {CamTween} from "./camtween";
 import * as THREE from 'three';
+import {DoubleClickNavigation} from './doubleclick.js';
 
 const firstMessageText = "Herzlich Willkommen!";
 const secondMessageText = "Ich bin Merlin, der Zahlenzauberer.";
 const lastMessageText = "Klicke 'Start', um loszulegen!";
 
 class InteractionFiniteStateMachine {
-    constructor(world, interactionBlocks) {
+    _world;
+    _interactionBlocks;
+    _states;
+    _currentState;
+    _doubleClickNav;
+    _controls;
+
+    constructor(world, interactionBlocks, controls) {
         this._world = world;
         this._interactionBlocks = interactionBlocks;
         this._states = {};
         this._currentState = null;
+        this._controls = controls;
         this._Init();
     }
 
@@ -69,10 +78,14 @@ class TransitionInState extends InteractionState {
     }
 
     Enter(prevState){
+        this._parent._controls.idle();
         const parent = this;
 
         setTimeout(function(){
             parent._parent._interactionBlocks._loadingScreen.hide();
+            setTimeout(function(){
+                parent._parent._interactionBlocks.remove(parent._parent._interactionBlocks._loadingScreen._element);
+            }, 2000);
         }, 1200);
 
         let toPos = new THREE.Vector3(0, 12, -20);
@@ -100,7 +113,7 @@ class FirstMessageState extends InteractionState{
     }
 
     Enter(prevState){
-        this._parent._world._controls.wave();
+        this._parent._controls.wave();
         if (prevState.Name == 'secondMessage'){
             this._parent._interactionBlocks._lastButton.hide();
             this._parent._interactionBlocks._lastButton.removeAction();
@@ -130,8 +143,7 @@ class SecondMessageState extends InteractionState{
         if (prevState.Name == 'firstMessage'){
             this._parent._interactionBlocks._lastButton.show();
             if (!SecondMessageState._visited){
-                this._parent._world._controls.spell();
-                this._parent._world._controls.enableControls();
+                this._parent._controls.spell();
                 setTimeout(() => {
                     this._parent._world._fireLeft.show();
                     this._parent._world._fireRight.show();
@@ -171,10 +183,12 @@ class LastMessageState extends InteractionState{
     }
 
     Enter(prevState){
+        const parent = this;
         if (prevState.Name == 'secondMessage'){
             this._parent._interactionBlocks._nextButton.hide();
         }
         else if (prevState.Name == 'navigation'){
+            this._parent._interactionBlocks.putBack(this._parent._interactionBlocks._wrapper, 'block');
             this._parent._interactionBlocks._lastButton.show();
             this._parent._interactionBlocks._backButton.hide();
             this._parent._interactionBlocks._backButton.removeAction();
@@ -209,9 +223,15 @@ class NavigationState extends InteractionState{
     }
 
     Enter(prevState){
+        const parent = this;
         if (prevState.Name == 'lastMessage'){
-            this._parent._interactionBlocks._navigationInfo.show();
+            this._parent._doubleClickNav = new DoubleClickNavigation(this._parent._world, 20, this._parent._controls);
+            this._parent._doubleClickNav.addDoubleClickAction();
             this._parent._interactionBlocks._lastButton.hide();
+            setTimeout(() => {
+                this._parent._interactionBlocks.remove(this._parent._interactionBlocks._wrapper);
+            }, 1000)
+            this._parent._interactionBlocks._navigationInfo.show();
             this._parent._interactionBlocks._backButton.show();
             this._parent._interactionBlocks._backButton.setAction(() => {this._parent.SetState('lastMessage')});
             let toPos = new THREE.Vector3(42, 12, -12);

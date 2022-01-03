@@ -85,7 +85,7 @@ class InteractionBlocks{
     }
 
     _initPointers(){
-
+        
     }
 
     move(element, position){
@@ -93,6 +93,16 @@ class InteractionBlocks{
         const x = (position.x *  .5 + .5) * document.body.clientWidth;
         const y = (position.y * -.5 + .5) * document.body.clientHeight;
         element.style.transform = `translate(-50%, -50%) translate(${x}px,${y}px)`;
+    }
+
+    remove(element){
+        let oldStyle = element.style.display;
+        element.style.display = 'none';
+        return oldStyle;
+    }
+
+    putBack(element, display){
+        element.style.display = display;
     }
 }
 

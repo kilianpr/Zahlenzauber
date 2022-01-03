@@ -1,8 +1,9 @@
 import { World} from "./index";
 import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
-import {InteractionBlocks} from './interaction-blocks';
-import {InteractionFiniteStateMachine} from './interaction-fsm';
+import {InteractionBlocks} from './interaction-blocks.js';
+import {InteractionFiniteStateMachine} from './interaction-fsm.js';
+import {AnimationManager} from './animation-manager.js'
 
 class Main{
 
@@ -18,10 +19,10 @@ class Main{
         const parent = this;
         this._world = new World();
         this._world._BuildRoom();
-        this._world._LoadAnimatedModel()
         this._world._makeFire();
+        this._controls = new AnimationManager(this._world._scene);
         this._interactionBlocks = new InteractionBlocks(this._world);
-        this._interactionFSM = new InteractionFiniteStateMachine(this._world, this._interactionBlocks);
+        this._interactionFSM = new InteractionFiniteStateMachine(this._world, this._interactionBlocks, this._controls);
         this._RAF();
         this._world._threejs.compile(this._world._scene, this._world._camera);
         window.addEventListener('resize', () => { //resizes renderer on Resize
@@ -41,8 +42,8 @@ class Main{
             }
             this._RAF();
     
-            if (this._world._controls.isReady()){
-              let position = new THREE.Vector3(this._world._controls.getPosition().x,this._world._controls.getPosition().y+5, this._world._controls.getPosition().z);
+            if (this._controls.isReady()){
+              let position = new THREE.Vector3(this._controls.getPosition().x,this._controls.getPosition().y+5, this._controls.getPosition().z);
               parent._interactionBlocks.move(this._interactionBlocks._wrapper, position);
             }
                       
@@ -56,8 +57,12 @@ class Main{
     _Step(timeElapsed){
         const timeElapsedS = timeElapsed * 0.001;
   
-        if (this._world._controls) {
-            this._world._controls.Update(timeElapsedS);
+        if (this._controls) {
+            this._controls.Update(timeElapsedS);
+        }
+
+        if (this._interactionFSM._doubleClickNav){
+            this._interactionFSM._doubleClickNav.Update(timeElapsedS);
         }
 
 

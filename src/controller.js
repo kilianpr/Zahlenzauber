@@ -1,16 +1,19 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
-import wizard from '/res/models/wizard.fbx';
+import wizard2 from '/res/models/wizard.fbx';
+import wizard from '/res/models/standingpose.fbx';
 import walk from '/res/anim/walk.fbx';
 import walkbackwards from '/res/anim/walkbackwards.fbx';
-import idle from '/res/anim/idle.fbx';
 import run from '/res/anim/run.fbx';
 import runbackwards from '/res/anim/runbackwards.fbx';
 import jump from '/res/anim/jump.fbx';
 import wave from '/res/anim/wave.fbx';
 import idle2 from '/res/anim/idle2.fbx';
 import spell from '/res/anim/spell.fbx';
+import turn from '/res/anim/turn.fbx';
+import rightturn from '/res/anim/rightturn.fbx';
+import leftturn from '/res/anim/leftturn.fbx';
 
 class BasicCharacterControllerProxy {
     constructor(animations, target, input) {
@@ -57,6 +60,10 @@ class BasicCharacterController {
             fbx.traverse(c => {
             c.castShadow = true;
             });
+            const helper = new THREE.AxesHelper(50);
+            helper.material.linewidth = 10;
+            fbx.add(helper);
+            fbx.linewidth = 3;
             this._target = fbx;
             this._stateMachine = new CharacterFSM(new BasicCharacterControllerProxy(this._animations, this._target, this._input));
             this._target.position.set(0,0,0);
@@ -89,6 +96,9 @@ class BasicCharacterController {
             loader.load(jump, (a) => {_OnLoad('jump', a);});
             loader.load(wave, (a) => {_OnLoad('wave', a);});
             loader.load(spell, (a) => {_OnLoad('spell', a);});
+            loader.load(turn, (a) => {_OnLoad('turn', a);});
+            loader.load(rightturn, (a) => {_OnLoad('rightturn', a);});
+            loader.load(leftturn, (a) => {_OnLoad('leftturn', a);});
         });
     }
 
@@ -98,7 +108,6 @@ class BasicCharacterController {
         if (keys.includes(key)){
           if (!this._input._keys[key]){
             this._input._keys[key] = true;
-            console.log(this._input._keys);
           }
         }
         else{
@@ -114,7 +123,6 @@ class BasicCharacterController {
     walk(){
       this._setKeysTrue(["forward"]);
     }
-
 
     run(){
       this._setKeysTrue(["forward", "shift"]);
@@ -140,6 +148,37 @@ class BasicCharacterController {
       this._setKeysTrue(["spell"]);
     }
 
+    turnRight(){
+      this._setKeysTrue(["right"]);
+      parent = this;
+      setTimeout(function(){
+        parent.idle();
+      }, 1000)
+    }
+
+    turnLeft(){
+      this._setKeysTrue(["left"]);
+      parent = this;
+      setTimeout(function(){
+        parent.idle();
+      }, 1000)
+    }
+
+    turn(angle, callback){
+      //returns the time the turn needs
+      console.log('in turn function');
+      if (angle < 0){
+        this._setKeysTrue(["right"]);
+      }
+      else{
+        this._setKeysTrue(["left"]);
+      }
+      setTimeout(function(){
+        parent.idle();
+        callback();
+      }, (Math.abs(angle)/Math.PI)*1000);
+    }
+
     getPosition(){
       return this._target.position;
     }
@@ -160,6 +199,10 @@ class BasicCharacterController {
         }
     
         this._stateMachine.Update(timeInSeconds, this._input);
+
+        if (this._mixer) {
+          this._mixer.update(timeInSeconds);
+        }
     
         const velocity = this._velocity;
         const frameDecceleration = new THREE.Vector3(
@@ -202,8 +245,6 @@ class BasicCharacterController {
           _R.multiply(_Q);
         }
   
-    
-    
         controlObject.quaternion.copy(_R);
     
         const oldPosition = new THREE.Vector3();
@@ -224,10 +265,6 @@ class BasicCharacterController {
         controlObject.position.add(sideways);
   
         oldPosition.copy(controlObject.position);
-    
-        if (this._mixer) {
-          this._mixer.update(timeInSeconds);
-        }
       }
 }
 
@@ -247,7 +284,8 @@ class BasicCharacterControllerInput {
         space: false,
         shift: false,
         wave: false,
-        spell: false
+        spell: false,
+        turn: false
       };
     }
 
@@ -384,6 +422,8 @@ _Init() {
     this._AddState('jump', JumpState);
     this._AddState('wave', WaveState);
     this._AddState('spell', SpellState);
+    this._AddState('rightturn', RightTurnState);
+    this._AddState('leftturn', LeftTurnState);
 }
 }
 
@@ -498,6 +538,7 @@ class IdleState extends State {
           curAction.setEffectiveTimeScale(1.0);
           curAction.setEffectiveWeight(1.0);
           curAction.crossFadeFrom(prevAction, 0.5, true);
+          console.log("cross Fade from")
         }
         curAction.play();
 
@@ -515,8 +556,11 @@ class IdleState extends State {
           this._parent.SetState('wave');
         } else if (input._keys.spell){
           this._parent.SetState('spell');
-        }
-        if (input._keys.space){
+        } else if (input._keys.right){
+          this._parent.SetState('rightturn');
+        } else if (input._keys.left){
+          this._parent.SetState('leftturn');
+        } if (input._keys.space){
           this._parent.SetState('jump');
         }
     }
@@ -556,15 +600,16 @@ class RunState extends State {
       this._parent.SetState('jump');
     }
 
-    if(input._keys.forward){
+    else if(input._keys.forward){
       if(!input._keys.shift){
         this._parent.SetState('walk');
       }
         return;       
     }
 
-
-    this._parent.SetState('idle');
+    else{
+      this._parent.SetState('idle');
+    }
 
   }
 }
@@ -633,6 +678,7 @@ class JumpState extends State{
   }
 
   Enter(prevState){
+    this.prevState = prevState;
     console.log("jump")
     this._parent._proxy._input._keys.space = false;
     const curAction = this._parent._proxy._animations['jump'].action;
@@ -664,6 +710,10 @@ class JumpState extends State{
           return;
         }
       this._parent.SetState('walkbackwards');
+    } else if (this._parent._proxy._input._keys.right){
+      this._parent.SetState('rightturn');
+    } else if (this._parent._proxy._input._keys.left){
+      this._parent.SetState('leftturn');
     }
     else{
       this._parent.SetState('idle');
@@ -673,11 +723,10 @@ class JumpState extends State{
   _Cleanup() {
     const action = this._parent._proxy._animations['jump'].action;
     
-    action.getMixer().removeEventListener('finished', this._CleanupCallback);
+    action.getMixer().removeEventListener('finished', this._FinishedCallback);
   }
 
   Exit() {
-    this._Cleanup();
   }
 
   Update(_){
@@ -687,7 +736,6 @@ class JumpState extends State{
 
 
 class WaveState extends State{
-
   constructor(parent){
     super(parent);
 
@@ -738,13 +786,13 @@ class WaveState extends State{
   }
 
   _Cleanup() {
+    console.log("wave finished")
     const action = this._parent._proxy._animations['wave'].action;
     
-    action.getMixer().removeEventListener('finished', this._CleanupCallback);
+    action.getMixer().removeEventListener('finished', this._FinishedCallback);
   }
 
   Exit() {
-    this._Cleanup();
   }
 
   Update(_){
@@ -808,18 +856,115 @@ class SpellState extends State{
   _Cleanup() {
     const action = this._parent._proxy._animations['spell'].action;
     
-    action.getMixer().removeEventListener('finished', this._CleanupCallback);
+    action.getMixer().removeEventListener('finished', this._FinishedCallback);
   }
 
   Exit() {
-    this._Cleanup();
   }
 
   Update(_){
 
   }
-
 }
+
+class RightTurnState extends State{
+  constructor(parent){
+    super(parent);
+
+    this._FinishedCallback = () => {
+      this._Finished();
+    }
+  }
+
+  get Name(){
+    return 'rightturn';
+  }
+
+  Enter(prevState){
+    const curAction = this._parent._proxy._animations['rightturn'].action;
+    if(prevState){
+        const prevAction = this._parent._proxy._animations[prevState.Name].action;
+        
+        curAction.enabled = true;
+        curAction.time = 0.0;
+        curAction.setEffectiveTimeScale(1.0);
+        curAction.setEffectiveWeight(1.0);
+        curAction.crossFadeFrom(prevAction, 0.1, true);
+
+    }
+    curAction.play();
+  }
+
+  Update(timeElapsed, input){
+    if (input._keys.space){
+      this._parent.SetState('jump');
+    } else if(input._keys.forward) {
+      this._parent.SetState('walk');
+    } else if (input._keys.backward) {
+      this._parent.SetState('walkbackwards');
+    } else if (input._keys.wave) {
+      this._parent.SetState('wave');
+    } else if (input._keys.spell){
+      this._parent.SetState('spell');
+    } else if (input._keys.left){
+      this._parent.SetState('leftturn')
+    } else if (input._keys.right){
+      return;
+    } else{
+      this._parent.SetState('idle');
+    }
+  }
+}
+
+
+class LeftTurnState extends State{
+  constructor(parent){
+    super(parent);
+
+    this._FinishedCallback = () => {
+      this._Finished();
+    }
+  }
+
+  get Name(){
+    return 'leftturn';
+  }
+
+  Enter(prevState){
+    const curAction = this._parent._proxy._animations['leftturn'].action;
+    if(prevState){
+        const prevAction = this._parent._proxy._animations[prevState.Name].action;
+        
+        curAction.enabled = true;
+        curAction.time = 0.0;
+        curAction.setEffectiveTimeScale(1.0);
+        curAction.setEffectiveWeight(1.0);
+        curAction.crossFadeFrom(prevAction, 0.2, true);
+
+    }
+    curAction.play();
+  }
+
+  Update(timeElapsed, input){
+    if (input._keys.space){
+      this._parent.SetState('jump');
+    } else if (input._keys.forward) {
+      this._parent.SetState('walk');
+    } else if (input._keys.backward) {
+      this._parent.SetState('walkbackwards');
+    } else if (input._keys.wave) {
+      this._parent.SetState('wave');
+    } else if (input._keys.spell){
+      this._parent.SetState('spell');
+    } else if (input._keys.right){
+      this._parent.SetState('rightturn')
+    } else if (input._keys.left){
+      return;
+    }
+    this._parent.SetState('idle');
+}
+}
+
 
 export {BasicCharacterController};
 

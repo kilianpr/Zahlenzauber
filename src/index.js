@@ -3,7 +3,6 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader.js';
 import {Fire} from './particles.js';
-import {BasicCharacterController} from '/src/controller.js';
 import {Portal} from './portal.js';
 
 import '/src/base.css';
@@ -27,7 +26,7 @@ class World{
   _portalC; //right Portal
   _fireLeft; //left Fire
   _fireRight; //right Fire;
-  _controls; //BasicCharacterController of the animated model
+  _ground; //ground of the room
 
 
     constructor(){
@@ -59,8 +58,11 @@ class World{
       this._light.position.set(50, 50, -20);
       this._scene.add(this._light);
 
-      this.controls = new OrbitControls(
+      const orbitControls = new OrbitControls(
           this._camera, document.body);
+
+      const helper = new THREE.AxesHelper(100);
+      this._scene.add(helper);
     }
 
 
@@ -74,16 +76,16 @@ class World{
         floor.repeat.set( 4, 4 );
 
         const planeGeo = new THREE.PlaneGeometry(100, 100)
-        const ground = new THREE.Mesh(
+        this._ground = new THREE.Mesh(
             planeGeo,
             new THREE.MeshStandardMaterial({
                 color: 0x808080,
                 map: floor
               }));
-        ground.castShadow = false;
-        ground.receiveShadow = false;
-        ground.rotation.x = -Math.PI / 2;
-        this._scene.add(ground);
+        this._ground.castShadow = false;
+        this._ground.receiveShadow = false;
+        this._ground.rotation.x = -Math.PI / 2;
+        this._scene.add(this._ground);
 
         const bricks = textLoader.load(bricksText);
         bricks.wrapS = THREE.RepeatWrapping;
@@ -134,14 +136,6 @@ class World{
         camera: this._camera,
         centerPos: new THREE.Vector3(-44, 0, 44)
       });
-    }
-
-    _LoadAnimatedModel() {
-      const params = {
-        camera: this._camera,
-        scene: this._scene,
-      }
-      this._controls = new BasicCharacterController(params);
     }
 }
 
