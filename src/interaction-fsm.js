@@ -1,4 +1,4 @@
-import {CamTween} from "./camtween";
+import {CamTween, TweenGroup} from "./camtween";
 import * as THREE from 'three';
 import {ClickNavigation} from './clicknav.js';
 import * as TWEEN from '@tweenjs/tween.js';
@@ -80,6 +80,7 @@ class TransitionInState extends InteractionState {
     }
 
     Enter(prevState){
+        console.log(this._parent._controls._animations)
         this._parent._controls.idle();
         const parent = this;
 
@@ -214,7 +215,7 @@ class LastMessageState extends InteractionState{
                 }, 2000);
             } else{
                 this._parent._controls.idle();
-                TWEEN.removeAll();
+                TweenGroup.modelMovement.removeAll();
                 setTimeout(() => {
                     this._parent._clickNavigation.moveToPoint(new THREE.Vector3(0, 0, 0), 25, 'walk', () => { 
                             this._parent._clickNavigation.rotateToDefault();

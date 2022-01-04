@@ -2,7 +2,7 @@
   "name": "zahlenzauber",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
@@ -24,6 +24,6 @@
   },
   "dependencies": {
     "@tweenjs/tween.js": "^18.6.4",
-    "three": "^0.132.2"
+    "three": "^0.136.0"
   }
 }

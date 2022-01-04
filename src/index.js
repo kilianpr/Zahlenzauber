@@ -1,14 +1,10 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
-import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
-import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader.js';
 import {Fire} from './particles.js';
 import {Portal} from './portal.js';
-
 import '/src/base.css';
 import bricksText from '/res/room/blue-bricks.jpg';
 import floorText from '/res/room/floorText.jpg';
-import {Box3} from 'three';
 
 
 
@@ -136,6 +132,24 @@ class World{
         camera: this._camera,
         centerPos: new THREE.Vector3(-44, 0, 44)
       });
+    }
+
+    _makeComposer(){
+      let renderScene = new RenderPass(this._scene,this._camera )
+      let bloomPass = new BloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 )
+      bloomPass.threshold = 0.21
+      bloomPass.strength = 1.2
+      bloomPass.radius = 0.55
+      bloomPass.renderToScreen = true
+        
+      this._composer = new EffectComposer(this._threejs)
+      this._composer.setSize( window.innerWidth, window.innerHeight )
+        
+      this._composer.addPass( renderScene )
+      this._composer.addPass( bloomPass )
+        
+      this._threejs.outputEncoding = true
+      this._threejs.toneMappingExposure = Math.pow( 0.9, 4.0 ) 
     }
 }
 

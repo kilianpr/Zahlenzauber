@@ -4,6 +4,9 @@ import * as TWEEN from '@tweenjs/tween.js';
 import {InteractionBlocks} from './interaction-blocks.js';
 import {InteractionFiniteStateMachine} from './interaction-fsm.js';
 import {AnimationManager} from './animation-manager.js'
+import {TweenGroup} from './camtween';
+import GeneralLoadingManager from './loadingmanager.js';
+
 
 class Main{
 
@@ -18,9 +21,9 @@ class Main{
     main(){
         const parent = this;
         this._world = new World();
+        this._controls = new AnimationManager(this._world._scene);
         this._world._BuildRoom();
         this._world._makeFire();
-        this._controls = new AnimationManager(this._world._scene);
         this._interactionBlocks = new InteractionBlocks(this._world);
         this._interactionFSM = new InteractionFiniteStateMachine(this._world, this._interactionBlocks, this._controls);
         this._RAF();
@@ -28,7 +31,7 @@ class Main{
         window.addEventListener('resize', () => { //resizes renderer on Resize
             this._OnWindowResize();
         }, false);
-        THREE.DefaultLoadingManager.onLoad = function(){
+        GeneralLoadingManager.onLoad = function(){
             parent._interactionFSM.SetState('transitionIn');
         };
     }
@@ -51,6 +54,9 @@ class Main{
             this._Step(t - this._previousRAF);
             this._previousRAF = t;
             TWEEN.update(t);
+            TweenGroup.opacity.update(t);
+            TweenGroup.camMovement.update(t);
+            TweenGroup.modelMovement.update(t);
           });
     }
 

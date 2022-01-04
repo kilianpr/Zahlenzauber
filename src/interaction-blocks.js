@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 import arrowRight from '/res/icons/arrow-right.png'
-import arrowLeft from '/res/icons/arrow-left.png'
-import infoIcon from '/res/icons/info.svg'
+import arrowLeft from '/res/icons/arrow-left.png';
+import infoIcon from '/res/icons/info.svg';
+import * as TWEEN from '@tweenjs/tween.js';
+import {TweenGroup} from './camtween.js';
 
 class InteractionBlocks{
     /*
@@ -31,7 +33,7 @@ class InteractionBlocks{
         this._initWrapper();
         this._initBackButton();
         this._initNavigationInfo();
-        this._initPointers();
+        this._initCheckPoints();
     }
 
     _initLoadingScreen(){
@@ -84,8 +86,12 @@ class InteractionBlocks{
         document.body.appendChild(this._navigationInfo._element);
     }
 
-    _initPointers(){
-        
+    _initCheckPoints(){
+        this._checkPointLeft = new CheckPoint(5);
+        this._world._scene.add(this._checkPointLeft._element);
+        this._checkPointLeft.show();
+        console.log(this._checkPointLeft._element)
+
     }
 
     move(element, position){
@@ -133,6 +139,39 @@ class InteractionBlock{
     hide() {}
 }
 
+
+class CheckPoint extends InteractionBlock{
+
+    constructor(radius){
+        super();
+        this._radius = radius
+        this._create();
+    }
+
+    _create(){
+        const geometry = new THREE.CylinderGeometry(this._radius, this._radius, .5, 32, 1);
+        const material = new THREE.MeshPhongMaterial({transparent: true, opacity: 0, color: 0xFFD700});
+        this._element = new THREE.Mesh(geometry, material);
+        this._element.position.y = .1;
+        this._element.layers.enable(1);
+        this._element.rotateX(-Math.PI/2);
+    }
+
+    show(){
+        new TWEEN.Tween(this._element.material, TweenGroup.opacity)
+        .to({opacity: 1}, 2000)
+        .onComplete(console.log('lol'))
+        .start();
+    }
+
+    hide(){
+        new TWEEN.Tween(this._element.material, TweenGroup.opacity)
+        .to({opacity: 0}, 1100)
+        .start();
+    }
+}
+
+
 class HTMLInteractionBlock extends InteractionBlock{
 
     _create(){
@@ -144,7 +183,6 @@ class HTMLInteractionBlock extends InteractionBlock{
         const parent = this;
         if (!parent._onScreen){
             setTimeout(function () {
-
                     parent._element.style.opacity = "1";
                     parent._onScreen = true;
                     return true;

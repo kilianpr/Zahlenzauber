@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
+import {TweenGroup} from './camtween.js'
 TWEEN.Easing.myCustom = {};
 TWEEN.Easing.myCustom.myEasingOut = function(k){
     var t = (k*100);
@@ -67,7 +68,7 @@ class ClickNavigation{
             if (p.z > 44.5){
                 p.z = 44.5;
             }
-            TWEEN.removeAll();
+            TweenGroup.modelMovement.removeAll();
             this.moveToPoint(p, velocity, animationName, () => {this._controls.idle()});
             }
         }
@@ -94,7 +95,7 @@ class ClickNavigation{
         else if (animationName == 'run'){
             this._controls.run();
         }
-        new TWEEN.Tween(this._target.position)
+        new TWEEN.Tween(this._target.position, TweenGroup.modelMovement)
         .to({
             x: p.x,
             y: p.y,
@@ -110,16 +111,12 @@ class ClickNavigation{
 
     Update(timeInSeconds){
         if (!this._target.quaternion.equals(this._targetQuaternion)) {
-            console.log(this._target.position)
             this._target.quaternion.rotateTowards(
                 this._targetQuaternion,
                 timeInSeconds * (this._rotSpeed)
             )
         }
     }
-
-    
-
 }
 
 

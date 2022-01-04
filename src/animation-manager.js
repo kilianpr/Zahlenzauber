@@ -1,7 +1,6 @@
 import * as THREE from 'three';
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
+import GeneralLoadingManager from './loadingmanager.js';
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
-import wizard2 from '/res/models/wizard.fbx';
 import wizard from '/res/models/standingpose.fbx';
 import walk from '/res/anim/walk.fbx';
 import walkbackwards from '/res/anim/walkbackwards.fbx';
@@ -9,7 +8,7 @@ import run from '/res/anim/run.fbx';
 import runbackwards from '/res/anim/runbackwards.fbx';
 import jump from '/res/anim/jump.fbx';
 import wave from '/res/anim/wave.fbx';
-import idle2 from '/res/anim/idle2.fbx';
+import idle from '/res/anim/idle.fbx';
 import spell from '/res/anim/spell.fbx';
 import turn from '/res/anim/turn.fbx';
 import rightturn from '/res/anim/rightturn.fbx';
@@ -30,7 +29,7 @@ class AnimationManager{
   }
 
   _LoadModels(){
-    const loader = new FBXLoader();
+    const loader = new FBXLoader(GeneralLoadingManager);
     loader.load(wizard, (fbx) => {
         fbx.scale.setScalar(0.1);
         fbx.traverse(c => {
@@ -48,22 +47,21 @@ class AnimationManager{
 
         this._mixer = new THREE.AnimationMixer(this._target);
 
-        const manager = new THREE.LoadingManager();
-
         const _OnLoad = (animName, anim) => {
             const clip = anim.animations[0];
             const action = this._mixer.clipAction(clip);
 
+            console.log('name:' + animName)
             this._animations[animName] = {
                 clip: clip,
                 action: action
             };
         };
         
-        const loader = new FBXLoader(manager);
+        const loader = new FBXLoader(GeneralLoadingManager);
+        loader.load(idle, (a) => {_OnLoad('idle', a)});
         loader.load(walk, (a) => {_OnLoad('walk', a);});
         loader.load(walkbackwards, (a) => {_OnLoad('walkbackwards', a);});
-        loader.load(idle2, (a) => {_OnLoad('idle', a);});
         loader.load(run, (a) => {_OnLoad('run', a);});
         loader.load(runbackwards, (a) => {_OnLoad('runbackwards', a);});
         loader.load(jump, (a) => {_OnLoad('jump', a);});
