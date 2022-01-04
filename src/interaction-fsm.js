@@ -1,6 +1,6 @@
 import {CamTween} from "./camtween";
 import * as THREE from 'three';
-import {DoubleClickNavigation} from './doubleclick.js';
+import {ClickNavigation} from './clicknav.js';
 import * as TWEEN from '@tweenjs/tween.js';
 
 
@@ -13,7 +13,7 @@ class InteractionFiniteStateMachine {
     _interactionBlocks;
     _states;
     _currentState;
-    _doubleClickNav;
+    _clickNavigation;
     _controls;
 
     constructor(world, interactionBlocks, controls) {
@@ -193,7 +193,7 @@ class LastMessageState extends InteractionState{
             this._parent._interactionBlocks._nextButton.hide();
         }
         else if (prevState.Name == 'navigation'){
-            this._parent._doubleClickNav.removeDoubleClickAction();
+            this._parent._clickNavigation.removeClickActions();
             this._parent._interactionBlocks.putBack(this._parent._interactionBlocks._wrapper, 'block');
             this._parent._interactionBlocks._lastButton.show();
             this._parent._interactionBlocks._backButton.hide();
@@ -206,8 +206,8 @@ class LastMessageState extends InteractionState{
             .start();
 
             if (this._modelStillInPlace()){
-                this._parent._doubleClickNav.setRotSpeed(Math.PI/2);
-                this._parent._doubleClickNav.rotateToDefault();
+                this._parent._clickNavigation.setRotSpeed(Math.PI/2);
+                this._parent._clickNavigation.rotateToDefault();
                 this._parent._controls.turnLeft();
                 setTimeout(() => {
                     this._parent._controls.idle();
@@ -216,9 +216,10 @@ class LastMessageState extends InteractionState{
                 this._parent._controls.idle();
                 TWEEN.removeAll();
                 setTimeout(() => {
-                    this._parent._doubleClickNav.walkToPoint(new THREE.Vector3(0, 0, 0), () => { 
-                        this._parent._doubleClickNav.rotateToDefault();
-                        this._parent._controls.idle();});
+                    this._parent._clickNavigation.moveToPoint(new THREE.Vector3(0, 0, 0), 25, 'walk', () => { 
+                            this._parent._clickNavigation.rotateToDefault();
+                            this._parent._controls.idle();
+                        });
                 }, 700);
                 const tween = new CamTween(this._parent._world, toPos, toLook, 3000).getTween();
                 tween
@@ -261,19 +262,19 @@ class NavigationState extends InteractionState{
     Enter(prevState){
         const parent = this;
         if (prevState.Name == 'lastMessage'){
-            this._parent._doubleClickNav = new DoubleClickNavigation(this._parent._world, 20, this._parent._controls);
+            this._parent._clickNavigation = new ClickNavigation(this._parent._world, this._parent._controls);
             this._parent._interactionBlocks._lastButton.hide();
             setTimeout(() => {
                 this._parent._interactionBlocks.remove(this._parent._interactionBlocks._wrapper);
             }, 1000);
             setTimeout(() => {
-                this._parent._doubleClickNav.setRotSpeed(Math.PI/2);
+                this._parent._clickNavigation.setRotSpeed(Math.PI/2);
                 this._parent._controls.turnRight();
-                this._parent._doubleClickNav._targetQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), 0);
+                this._parent._clickNavigation._targetQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), 0);
                 setTimeout(() => {
                     this._parent._controls.idle();
-                    this._parent._doubleClickNav.setRotSpeed(Math.PI * 4);
-                    this._parent._doubleClickNav.addDoubleClickAction();
+                    this._parent._clickNavigation.setRotSpeed(Math.PI * 4);
+                    this._parent._clickNavigation.addClickActions();
                 }, 2000);
             }, 700);
             this._parent._interactionBlocks._navigationInfo.show();

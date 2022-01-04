@@ -61,8 +61,8 @@ class Main{
             this._controls.Update(timeElapsedS);
         }
 
-        if (this._interactionFSM._doubleClickNav){
-            this._interactionFSM._doubleClickNav.Update(timeElapsedS);
+        if (this._interactionFSM._clickNavigation){
+            this._interactionFSM._clickNavigation.Update(timeElapsedS);
         }
 
 

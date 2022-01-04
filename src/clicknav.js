@@ -9,7 +9,7 @@ TWEEN.Easing.myCustom.myEasingOut = function(k){
     return (-0.15000000000000036*tc*ts + 1.2*ts*ts + -2.7*tc + 2.4*ts + 0.25*t);
 }
 
-class DoubleClickNavigation{
+class ClickNavigation{
     _ground;
     _renderer;
     _camera;
@@ -21,28 +21,40 @@ class DoubleClickNavigation{
     _rotSpeed;
 
 
-    constructor(world, velocity, controls){
+    constructor(world, controls){
         this._ground = world._ground;
         this._controls = controls;
         this._renderer = world._threejs;
         this._camera = world._camera;
         this._target = this._controls._target;
         this._raycaster = new THREE.Raycaster();
-        this._velocity = velocity;
         this.rotateToDefault();
         this.setRotSpeed(4*Math.PI);
     }
 
-    addDoubleClickAction(){
-        this._bindFunc =  this._onDoubleClick.bind(this);
-        this._renderer.domElement.addEventListener('dblclick', this._bindFunc, false);
+    addClickActions(){
+        this._bindFuncDouble =  this._onDoubleClick.bind(this);
+        this._bindFuncSingle =  this._onSingleClick.bind(this);
+        this._renderer.domElement.addEventListener('dblclick', this._bindFuncDouble, false);
+        this._renderer.domElement.addEventListener('click', this._bindFuncSingle, false);
     }
 
-    removeDoubleClickAction(){
-        this._renderer.domElement.removeEventListener('dblclick', this._bindFunc, false);
+    removeClickActions(){
+        this._renderer.domElement.removeEventListener('dblclick', this._bindFuncDouble, false);
+        this._renderer.domElement.removeEventListener('click', this._bindFuncSingle, false);
     }
+
 
     _onDoubleClick(event){
+        this._onClick(event, 40, 'run');
+    }
+
+    
+    _onSingleClick(event){
+        this._onClick(event, 25, 'walk');
+    }
+
+    _onClick(event, velocity, animationName){
         const mouse = {
             x: (event.clientX / this._renderer.domElement.clientWidth) * 2 -1,
             y: -(event.clientY / this._renderer.domElement.clientHeight) * 2 +1
@@ -51,18 +63,13 @@ class DoubleClickNavigation{
 
         const intersects = this._raycaster.intersectObject(this._ground, false);
         if (intersects.length > 0){
-
             const p = intersects[0].point;
-
             TWEEN.removeAll();
-
-            this.walkToPoint(p, () => {this._controls.idle()});
-         }
+            this.moveToPoint(p, velocity, animationName, () => {this._controls.idle()});
+            }
         }
+        
 
-    setVelocity(velocity){
-        this._velocity = velocity;
-    }
 
     setRotSpeed(rotSpeed){
         this._rotSpeed = rotSpeed;
@@ -73,19 +80,23 @@ class DoubleClickNavigation{
         this._targetQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);;
     }
 
-    walkToPoint(p, onFinish){
+    moveToPoint(p, velocity, animationName, onFinish){
         const distance = this._target.position.distanceTo(p)
         const rotationMatrix = new THREE.Matrix4();
         rotationMatrix.lookAt(p, this._target.position, this._target.up);
         this._targetQuaternion.setFromRotationMatrix(rotationMatrix);
-        
-        this._controls.walk();
+        if (animationName=='walk'){
+            this._controls.walk();
+        }
+        else if (animationName == 'run'){
+            this._controls.run();
+        }
         new TWEEN.Tween(this._target.position)
         .to({
             x: p.x,
             y: p.y,
             z: p.z
-        }, (2000/this._velocity)*distance)
+        }, (2000/velocity)*distance)
         .easing(TWEEN.Easing.myCustom.myEasingOut)
         .onComplete(() => {
             onFinish();
@@ -96,13 +107,10 @@ class DoubleClickNavigation{
 
     Update(timeInSeconds){
         if (!this._target.quaternion.equals(this._targetQuaternion)) {
-            this._isTurning = true;
             this._target.quaternion.rotateTowards(
                 this._targetQuaternion,
                 timeInSeconds * (this._rotSpeed)
             )
-        } else{
-            this._isTurning = false;
         }
     }
 
@@ -111,4 +119,4 @@ class DoubleClickNavigation{
 }
 
 
-export{DoubleClickNavigation}
+export{ClickNavigation}
