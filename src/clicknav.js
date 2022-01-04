@@ -64,6 +64,9 @@ class ClickNavigation{
         const intersects = this._raycaster.intersectObject(this._ground, false);
         if (intersects.length > 0){
             const p = intersects[0].point;
+            if (p.z > 44.5){
+                p.z = 44.5;
+            }
             TWEEN.removeAll();
             this.moveToPoint(p, velocity, animationName, () => {this._controls.idle()});
             }
@@ -107,6 +110,7 @@ class ClickNavigation{
 
     Update(timeInSeconds){
         if (!this._target.quaternion.equals(this._targetQuaternion)) {
+            console.log(this._target.position)
             this._target.quaternion.rotateTowards(
                 this._targetQuaternion,
                 timeInSeconds * (this._rotSpeed)
