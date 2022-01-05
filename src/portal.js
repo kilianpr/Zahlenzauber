@@ -3,6 +3,7 @@ import watertexture from '/res/particles/water.png'
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader.js';
 import portal from '/res/room/portal.obj';
 import stoneText from '/res/room/stonetext.jpg';
+import Constants from './constants.js';
 
 
 const _VSPortal = `
@@ -43,36 +44,39 @@ varying vec3 vPosition;
 
 class Portal{
 
-    constructor(parent, width, positionX, positionY, positionZ) {
+    constructor(parent, width, position) {
+      const positionX = position.x;
+      const positionY = position.y;
+      const positionZ = position.z
 
-        const object = this;
-        const objLoader = new OBJLoader();
-        const textLoader = new THREE.TextureLoader();
-        objLoader.load(portal, function(obj){
-    
-            //set stone texture of portal
-            var texture = textLoader.load(stoneText);
-            var mat = new THREE.MeshStandardMaterial({map:texture});
-            obj["children"][0].material = mat;
-    
-            //set position and rotation
-            obj.position.set(positionX, positionY, positionZ);
-            obj.rotation.y = Math.PI/2;
-    
-            //scales the portal to the given width
-            let box = new THREE.Box3().setFromObject(obj);
-            let initWidth = box.max.x - box.min.x;
-            if (Math.round(initWidth) !== width){
-              obj.scale.set(width/initWidth, width/initWidth, width/initWidth);
-            }
-            
-            box.setFromObject(obj);
-            object._innerHeight = 0.9*(box.max.y - box.min.y);
-            parent._scene.add(obj);
-            object._animation = new Animation(parent, 0.75*width, object._innerHeight, positionX, positionY+object._innerHeight/2, positionZ);
-        },
-        
-        );
+      const object = this;
+      const objLoader = new OBJLoader(Constants.GeneralLoadingManager);
+      const textLoader = new THREE.TextureLoader(Constants.GeneralLoadingManager);
+      objLoader.load(portal, function(obj){
+  
+          //set stone texture of portal
+          var texture = textLoader.load(stoneText);
+          var mat = new THREE.MeshStandardMaterial({map:texture});
+          obj["children"][0].material = mat;
+  
+          //set position and rotation
+          obj.position.set(positionX, positionY, positionZ);
+          obj.rotation.y = Math.PI/2;
+  
+          //scales the portal to the given width
+          let box = new THREE.Box3().setFromObject(obj);
+          let initWidth = box.max.x - box.min.x;
+          if (Math.round(initWidth) !== width){
+            obj.scale.set(width/initWidth, width/initWidth, width/initWidth);
+          }
+          
+          box.setFromObject(obj);
+          object._innerHeight = 0.9*(box.max.y - box.min.y);
+          parent._scene.add(obj);
+          object._animation = new Animation(parent, 0.75*width, object._innerHeight, positionX, positionY+object._innerHeight/2, positionZ);
+      },
+      
+      );
     }
 
     showAnimation(){
@@ -91,7 +95,7 @@ class Animation{
 
     const uniforms = {
       myTexture: {
-          value: new THREE.TextureLoader().load(watertexture),
+          value: new THREE.TextureLoader(Constants.GeneralLoadingManager).load(watertexture),
       },
       time: {
         value: 0

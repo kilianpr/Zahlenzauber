@@ -2,6 +2,7 @@ import fire from '/res/particles/fire.png'
 import * as THREE from 'three';
 import watertexture from '/res/particles/water.png'
 import * as TWEEN from '@tweenjs/tween.js';
+import Constants from './constants.js';
 
 
 const _VS = `
@@ -68,7 +69,7 @@ class Fire {
     this.visible = false;
     const uniforms = {
         diffuseTexture: {
-            value: new THREE.TextureLoader().load(fire)
+            value: new THREE.TextureLoader(Constants.GeneralLoadingManager).load(fire)
         },
         pointMultiplier: {
             value: window.innerHeight / (2.0 * Math.tan(0.5 * 60.0 * Math.PI / 180.0))

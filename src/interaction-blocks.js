@@ -3,7 +3,7 @@ import arrowRight from '/res/icons/arrow-right.png'
 import arrowLeft from '/res/icons/arrow-left.png';
 import infoIcon from '/res/icons/info.svg';
 import * as TWEEN from '@tweenjs/tween.js';
-import {TweenGroup} from './camtween.js';
+import Constants from './constants.js';
 
 class InteractionBlocks{
     /*
@@ -88,10 +88,22 @@ class InteractionBlocks{
 
     _initCheckPoints(){
         this._checkPointLeft = new CheckPoint(5);
-        this._world._scene.add(this._checkPointLeft._element);
-        this._checkPointLeft.show();
-        console.log(this._checkPointLeft._element)
+        this._checkPointLeft.setPosition(Constants.PortalPositions.Left);
 
+        this._checkPointMid = new CheckPoint(5);
+        this._checkPointMid.setPosition(Constants.PortalPositions.Mid);
+
+        this._checkPointRight = new CheckPoint(5);
+        this._checkPointRight.setPosition(Constants.PortalPositions.Right);
+
+
+        this._world._scene.add(this._checkPointLeft._element);
+        this._world._scene.add(this._checkPointMid._element);
+        this._world._scene.add(this._checkPointRight._element);
+        
+        this._checkPointLeft.show();
+        this._checkPointMid.show();
+        this._checkPointRight.show();
     }
 
     move(element, position){
@@ -109,23 +121,6 @@ class InteractionBlocks{
 
     putBack(element, display){
         element.style.display = display;
-    }
-}
-
-class LoadingScreen {
-
-    //a black screen to be shown when loading
-    constructor(){
-        this._Init();
-    }
-
-    _Init(){
-        this._element = document.createElement('div');
-        this._element.classList.add("loading")
-    }
-
-    hide(){
-        this._element.style.opacity="0";
     }
 }
 
@@ -150,26 +145,49 @@ class CheckPoint extends InteractionBlock{
 
     _create(){
         const geometry = new THREE.CylinderGeometry(this._radius, this._radius, .5, 32, 1);
-        const material = new THREE.MeshPhongMaterial({transparent: true, opacity: 0, color: 0xFFD700});
+        const material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0, color: 0xFFD700});
         this._element = new THREE.Mesh(geometry, material);
-        this._element.position.y = .1;
-        this._element.layers.enable(1);
-        this._element.rotateX(-Math.PI/2);
     }
 
     show(){
-        new TWEEN.Tween(this._element.material, TweenGroup.opacity)
+        new TWEEN.Tween(this._element.material, Constants.TweenGroup.Opacity)
         .to({opacity: 1}, 2000)
         .onComplete(console.log('lol'))
         .start();
     }
 
     hide(){
-        new TWEEN.Tween(this._element.material, TweenGroup.opacity)
+        new TWEEN.Tween(this._element.material, Constants.TweenGroup.opacity)
         .to({opacity: 0}, 1100)
         .start();
     }
+
+    setPosition(position){ //x and z from position are set coordinates are set 
+        this._element.position.set(position.x, 0, 45);
+    }
 }
+class LoadingScreen {
+
+    //a black screen to be shown when loading
+    constructor(){
+        this._Init();
+    }
+
+    _Init(){
+        this._element = document.createElement('div');
+        this._element.classList.add("loading")
+    }
+
+    hide(){
+        this._element.style.opacity="0";
+    }
+}
+
+
+
+
+
+
 
 
 class HTMLInteractionBlock extends InteractionBlock{

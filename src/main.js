@@ -4,9 +4,7 @@ import * as TWEEN from '@tweenjs/tween.js';
 import {InteractionBlocks} from './interaction-blocks.js';
 import {InteractionFiniteStateMachine} from './interaction-fsm.js';
 import {AnimationManager} from './animation-manager.js'
-import {TweenGroup} from './camtween';
-import GeneralLoadingManager from './loadingmanager.js';
-
+import Constants from './constants';
 
 class Main{
 
@@ -31,7 +29,7 @@ class Main{
         window.addEventListener('resize', () => { //resizes renderer on Resize
             this._OnWindowResize();
         }, false);
-        GeneralLoadingManager.onLoad = function(){
+        Constants.GeneralLoadingManager.onLoad = function(){
             parent._interactionFSM.SetState('transitionIn');
         };
     }
@@ -54,9 +52,9 @@ class Main{
             this._Step(t - this._previousRAF);
             this._previousRAF = t;
             TWEEN.update(t);
-            TweenGroup.opacity.update(t);
-            TweenGroup.camMovement.update(t);
-            TweenGroup.modelMovement.update(t);
+            Constants.TweenGroup.Opacity.update(t);
+            Constants.TweenGroup.CamMovement.update(t);
+            Constants.TweenGroup.ModelMovement.update(t);
           });
     }
 

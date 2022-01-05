@@ -5,6 +5,7 @@ import {Portal} from './portal.js';
 import '/src/base.css';
 import bricksText from '/res/room/blue-bricks.jpg';
 import floorText from '/res/room/floorText.jpg';
+import Constants from './constants.js';
 
 
 
@@ -65,7 +66,7 @@ class World{
     //builds a room with 4 walls
     _BuildRoom(){
 
-        const textLoader = new THREE.TextureLoader();
+        const textLoader = new THREE.TextureLoader(Constants.GeneralLoadingManager);
         const floor = textLoader.load(floorText);
         floor.wrapS = THREE.RepeatWrapping;
         floor.wrapT = THREE.RepeatWrapping;
@@ -115,9 +116,9 @@ class World{
         this._scene.add(wall4);
         wall4.position.set(0, 50, -50);
 
-        this._portalA = new Portal(this, 20, 0, 0, 50);
-        this._portalB = new Portal(this, 20, 25, 0, 50);
-        this._portalC = new Portal(this, 20, -25, 0, 50);
+        this._portalA = new Portal(this, 20, Constants.PortalPositions.Left);
+        this._portalB = new Portal(this, 20, Constants.PortalPositions.Mid);
+        this._portalC = new Portal(this, 20, Constants.PortalPositions.Right);
       }
 
 
@@ -132,24 +133,6 @@ class World{
         camera: this._camera,
         centerPos: new THREE.Vector3(-44, 0, 44)
       });
-    }
-
-    _makeComposer(){
-      let renderScene = new RenderPass(this._scene,this._camera )
-      let bloomPass = new BloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 )
-      bloomPass.threshold = 0.21
-      bloomPass.strength = 1.2
-      bloomPass.radius = 0.55
-      bloomPass.renderToScreen = true
-        
-      this._composer = new EffectComposer(this._threejs)
-      this._composer.setSize( window.innerWidth, window.innerHeight )
-        
-      this._composer.addPass( renderScene )
-      this._composer.addPass( bloomPass )
-        
-      this._threejs.outputEncoding = true
-      this._threejs.toneMappingExposure = Math.pow( 0.9, 4.0 ) 
     }
 }
 

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import GeneralLoadingManager from './loadingmanager.js';
+import Constants from './constants.js';
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
-import wizard from '/res/models/standingpose.fbx';
+import wizard from '/res/models/wizard.fbx';
 import walk from '/res/anim/walk.fbx';
 import walkbackwards from '/res/anim/walkbackwards.fbx';
 import run from '/res/anim/run.fbx';
@@ -29,7 +29,7 @@ class AnimationManager{
   }
 
   _LoadModels(){
-    const loader = new FBXLoader(GeneralLoadingManager);
+    const loader = new FBXLoader(Constants.GeneralLoadingManager);
     loader.load(wizard, (fbx) => {
         fbx.scale.setScalar(0.1);
         fbx.traverse(c => {
@@ -51,17 +51,17 @@ class AnimationManager{
             const clip = anim.animations[0];
             const action = this._mixer.clipAction(clip);
 
-            console.log('name:' + animName)
+            console.log('loaded:' + animName)
             this._animations[animName] = {
                 clip: clip,
                 action: action
             };
         };
         
-        const loader = new FBXLoader(GeneralLoadingManager);
-        loader.load(idle, (a) => {_OnLoad('idle', a)});
+        const loader = new FBXLoader(Constants.GeneralLoadingManager);
         loader.load(walk, (a) => {_OnLoad('walk', a);});
         loader.load(walkbackwards, (a) => {_OnLoad('walkbackwards', a);});
+        loader.load(idle, (a) => {_OnLoad('idle', a)});
         loader.load(run, (a) => {_OnLoad('run', a);});
         loader.load(runbackwards, (a) => {_OnLoad('runbackwards', a);});
         loader.load(jump, (a) => {_OnLoad('jump', a);});

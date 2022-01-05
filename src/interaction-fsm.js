@@ -1,7 +1,7 @@
-import {CamTween, TweenGroup} from "./camtween";
+import {CamTween} from "./camtween";
+import Constants from './constants.js';
 import * as THREE from 'three';
 import {ClickNavigation} from './clicknav.js';
-import * as TWEEN from '@tweenjs/tween.js';
 
 
 const firstMessageText = "Herzlich Willkommen!";
@@ -89,7 +89,7 @@ class TransitionInState extends InteractionState {
             setTimeout(function(){
                 parent._parent._interactionBlocks.remove(parent._parent._interactionBlocks._loadingScreen._element);
             }, 2000);
-        }, 1200);
+        }, 1);
 
         let toPos = new THREE.Vector3(0, 12, -20);
         let toLook = new THREE.Vector3(0, 12,  50);
@@ -98,7 +98,6 @@ class TransitionInState extends InteractionState {
         .onComplete(function(){
             parent._parent.SetState('firstMessage');
         })
-        .delay(700)
         .start();
     }
 
@@ -201,6 +200,7 @@ class LastMessageState extends InteractionState{
             this._parent._interactionBlocks._backButton.removeAction();
             let toPos = new THREE.Vector3(0, 12, -20);
             let toLook = new THREE.Vector3(0, 12,  50);
+            Constants.TweenGroup.CamMovement.removeAll();
             const tween = new CamTween(this._parent._world, toPos, toLook, 3000).getTween();
             tween
             .delay(700)
@@ -215,17 +215,13 @@ class LastMessageState extends InteractionState{
                 }, 2000);
             } else{
                 this._parent._controls.idle();
-                TweenGroup.modelMovement.removeAll();
+                Constants.TweenGroup.ModelMovement.removeAll();
                 setTimeout(() => {
                     this._parent._clickNavigation.moveToPoint(new THREE.Vector3(0, 0, 0), 25, 'walk', () => { 
                             this._parent._clickNavigation.rotateToDefault();
                             this._parent._controls.idle();
                         });
                 }, 700);
-                const tween = new CamTween(this._parent._world, toPos, toLook, 3000).getTween();
-                tween
-                .delay(700)
-                .start();
             }
                 
         }
@@ -276,13 +272,14 @@ class NavigationState extends InteractionState{
                     this._parent._controls.idle();
                     this._parent._clickNavigation.setRotSpeed(Math.PI * 4);
                     this._parent._clickNavigation.addClickActions();
+                    this._parent._interactionBlocks._backButton.setAction(() => {this._parent.SetState('lastMessage')});
                 }, 2000);
             }, 700);
             this._parent._interactionBlocks._navigationInfo.show();
             this._parent._interactionBlocks._backButton.show();
-            this._parent._interactionBlocks._backButton.setAction(() => {this._parent.SetState('lastMessage')});
             let toPos = new THREE.Vector3(42, 12, -12);
             let toLook = new THREE.Vector3(0, 12, 50);
+            Constants.TweenGroup.CamMovement.removeAll();
             const tween = new CamTween(this._parent._world, toPos, toLook, 3000).getTween();
             tween
             .delay(700)

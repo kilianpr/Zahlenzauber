@@ -1,4 +1,5 @@
 import * as TWEEN from '@tweenjs/tween.js';
+import Constants from './constants.js';
 
 class CamTween{
     constructor(world, toPos, toLook, duration){
@@ -17,7 +18,7 @@ class CamTween{
     getTween(){
         this._world._cameraLook = this._toLook;
         const parent = this;
-          return new TWEEN.Tween(this._coords, TweenGroup.camMovement)
+          return new TWEEN.Tween(this._coords, Constants.TweenGroup.CamMovement)
           .to({ x: this._toPos.x, y: this._toPos.y, z: this._toPos.z, xLook: this._toLook.x, yLook: this._toLook.y, zLook: this._toLook.z}, this._duration)
           .easing(TWEEN.Easing.Sinusoidal.InOut)
           .onUpdate(() =>{
@@ -28,10 +29,5 @@ class CamTween{
     }
 }
 
-class TweenGroup{
-    static camMovement = new TWEEN.Group();
-    static modelMovement = new TWEEN.Group();
-    static opacity = new TWEEN.Group();
-}
 
-export{CamTween, TweenGroup}
+export{CamTween}

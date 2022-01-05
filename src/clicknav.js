@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
-import {TweenGroup} from './camtween.js'
+import Constants from './constants.js'
 TWEEN.Easing.myCustom = {};
 TWEEN.Easing.myCustom.myEasingOut = function(k){
     var t = (k*100);
@@ -68,7 +68,7 @@ class ClickNavigation{
             if (p.z > 44.5){
                 p.z = 44.5;
             }
-            TweenGroup.modelMovement.removeAll();
+            Constants.TweenGroup.ModelMovement.removeAll();
             this.moveToPoint(p, velocity, animationName, () => {this._controls.idle()});
             }
         }
@@ -95,7 +95,7 @@ class ClickNavigation{
         else if (animationName == 'run'){
             this._controls.run();
         }
-        new TWEEN.Tween(this._target.position, TweenGroup.modelMovement)
+        new TWEEN.Tween(this._target.position, Constants.TweenGroup.ModelMovement)
         .to({
             x: p.x,
             y: p.y,
