@@ -13,6 +13,12 @@ import spell from '/res/anim/spell.fbx';
 import turn from '/res/anim/turn.fbx';
 import rightturn from '/res/anim/rightturn.fbx';
 import leftturn from '/res/anim/leftturn.fbx';
+import backflip from '/res/anim/backflip.fbx';
+import bow from '/res/anim/bow.fbx';
+import jabcross from '/res/anim/jabcross.fbx';
+import reaction from '/res/anim/reaction.fbx';
+import dance1 from '/res/anim/sillydance1.fbx';
+import dance2 from '/res/anim/sillydance2.fbx';
 
 class AnimationManager{
     _animations;
@@ -70,6 +76,12 @@ class AnimationManager{
         loader.load(turn, (a) => {_OnLoad('turn', a);});
         loader.load(rightturn, (a) => {_OnLoad('rightturn', a);});
         loader.load(leftturn, (a) => {_OnLoad('leftturn', a);});
+        loader.load(backflip, (a) => {_OnLoad('backflip', a);});
+        loader.load(bow, (a) => {_OnLoad('bow', a);});
+        loader.load(jabcross, (a) => {_OnLoad('jabcross', a);});
+        loader.load(reaction, (a) => {_OnLoad('reaction', a);});
+        loader.load(dance1, (a) => {_OnLoad('dance1', a);});
+        loader.load(dance2, (a) => {_OnLoad('dance2', a);});
     });
     }
 
@@ -113,6 +125,10 @@ class AnimationManager{
         this._stateMachine.SetState('leftturn');
     }
 
+    react(){
+        this._stateMachine.SetState('react');
+    }
+
     getPosition(){
         return this._target.position;
     }
@@ -123,6 +139,7 @@ class AnimationManager{
 
     Update(timeInSeconds) {
         if (!this.isReady()) {
+            console.log('not ready')
             return;
         }
 
@@ -148,10 +165,10 @@ class FiniteStateMachine {
         const prevState = this._currentState;
         
         if (prevState) {
-        if (prevState.Name == name) {
-            return;
-        }
-        prevState.Exit();
+          if (prevState.Name == name) {
+              return;
+          }
+          prevState.Exit();
         }
 
         const state = new this._states[name](this);
@@ -191,6 +208,7 @@ _Init() {
     this._AddState('spell', SpellState);
     this._AddState('rightturn', RightTurnState);
     this._AddState('leftturn', LeftTurnState);
+    this._AddState('react', ReactState);
 }
 }
 
@@ -217,6 +235,8 @@ class IdleState extends State {
           if (prevState.Name == 'walk' || prevState.Name == 'run' || prevState.Name == 'walkbackwards' || prevState.Name == 'runbackwards' || prevState.Name == 'rightturn' || prevState.Name == 'leftturn'){
             curAction.crossFadeFrom(prevAction, 0.2, true);
           } else{
+            console.log('long Cross Fade')
+            console.log(prevAction);
             curAction.crossFadeFrom(prevAction, 0.5, true);
           }
         }
@@ -439,6 +459,7 @@ class WaveState extends State{
   }
 
   _Finished() {
+    console.log('finished')
     this._Cleanup();
     this._parent.SetState('idle');
   }
@@ -565,6 +586,57 @@ class LeftTurnState extends State{
   Exit(){
 
   }
+}
+
+
+class ReactState extends State{
+  constructor(parent){
+    super(parent);
+
+    this._FinishedCallback = () => {
+      this._Finished();
+    }
+  }
+
+  get Name(){
+    return 'react';
+  }
+
+  Enter(prevState){
+    const reactAnimations = ['wave', 'backflip', 'bow', 'jabcross', 'reaction', 'dance1', 'dance2'];
+    const reactAnimation = reactAnimations[Math.floor(Math.random()*reactAnimations.length)];
+    const curAction = this._parent._animations[reactAnimation].action;
+    const mixer = curAction.getMixer();
+    mixer.addEventListener('finished', this._FinishedCallback);
+
+    if(prevState){
+      const prevAction = this._parent._animations[prevState.Name].action;
+      
+      curAction.reset();  
+      curAction.setLoop(THREE.LoopOnce, 1);
+      curAction.clampWhenFinished = true;
+      curAction.crossFadeFrom(prevAction, 1, true);
+    }
+    curAction.play();
+  }
+
+  _Finished() {
+    this._Cleanup();
+    this._parent.SetState('idle');
+  }
+
+  _Cleanup() {
+    const action = this._parent._animations['spell'].action;
+    action.getMixer().removeEventListener('finished', this._FinishedCallback);
+  }
+
+  Exit() {
+    const action = this._parent._animations['spell'].action;
+    action.getMixer().removeEventListener('finished', this._FinishedCallback);
+    action.stop();
+    this._parent.SetState('idle');
+  }
+
 }
 
 

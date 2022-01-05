@@ -8,6 +8,8 @@ const groupC = new TWEEN.Group();
 const midPortalPos = new THREE.Vector3(0, 0, 50);
 const rightPortalPos = new THREE.Vector3(-25, 0, 50);
 const leftPortalPos = new THREE.Vector3(25, 0, 50);
+const mouse = new THREE.Vector2();
+const raycaster = new THREE.Raycaster();
 
 const Constants = {
     GeneralLoadingManager: manager,
@@ -20,6 +22,8 @@ const Constants = {
         Left : leftPortalPos,
         Mid: midPortalPos,
         Right: rightPortalPos
-    }
+    },
+    Mouse : mouse,
+    Raycaster : raycaster
 }
 export default Constants;

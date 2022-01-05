@@ -19,12 +19,20 @@ class InteractionBlocks{
     _loadingScreen; //loading screen which is shown in the very beginning
     _navigationInfo; //information block about how to navigate on the website
 
+    _checkPointLeft;
+    _checkPointMid;
+    _checkPointRight;
+    _interactiveModel; //stores the interactions with the model and can add/remove them
+
+
     _wrapper; //wraps _speechBubble, _nextBtn, _lastBtn and _startBtn to position below the wizard
 
     _world; //the three.js scene
+    _controls; //the instance of the AnimationManager
 
-    constructor(world){
+    constructor(world, controls){
         this._world = world;
+        this._controls = controls;
         this._initBlocks();
     }
 
@@ -34,6 +42,7 @@ class InteractionBlocks{
         this._initBackButton();
         this._initNavigationInfo();
         this._initCheckPoints();
+        this._initInteractiveModel();
     }
 
     _initLoadingScreen(){
@@ -49,17 +58,19 @@ class InteractionBlocks{
         this._lastBubbleNext = document.createElement('div');
         this._lastBubbleNext.classList.add('last-bubble-next');
 
-        this._lastButton = new ImageButton(arrowLeft);
+        console.log("image: "+arrowLeft);
+        this._lastButton = new Button(arrowLeft, 'img');
         this._lastButton._element.style.width = '15%';
         this._speechBubble = new SpeechBubble("Herzlich Willkommen!");
-        this._nextButton = new ImageButton(arrowRight);
+        console.log("image: "+ arrowLeft);
+        this._nextButton = new Button(arrowRight, 'img');
         this._nextButton._element.style.width = '15%';
 
         this._lastBubbleNext.appendChild(this._lastButton._element);
         this._lastBubbleNext.appendChild(this._speechBubble._element);
         this._lastBubbleNext.appendChild(this._nextButton._element);
 
-        this._startButton = new TextButton("START");
+        this._startButton = new Button("START", 'text');
 
         this._wrapper.appendChild(this._lastBubbleNext);
         this._wrapper.appendChild(this._startButton._element);
@@ -68,7 +79,8 @@ class InteractionBlocks{
     }
 
     _initBackButton(){
-        this._backButton = new ImageButton(arrowLeft);
+        console.log("image: "+ arrowLeft);
+        this._backButton = new Button(arrowLeft, 'img');
         this._backButton._element.style.position = 'absolute';
         this._backButton._element.style.top = '0';
         this._backButton._element.style.left = '0';
@@ -100,10 +112,11 @@ class InteractionBlocks{
         this._world._scene.add(this._checkPointLeft._element);
         this._world._scene.add(this._checkPointMid._element);
         this._world._scene.add(this._checkPointRight._element);
-        
-        this._checkPointLeft.show();
-        this._checkPointMid.show();
-        this._checkPointRight.show();
+    }
+
+    _initInteractiveModel(){
+        this._interactiveModel = new InteractiveModel(this._controls, this._world._threejs);
+        this._interactiveModel.addClickAction();
     }
 
     move(element, position){
@@ -152,13 +165,13 @@ class CheckPoint extends InteractionBlock{
     show(){
         new TWEEN.Tween(this._element.material, Constants.TweenGroup.Opacity)
         .to({opacity: 1}, 2000)
-        .onComplete(console.log('lol'))
+        .delay(5000)
         .start();
     }
 
     hide(){
-        new TWEEN.Tween(this._element.material, Constants.TweenGroup.opacity)
-        .to({opacity: 0}, 1100)
+        new TWEEN.Tween(this._element.material, Constants.TweenGroup.Opacity)
+        .to({opacity: 0},2000)
         .start();
     }
 
@@ -166,6 +179,35 @@ class CheckPoint extends InteractionBlock{
         this._element.position.set(position.x, 0, 45);
     }
 }
+
+
+class InteractiveModel{
+    constructor(controls, renderer){
+        this._controls = controls;
+        this._renderer = renderer;
+        this._model = this._controls._target;
+        this._bindFunction =  this._onClick.bind(this);
+    }
+
+    addClickAction(){
+        this._renderer.domElement.addEventListener('click', this._bindFunction, false);
+    }
+
+    removeClickAction(){
+        this._renderer.domElement.removeEventListener('click', this._bindFunction, false);
+    }
+
+    _onClick(){
+        /*const intersects = Constants.Raycaster.intersectObject(this._model, false);
+        if (intersects.length > 0 && Constants.TweenGroup.MovementTween.getAll()[0] == null){
+            console.log('Make a reaction')
+            this._controls.react();
+        }*/
+    }
+
+
+}
+
 class LoadingScreen {
 
     //a black screen to be shown when loading
@@ -182,11 +224,6 @@ class LoadingScreen {
         this._element.style.opacity="0";
     }
 }
-
-
-
-
-
 
 
 
@@ -294,13 +331,25 @@ class SpeechBubble extends HTMLInteractionBlock{
 class Button extends HTMLInteractionBlock{
     _action;
 
-    constructor(){
+    constructor(src, type){
         super();
+        this._src = src;
+        this._type = type;
         this._create();
     }
 
     _create(){
         super._create();
+        if (this._type == 'img'){
+            this._imgElement = document.createElement('img');
+            this._imgElement.src = this._src;
+            this._element.appendChild(this._imgElement);
+            this._element.classList.add('button-img');
+        } else {
+            super._create();
+            this._element.innerHTML = this._src;
+            this._element.classList.add('button-txt');
+        }
         this._element.classList.add('button');
     }
 
@@ -337,8 +386,8 @@ class ImageButton extends Button{
     }
 
     _create(){
-        super._create();
         this._imgElement = document.createElement('img');
+        console.log("image in creation: "+ this._image);
         this._imgElement.src = this._image;
         this._element.appendChild(this._imgElement);
         this._element.classList.add('button-img');

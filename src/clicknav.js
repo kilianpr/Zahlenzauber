@@ -46,23 +46,17 @@ class ClickNavigation{
     }
 
 
-    _onDoubleClick(event){
-        this._onClick(event, 40, 'run');
+    _onDoubleClick(){
+        this._onClick(40, 'run');
     }
 
     
-    _onSingleClick(event){
-        this._onClick(event, 25, 'walk');
+    _onSingleClick(){
+        this._onClick(25, 'walk');
     }
 
-    _onClick(event, velocity, animationName){
-        const mouse = {
-            x: (event.clientX / this._renderer.domElement.clientWidth) * 2 -1,
-            y: -(event.clientY / this._renderer.domElement.clientHeight) * 2 +1
-        }
-        this._raycaster.setFromCamera(mouse, this._camera);
-
-        const intersects = this._raycaster.intersectObject(this._ground, false);
+    _onClick(velocity, animationName){
+        const intersects = Constants.Raycaster.intersectObject(this._ground, false);
         if (intersects.length > 0){
             const p = intersects[0].point;
             if (p.z > 44.5){
@@ -71,7 +65,9 @@ class ClickNavigation{
             Constants.TweenGroup.ModelMovement.removeAll();
             this.moveToPoint(p, velocity, animationName, () => {this._controls.idle()});
             }
-        }
+    }
+
+
         
 
 

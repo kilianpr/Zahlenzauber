@@ -53,6 +53,8 @@ class Portal{
       const objLoader = new OBJLoader(Constants.GeneralLoadingManager);
       const textLoader = new THREE.TextureLoader(Constants.GeneralLoadingManager);
       objLoader.load(portal, function(obj){
+
+          object._object = obj;
   
           //set stone texture of portal
           var texture = textLoader.load(stoneText);

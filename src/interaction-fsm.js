@@ -191,6 +191,7 @@ class LastMessageState extends InteractionState{
         if (prevState.Name == 'secondMessage'){
             console.log("HIDE");
             this._parent._interactionBlocks._nextButton.hide();
+            this._setOnClickListeners();
         }
         else if (prevState.Name == 'navigation'){
             this._parent._clickNavigation.removeClickActions();
@@ -212,6 +213,7 @@ class LastMessageState extends InteractionState{
                 this._parent._controls.turnLeft();
                 setTimeout(() => {
                     this._parent._controls.idle();
+                    this._setOnClickListeners();
                 }, 2000);
             } else{
                 this._parent._controls.idle();
@@ -220,6 +222,7 @@ class LastMessageState extends InteractionState{
                     this._parent._clickNavigation.moveToPoint(new THREE.Vector3(0, 0, 0), 25, 'walk', () => { 
                             this._parent._clickNavigation.rotateToDefault();
                             this._parent._controls.idle();
+                            this._setOnClickListeners();
                         });
                 }, 700);
             }
@@ -228,9 +231,6 @@ class LastMessageState extends InteractionState{
         this._parent._interactionBlocks._speechBubble.setText(lastMessageText);
         this._parent._interactionBlocks._speechBubble.show();
         this._parent._interactionBlocks._startButton.show();
-
-        this._parent._interactionBlocks._lastButton.setAction(() => {this._parent.SetState('secondMessage')});
-        this._parent._interactionBlocks._startButton.setAction(() => {this._parent.SetState('navigation')});
     }
 
     _modelStillInPlace(){
@@ -239,6 +239,11 @@ class LastMessageState extends InteractionState{
         return (this._parent._controls._target.position.x < 0.1 && this._parent._controls._target.position.x > -0.1 
             && this._parent._controls._target.position.z < 0.1 && this._parent._controls._target.position.z > -0.1 
             && this._parent._controls._target.rotation.y < 0.1 && this._parent._controls._target.rotation.y > -0.1);
+    }
+
+    _setOnClickListeners(){
+        this._parent._interactionBlocks._lastButton.setAction(() => {this._parent.SetState('secondMessage')});
+        this._parent._interactionBlocks._startButton.setAction(() => {this._parent.SetState('navigation')});
     }
 
     Exit(){
@@ -259,6 +264,8 @@ class NavigationState extends InteractionState{
     Enter(prevState){
         const parent = this;
         if (prevState.Name == 'lastMessage'){
+            this._parent._interactionBlocks._lastButton.removeAction();
+            this._parent._interactionBlocks._startButton.removeAction();
             this._parent._clickNavigation = new ClickNavigation(this._parent._world, this._parent._controls);
             this._parent._interactionBlocks._lastButton.hide();
             setTimeout(() => {

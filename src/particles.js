@@ -1,6 +1,5 @@
 import fire from '/res/particles/fire.png'
 import * as THREE from 'three';
-import watertexture from '/res/particles/water.png'
 import * as TWEEN from '@tweenjs/tween.js';
 import Constants from './constants.js';
 
