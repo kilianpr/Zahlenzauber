@@ -28,6 +28,11 @@ class Main{
         this._world._makeFire();
         this._AddWindowEventListeners();
         Constants.GeneralLoadingManager.onLoad = function(){
+            /*parent._world._scene.traverse( function( object ) {
+
+                object.frustumCulled = false;
+            
+            } );*/
             parent._interactionBlocks = new InteractionBlocks(parent._world, parent._controls);
             parent._interactionFSM = new InteractionFiniteStateMachine(parent._world, parent._interactionBlocks, parent._controls);
             parent._RAF()

@@ -58,8 +58,8 @@ class World{
       const orbitControls = new OrbitControls(
           this._camera, document.body);
 
-      const helper = new THREE.AxesHelper(100);
-      this._scene.add(helper);
+      //const helper = new THREE.AxesHelper(100);
+      //this._scene.add(helper);
     }
 
 
@@ -82,6 +82,7 @@ class World{
         this._ground.castShadow = false;
         this._ground.receiveShadow = false;
         this._ground.rotation.x = -Math.PI / 2;
+        this._ground.name = "ground";
         this._scene.add(this._ground);
 
         const bricks = textLoader.load(bricksText);
@@ -99,22 +100,29 @@ class World{
         wall1.rotation.y = -Math.PI /2;
         this._scene.add(wall1);
         wall1.position.set(50, 50, 0);
+        wall1.name = "wall1";
 
 
         const wall2 = wall1.clone();
         wall2.rotation.y = Math.PI /2;
         this._scene.add(wall2);
         wall2.position.set(-50, 50, 0);
+        wall1.name = "wall2";
+
 
         const wall3 = wall1.clone();
         wall3.rotation.y = Math.PI;
         this._scene.add(wall3);
         wall3.position.set(0, 50, 50);
+        wall1.name = "wall3";
+
 
         const wall4 = wall1.clone();
         wall4.rotation.y = 0;
         this._scene.add(wall4);
         wall4.position.set(0, 50, -50);
+        wall1.name = "wall4";
+
 
         this._portalA = new Portal(this, 20, Constants.PortalPositions.Left);
         this._portalB = new Portal(this, 20, Constants.PortalPositions.Mid);

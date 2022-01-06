@@ -68,8 +68,6 @@ class ClickNavigation{
     }
 
 
-        
-
 
     setRotSpeed(rotSpeed){
         this._rotSpeed = rotSpeed;

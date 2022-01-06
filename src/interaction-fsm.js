@@ -80,7 +80,6 @@ class TransitionInState extends InteractionState {
     }
 
     Enter(prevState){
-        console.log(this._parent._controls._animations)
         this._parent._controls.idle();
         const parent = this;
 

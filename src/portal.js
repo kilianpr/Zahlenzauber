@@ -60,6 +60,7 @@ class Portal{
           var texture = textLoader.load(stoneText);
           var mat = new THREE.MeshStandardMaterial({map:texture});
           obj["children"][0].material = mat;
+          obj.name = "portalFrame";
   
           //set position and rotation
           obj.position.set(positionX, positionY, positionZ);
@@ -115,7 +116,7 @@ class Animation{
     })
     this._plane = new THREE.Mesh(this._geometry, this._material);
     this._plane.position.set(positionX, positionY, positionZ-.8);
-
+    this._plane.name = "portalInside";
 
     this._light = new THREE.RectAreaLight( 0xffffff, 1,  width, height );
     this._light.position.set(positionX, positionY, positionZ);

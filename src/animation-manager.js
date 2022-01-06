@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import Constants from './constants.js';
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import wizard from '/res/models/wizard.fbx';
 import walk from '/res/anim/walk.fbx';
 import walkbackwards from '/res/anim/walkbackwards.fbx';
@@ -19,6 +20,7 @@ import jabcross from '/res/anim/jabcross.fbx';
 import reaction from '/res/anim/reaction.fbx';
 import dance1 from '/res/anim/sillydance1.fbx';
 import dance2 from '/res/anim/sillydance2.fbx';
+import wizardGLTF from '/res/anim/wizard.glb';
 
 class AnimationManager{
     _animations;
@@ -31,7 +33,7 @@ class AnimationManager{
   constructor(scene){
     this._animations = {};
     this._scene = scene;
-    this._LoadModels();
+    this._LoadModelsGLTF();
   }
 
   _LoadModels(){
@@ -39,13 +41,13 @@ class AnimationManager{
     loader.load(wizard, (fbx) => {
         fbx.scale.setScalar(0.1);
         fbx.traverse(c => {
-        c.castShadow = true;
+          c.castShadow = true;
         });
-        const helper = new THREE.AxesHelper(50);
-        helper.material.linewidth = 10;
-        fbx.add(helper);
-        fbx.linewidth = 3;
+        //const helper = new THREE.AxesHelper(50);
+        //helper.material.linewidth = 10;
+        //fbx.add(helper);
         this._target = fbx;
+        this._target.name = "Merlin";
         this._stateMachine = new CharacterFSM(this._animations, this._target);
         this._target.position.set(0,0,0);
         this._target.rotateY(Math.PI);
@@ -83,6 +85,59 @@ class AnimationManager{
         loader.load(dance1, (a) => {_OnLoad('dance1', a);});
         loader.load(dance2, (a) => {_OnLoad('dance2', a);});
     });
+    }
+
+    _LoadModelsGLTF(){
+      const loader = new GLTFLoader(Constants.GeneralLoadingManager);
+      loader.load(wizardGLTF, ( gltf ) => {
+        gltf.scene.scale.setScalar(10);
+        this._target = gltf.scene;
+        this._target.traverse( function (object){
+          if (object.isMesh) object.castShadow = true;
+          object.frustumCulled = false; //in order to make the wizard render in all positions
+        });
+        this._target.name = "Merlin";
+        this._stateMachine = new CharacterFSM(this._animations, this._target);
+        this._target.position.set(0,0,0);
+        this._target.rotateY(Math.PI);
+        this._scene.add(this._target);
+
+        this._mixer = new THREE.AnimationMixer(this._target);
+
+        const _OnLoad = (animName, anim) => {
+          const clip = anim;
+          const action = this._mixer.clipAction(clip);
+
+          console.log('loaded:' + animName)
+          this._animations[animName] = {
+              clip: clip,
+              action: action
+          };
+      };
+
+        const animations = gltf.animations;
+        _OnLoad('backflip', animations[0]);
+        _OnLoad('bow', animations[1]);
+        _OnLoad('dance1', animations[2]);
+        _OnLoad('dance2', animations[3]);
+        _OnLoad('gangnam', animations[4]);
+        _OnLoad('idle1', animations[5]);
+        _OnLoad('idle', animations[6]);
+        _OnLoad('idle3', animations[7]);
+        _OnLoad('jabcross', animations[8]);
+        _OnLoad('jump', animations[9]);
+        _OnLoad('leftturn', animations[10]);
+        _OnLoad('reaction', animations[11]);
+        _OnLoad('rightturn', animations[12]);
+        _OnLoad('run', animations[13]);
+        _OnLoad('runbackwards', animations[14]);
+        _OnLoad('spell', animations[15]);
+        _OnLoad('walk', animations[16]);
+        _OnLoad('walkbackwards', animations[17]);
+        _OnLoad('wave', animations[18]);
+        
+        console.log(animations);
+      })
     }
 
     idle(){
@@ -139,7 +194,6 @@ class AnimationManager{
 
     Update(timeInSeconds) {
         if (!this.isReady()) {
-            console.log('not ready')
             return;
         }
 
@@ -235,8 +289,6 @@ class IdleState extends State {
           if (prevState.Name == 'walk' || prevState.Name == 'run' || prevState.Name == 'walkbackwards' || prevState.Name == 'runbackwards' || prevState.Name == 'rightturn' || prevState.Name == 'leftturn'){
             curAction.crossFadeFrom(prevAction, 0.2, true);
           } else{
-            console.log('long Cross Fade')
-            console.log(prevAction);
             curAction.crossFadeFrom(prevAction, 0.5, true);
           }
         }
@@ -459,7 +511,6 @@ class WaveState extends State{
   }
 
   _Finished() {
-    console.log('finished')
     this._Cleanup();
     this._parent.SetState('idle');
   }
@@ -506,7 +557,6 @@ class SpellState extends State{
 
   _Finished() {
     this._Cleanup();
-    console.log("Spell finished")
     this._parent.SetState('idle');
   }
 
@@ -603,7 +653,7 @@ class ReactState extends State{
   }
 
   Enter(prevState){
-    const reactAnimations = ['wave', 'backflip', 'bow', 'jabcross', 'reaction', 'dance1', 'dance2'];
+    const reactAnimations = ['wave', 'backflip', 'bow', 'jabcross', 'reaction', 'dance1', 'dance2', 'gangnam', 'jump'];
     const reactAnimation = reactAnimations[Math.floor(Math.random()*reactAnimations.length)];
     const curAction = this._parent._animations[reactAnimation].action;
     const mixer = curAction.getMixer();

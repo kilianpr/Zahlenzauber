@@ -115,7 +115,7 @@ class InteractionBlocks{
     }
 
     _initInteractiveModel(){
-        this._interactiveModel = new InteractiveModel(this._controls, this._world._threejs);
+        this._interactiveModel = new InteractiveModel(this._controls, this._world);
         this._interactiveModel.addClickAction();
     }
 
@@ -160,6 +160,7 @@ class CheckPoint extends InteractionBlock{
         const geometry = new THREE.CylinderGeometry(this._radius, this._radius, .5, 32, 1);
         const material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0, color: 0xFFD700});
         this._element = new THREE.Mesh(geometry, material);
+        this._element.name = "checkpoint";
     }
 
     show(){
@@ -182,9 +183,10 @@ class CheckPoint extends InteractionBlock{
 
 
 class InteractiveModel{
-    constructor(controls, renderer){
+    constructor(controls, world){
         this._controls = controls;
-        this._renderer = renderer;
+        this._renderer = world._threejs;
+        this._world = world;
         this._model = this._controls._target;
         this._bindFunction =  this._onClick.bind(this);
     }
@@ -198,11 +200,20 @@ class InteractiveModel{
     }
 
     _onClick(){
-        /*const intersects = Constants.Raycaster.intersectObject(this._model, false);
-        if (intersects.length > 0 && Constants.TweenGroup.MovementTween.getAll()[0] == null){
+        console.log(this._world._scene.children)
+        const intersects = Constants.Raycaster.intersectObjects(this._world._scene.children, true);
+        console.log(intersects)
+        /*if (intersects.length > 0 && Constants.TweenGroup.MovementTween.getAll()[0] == null){
             console.log('Make a reaction')
             this._controls.react();
         }*/
+        if (intersects.length > 0){
+            var string = "";
+            for (var object of intersects){
+                string += ", "+object.object.name;
+            }
+            console.log(string);
+        }
     }
 
 
@@ -373,40 +384,6 @@ class Button extends HTMLInteractionBlock{
     removeAction(){
         this._element.removeEventListener('click', this._action);
         this._action = null;
-    }
-}
-
-class ImageButton extends Button{
-    _image;
-
-    constructor(image) {
-        super();
-        this._image = image;
-        this._create();
-    }
-
-    _create(){
-        this._imgElement = document.createElement('img');
-        console.log("image in creation: "+ this._image);
-        this._imgElement.src = this._image;
-        this._element.appendChild(this._imgElement);
-        this._element.classList.add('button-img');
-    }
-}
-
-class TextButton extends Button{
-    _text;
-
-    constructor(text) {
-        super();
-        this._text = text;
-        this._create();
-    }
-
-    _create(){
-        super._create();
-        this._element.innerHTML = this._text;
-        this._element.classList.add('button-txt');
     }
 }
 
