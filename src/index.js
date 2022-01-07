@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {Fire} from './particles.js';
 import {Portal} from './portal.js';
-import '/src/base.css';
 import bricksText from '/res/room/blue-bricks.jpg';
 import floorText from '/res/room/floorText.jpg';
 import Constants from './constants.js';
@@ -55,8 +54,8 @@ class World{
       this._light.position.set(50, 50, -20);
       this._scene.add(this._light);
 
-      const orbitControls = new OrbitControls(
-          this._camera, document.body);
+      /*const orbitControls = new OrbitControls(
+          this._camera, document.body);*/
 
       //const helper = new THREE.AxesHelper(100);
       //this._scene.add(helper);
@@ -141,6 +140,14 @@ class World{
         camera: this._camera,
         centerPos: new THREE.Vector3(-44, 0, 44)
       });
+    }
+
+    getPortalPlane(portal){
+      switch(portal){
+        case 'Left': return this._portalA._animation._plane; break;
+        case 'Mid': return this._portalB._animation._plane; break;
+        case 'Right': return this._portalC._animation._plane; break;
+      }
     }
 }
 

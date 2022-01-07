@@ -2,8 +2,9 @@ import * as THREE from 'three';
 import arrowRight from '/res/icons/arrow-right.png'
 import arrowLeft from '/res/icons/arrow-left.png';
 import infoIcon from '/res/icons/info.svg';
-import * as TWEEN from '@tweenjs/tween.js';
 import Constants from './constants.js';
+import check from '/res/icons/confirm.png';
+import cross from '/res/icons/reject.png';
 
 class InteractionBlocks{
     /*
@@ -29,10 +30,12 @@ class InteractionBlocks{
 
     _world; //the three.js scene
     _controls; //the instance of the AnimationManager
+    _clickNavigation;
 
-    constructor(world, controls){
+    constructor(world, controls, clickNavigation){
         this._world = world;
         this._controls = controls;
+        this._clickNavigation = clickNavigation;
         this._initBlocks();
     }
 
@@ -41,7 +44,6 @@ class InteractionBlocks{
         this._initWrapper();
         this._initBackButton();
         this._initNavigationInfo();
-        this._initCheckPoints();
         this._initInteractiveModel();
     }
 
@@ -51,67 +53,22 @@ class InteractionBlocks{
     }
 
     _initWrapper(){
-        this._wrapper = document.createElement('div');
-        this._wrapper.classList.add('wrapper')
-        this.move(this._wrapper, new THREE.Vector3(0, 7, 0));
+        this._wrapper = new HTMLInteractionBlock(document.getElementById('interaction-wrapper'), true, 'block');
+        this.move(this._wrapper._element, new THREE.Vector3(0, 7, 0));
 
-        this._lastBubbleNext = document.createElement('div');
-        this._lastBubbleNext.classList.add('last-bubble-next');
+        this._lastButton = new Button(document.getElementById('last-btn'), false, 'block');
+        this._speechBubble = new TextBlock(document.getElementById('bubble'), false, 'block', 0, '');
+        this._nextButton = new Button(document.getElementById('next-btn'), false, 'block');
 
-        console.log("image: "+arrowLeft);
-        this._lastButton = new Button(arrowLeft, 'img');
-        this._lastButton._element.style.width = '15%';
-        this._speechBubble = new SpeechBubble("Herzlich Willkommen!");
-        console.log("image: "+ arrowLeft);
-        this._nextButton = new Button(arrowRight, 'img');
-        this._nextButton._element.style.width = '15%';
-
-        this._lastBubbleNext.appendChild(this._lastButton._element);
-        this._lastBubbleNext.appendChild(this._speechBubble._element);
-        this._lastBubbleNext.appendChild(this._nextButton._element);
-
-        this._startButton = new Button("START", 'text');
-
-        this._wrapper.appendChild(this._lastBubbleNext);
-        this._wrapper.appendChild(this._startButton._element);
-        
-        document.body.appendChild(this._wrapper);
+        this._startButton = new Button(document.getElementById('start-btn'), false, 'block');
     }
 
     _initBackButton(){
-        console.log("image: "+ arrowLeft);
-        this._backButton = new Button(arrowLeft, 'img');
-        this._backButton._element.style.position = 'absolute';
-        this._backButton._element.style.top = '0';
-        this._backButton._element.style.left = '0';
-        document.body.appendChild(this._backButton._element);
+        this._backButton = new Button(document.getElementById('back-btn'), true, 'block');
     }
 
     _initNavigationInfo(){
-        this._navigationInfo = new InfoBox("Bewege den Magier, indem du auf die Portale klickst oder WASD drückst!");
-        this._navigationInfo._element.style.position = 'absolute';
-        this._navigationInfo._element.style.bottom = '2%';
-        this._navigationInfo._element.style.left = '0';
-        this._navigationInfo._element.style.right = '0';
-        this._navigationInfo._element.style.width = '50%';
-        this._navigationInfo._element.style.margin = 'auto';
-        document.body.appendChild(this._navigationInfo._element);
-    }
-
-    _initCheckPoints(){
-        this._checkPointLeft = new CheckPoint(5);
-        this._checkPointLeft.setPosition(Constants.PortalPositions.Left);
-
-        this._checkPointMid = new CheckPoint(5);
-        this._checkPointMid.setPosition(Constants.PortalPositions.Mid);
-
-        this._checkPointRight = new CheckPoint(5);
-        this._checkPointRight.setPosition(Constants.PortalPositions.Right);
-
-
-        this._world._scene.add(this._checkPointLeft._element);
-        this._world._scene.add(this._checkPointMid._element);
-        this._world._scene.add(this._checkPointRight._element);
+        this._navigationInfo = new TextBlock(document.getElementById('info-box'), true, 'flex', 0, "Bewege den Magier, indem du auf die Portale klickst oder WASD drückst!");
     }
 
     _initInteractiveModel(){
@@ -124,16 +81,6 @@ class InteractionBlocks{
         const x = (position.x *  .5 + .5) * document.body.clientWidth;
         const y = (position.y * -.5 + .5) * document.body.clientHeight;
         element.style.transform = `translate(-50%, -50%) translate(${x}px,${y}px)`;
-    }
-
-    remove(element){
-        let oldStyle = element.style.display;
-        element.style.display = 'none';
-        return oldStyle;
-    }
-
-    putBack(element, display){
-        element.style.display = display;
     }
 }
 
@@ -148,76 +95,34 @@ class InteractionBlock{
 }
 
 
-class CheckPoint extends InteractionBlock{
-
-    constructor(radius){
-        super();
-        this._radius = radius
-        this._create();
-    }
-
-    _create(){
-        const geometry = new THREE.CylinderGeometry(this._radius, this._radius, .5, 32, 1);
-        const material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0, color: 0xFFD700});
-        this._element = new THREE.Mesh(geometry, material);
-        this._element.name = "checkpoint";
-    }
-
-    show(){
-        new TWEEN.Tween(this._element.material, Constants.TweenGroup.Opacity)
-        .to({opacity: 1}, 2000)
-        .delay(5000)
-        .start();
-    }
-
-    hide(){
-        new TWEEN.Tween(this._element.material, Constants.TweenGroup.Opacity)
-        .to({opacity: 0},2000)
-        .start();
-    }
-
-    setPosition(position){ //x and z from position are set coordinates are set 
-        this._element.position.set(position.x, 0, 45);
-    }
-}
-
-
 class InteractiveModel{
     constructor(controls, world){
         this._controls = controls;
         this._renderer = world._threejs;
-        this._world = world;
-        this._model = this._controls._target;
+        this._targetMeshes = this._controls._targetMeshes
         this._bindFunction =  this._onClick.bind(this);
     }
 
     addClickAction(){
-        this._renderer.domElement.addEventListener('click', this._bindFunction, false);
+        document.body.addEventListener('click', this._bindFunction, false);
     }
 
     removeClickAction(){
-        this._renderer.domElement.removeEventListener('click', this._bindFunction, false);
+        document.body.removeEventListener('click', this._bindFunction, false);
     }
 
     _onClick(){
-        console.log(this._world._scene.children)
-        const intersects = Constants.Raycaster.intersectObjects(this._world._scene.children, true);
-        console.log(intersects)
-        /*if (intersects.length > 0 && Constants.TweenGroup.MovementTween.getAll()[0] == null){
+        const intersects = Constants.Raycaster.intersectObjects(this._targetMeshes, true);
+        console.log(this._controls.getCurrentState());
+        if (intersects.length > 0 && Constants.TweenGroup.ModelMovement.getAll().length == 0 && Constants.TweenGroup.CamMovement.getAll().length == 0 && this._controls.getCurrentState()=='idle'){
             console.log('Make a reaction')
             this._controls.react();
-        }*/
-        if (intersects.length > 0){
-            var string = "";
-            for (var object of intersects){
-                string += ", "+object.object.name;
-            }
-            console.log(string);
         }
     }
-
-
 }
+
+
+
 
 class LoadingScreen {
 
@@ -233,141 +138,60 @@ class LoadingScreen {
 
     hide(){
         this._element.style.opacity="0";
+        setTimeout(() => {
+            this._element.style.display="none";
+        }, 2000);
     }
 }
 
 
 
 class HTMLInteractionBlock extends InteractionBlock{
-
-    _create(){
-        this._element = document.createElement('div');
-        this._element.classList.add('interaction-block');
+    constructor(element, allowNone, display){ //allowNone is a boolean which indicates whether display may be set to 'none'
+        super();
+        this._element = element;
+        this._display = display;
+        this._allowNone = allowNone;
+        this._element.style.opacity = 0;
     }
 
     show(){
-        const parent = this;
-        if (!parent._onScreen){
-            setTimeout(function () {
-                    parent._element.style.opacity = "1";
-                    parent._onScreen = true;
-                    return true;
-            }, 1100);
+        if (!this._onScreen){
+            this._element.style.display = this._display;
+            this._onScreen = true;
+            console.log('display set');
+            setTimeout(() => {
+                    this._element.style.opacity = "1";
+                    console.log('opacity set');
+            }, 1000);
         }
-        return false;
     }
 
     hide(){
         if (this._onScreen){
-            console.log('hidden')
             this._element.style.opacity = "0";
             this._onScreen = false;
-            return true;
+            if (this._allowNone){
+                setTimeout(() => {
+                    this._element.style.display = 'none';
+                }, 1000)
+            }
         }
-        return false;
     }
 }
-
-class InfoBox extends HTMLInteractionBlock{
-    _text;
-    _textDiv;
-
-    constructor(text){
-        super();
-        this._text = text;
-        this._create();
-    }
-
-    _create(){
-        super._create();
-        this._element.classList.add("overlay", "info-box");
-        this._infoIcon = document.createElement('img');
-        this._infoIcon.src = infoIcon;
-        this._element.appendChild(this._infoIcon);
-        this._textDiv = document.createElement('div');
-        this._textDiv.classList.add("text");
-        this._textDiv.innerHTML = this._text;
-        this._element.appendChild(this._textDiv);
-    }
-
-    setText(text){
-        const parent = this;
-        setTimeout(function () {
-            parent._textDiv.innerHTML = text;
-        }, 1100);
-    }
-
-    show(){
-        super.show();
-        this._element.style.display = 'flex';
-    }
-
-    hide(){
-        const parent = this;
-        super.hide();
-        setTimeout(function(){
-            parent._element.style.display = 'none';
-        }, 1000);
-    }
-}
-
-class SpeechBubble extends HTMLInteractionBlock{
-    _text;
-    _textDiv;
-
-    constructor(text){
-        super();
-        this._text = text;
-        this._create();
-    }
-
-    _create(){
-        super._create();
-        this._element.classList.add("overlay", "bubble");
-        this._textDiv = document.createElement('div');
-        this._textDiv.classList.add("text");
-        this._textDiv.innerHTML = this._text;
-        this._element.appendChild(this._textDiv);
-    }
-
-    setText(text){
-        const parent = this;
-        setTimeout(function () {
-            parent._textDiv.innerHTML = text;
-        }, 1100);
-    }
-}
-
 
 class Button extends HTMLInteractionBlock{
     _action;
 
-    constructor(src, type){
-        super();
-        this._src = src;
-        this._type = type;
-        this._create();
-    }
-
-    _create(){
-        super._create();
-        if (this._type == 'img'){
-            this._imgElement = document.createElement('img');
-            this._imgElement.src = this._src;
-            this._element.appendChild(this._imgElement);
-            this._element.classList.add('button-img');
-        } else {
-            super._create();
-            this._element.innerHTML = this._src;
-            this._element.classList.add('button-txt');
-        }
-        this._element.classList.add('button');
+    constructor(element, allowNone, display){
+        super(element, allowNone, display);
+        this._element.style.opacity = '0';
+        this._element.style.cursor = 'default';
     }
 
     show(){
         super.show()
         this._element.style.cursor = "pointer";
-        
     }
 
     hide(){
@@ -382,8 +206,35 @@ class Button extends HTMLInteractionBlock{
     }
 
     removeAction(){
-        this._element.removeEventListener('click', this._action);
-        this._action = null;
+        if (this._action){
+            this._element.removeEventListener('click', this._action);
+            this._action = null;
+        }
+    }
+}
+
+
+class TextBlock extends HTMLInteractionBlock{
+    _text;
+
+    constructor(element, allowNone, display, child, text){
+        super(element, allowNone, display);
+        this._child = child;
+        this._text = text;
+        this.setText(this._text);
+    }
+
+    setText(text){
+        this._text = text;
+        const parent = this;
+        setTimeout(() => {
+            if (parent.child == -1){
+                parent._element.innerHTML = text;
+            }
+            else{
+                parent._element.children[parent._child].innerHTML = text;
+            }
+        }, 1000);
     }
 }
 

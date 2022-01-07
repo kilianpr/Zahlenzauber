@@ -7,5 +7,52 @@
     <title>Zahlenzauber</title>
 </head>
 <body>
+    <div id='overlay'>
+        <div id='interaction-wrapper'>
+            <div id='lastbubblenext-wrapper'>
+                <div id='last-btn' class='button-inactive img-btn'>
+                    <img draggable="false" ondragstart="return false;" src=img/arrow-left.png> 
+                </div>
+                <div id='bubble'>
+                    <div id='bubble-text' class='text'>
+                        Klicke auf START, um loszulegen!
+                    </div>
+                </div>
+                <div id='next-btn' class='button-inactive img-btn'>
+                    <img draggable="false" ondragstart="return false;" src="img/arrow-right.png"> 
+                </div>
+            </div>
+            <div id='start-btn' class='button-inactive txt-btn'>
+                START
+            </div>
+        </div>
+
+
+        <div id='back-btn' class='button-inactive img-btn'>
+            <img draggable="false" ondragstart="return false;" src="img/arrow-left.png"> 
+        </div>
+
+        <div id='info-box'>
+            <img draggable="false" ondragstart="return false;" id='info-img' src="img/info.svg"> 
+            <div id='info-text'>
+                Bewege dich zu den Portalen, um zu navigieren! <br>
+                Klicke hierfür auf den Boden oder die Portale.
+            </div>
+        </div>
+
+        <div id='confrej-wrapper'>
+            <div id='question'>
+                Eintreten?
+            </div>
+            <div id='confrej-btn-wrapper'>
+                <div id='confirm-btn' class='button-inactive img-btn'>
+                    <img draggable="false" ondragstart="return false;" src="img/confirm.png"> 
+                </div>
+                <div id='reject-btn' class='button-inactive img-btn'>
+                    <img draggable="false" ondragstart="return false;" src="img/reject.png"> 
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

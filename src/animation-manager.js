@@ -23,12 +23,12 @@ import dance2 from '/res/anim/sillydance2.fbx';
 import wizardGLTF from '/res/anim/wizard.glb';
 
 class AnimationManager{
-    _animations;
-    _target;
+    _animations; //dict to store all the animations in the form of {animName : {clip: clip , action: action}}
+    _target; // gltf.scene model
+    _targetMeshes = []; //all meshes of the gltf.scene model
     _scence;
     _stateMachine;
     _mixer;
-    _isTurning;
 
   constructor(scene){
     this._animations = {};
@@ -92,8 +92,15 @@ class AnimationManager{
       loader.load(wizardGLTF, ( gltf ) => {
         gltf.scene.scale.setScalar(10);
         this._target = gltf.scene;
-        this._target.traverse( function (object){
-          if (object.isMesh) object.castShadow = true;
+        const nullSphere = new THREE.Sphere(undefined, Infinity);
+        this._target.traverse( (object) => {
+          if (object.isMesh) {
+            object.castShadow = true;
+
+            object.geometry.boundingSphere = nullSphere; //in order for the raycaster to detect clicks on the target
+            object.geometry.boundingBox = null;
+            this._targetMeshes.push(object);
+          }
           object.frustumCulled = false; //in order to make the wizard render in all positions
         });
         this._target.name = "Merlin";
@@ -117,24 +124,23 @@ class AnimationManager{
 
         const animations = gltf.animations;
         _OnLoad('backflip', animations[0]);
-        _OnLoad('bow', animations[1]);
-        _OnLoad('dance1', animations[2]);
-        _OnLoad('dance2', animations[3]);
+        _OnLoad('dance1', animations[1]);
+        _OnLoad('dance2', animations[2]);
+        _OnLoad('dive', animations[3]);
         _OnLoad('gangnam', animations[4]);
-        _OnLoad('idle1', animations[5]);
-        _OnLoad('idle', animations[6]);
-        _OnLoad('idle3', animations[7]);
-        _OnLoad('jabcross', animations[8]);
-        _OnLoad('jump', animations[9]);
-        _OnLoad('leftturn', animations[10]);
-        _OnLoad('reaction', animations[11]);
-        _OnLoad('rightturn', animations[12]);
-        _OnLoad('run', animations[13]);
-        _OnLoad('runbackwards', animations[14]);
-        _OnLoad('spell', animations[15]);
-        _OnLoad('walk', animations[16]);
-        _OnLoad('walkbackwards', animations[17]);
-        _OnLoad('wave', animations[18]);
+        _OnLoad('idle', animations[5]);
+        _OnLoad('idle2', animations[6]);
+        _OnLoad('jabcross', animations[7]);
+        _OnLoad('jump', animations[8]);
+        _OnLoad('leftturn', animations[9]);
+        _OnLoad('reaction', animations[10]);
+        _OnLoad('rightturn', animations[11]);
+        _OnLoad('run', animations[12]);
+        _OnLoad('runbackwards', animations[13]);
+        _OnLoad('spell', animations[14]);
+        _OnLoad('walk', animations[15]);
+        _OnLoad('walkbackwards', animations[16]);
+        _OnLoad('wave', animations[17]);
         
         console.log(animations);
       })
@@ -192,6 +198,15 @@ class AnimationManager{
         return (this._target && this._stateMachine._currentState ? true : false);
     }
 
+    getCurrentState(){
+      if (this._stateMachine._currentState != null){
+        return this._stateMachine._currentState.Name;
+      }
+      else {
+        return null;
+      }
+    }
+
     Update(timeInSeconds) {
         if (!this.isReady()) {
             return;
@@ -219,7 +234,7 @@ class FiniteStateMachine {
         const prevState = this._currentState;
         
         if (prevState) {
-          if (prevState.Name == name) {
+          if (prevState.Name == name || prevState.name == 'backflip') {
               return;
           }
           prevState.Exit();
@@ -263,6 +278,7 @@ _Init() {
     this._AddState('rightturn', RightTurnState);
     this._AddState('leftturn', LeftTurnState);
     this._AddState('react', ReactState);
+    this._AddState('dive', DiveState);
 }
 }
 
@@ -550,7 +566,12 @@ class SpellState extends State{
       curAction.reset();  
       curAction.setLoop(THREE.LoopOnce, 1);
       curAction.clampWhenFinished = true;
-      curAction.crossFadeFrom(prevAction, 1, true);
+      if (prevState.Name == 'idle'){
+        curAction.crossFadeFrom(prevAction, 1, true);
+      }
+      else{
+        curAction.crossFadeFrom(prevAction, 0.2, true);
+      }
     }
     curAction.play();
   }
@@ -562,7 +583,6 @@ class SpellState extends State{
 
   _Cleanup() {
     const action = this._parent._animations['spell'].action;
-    
     action.getMixer().removeEventListener('finished', this._FinishedCallback);
   }
 
@@ -642,6 +662,54 @@ class LeftTurnState extends State{
 class ReactState extends State{
   constructor(parent){
     super(parent);
+    const reactAnimations = ['wave', 'backflip', 'jabcross', 'reaction', 'dance1', 'dance2', 'gangnam', 'jump'];
+    this.reactAnimationName = reactAnimations[Math.floor(Math.random()*reactAnimations.length)];
+    this._FinishedCallback = () => {
+      this._Finished();
+    }
+  }
+
+  get Name(){
+    return this.reactAnimationName;
+  }
+
+  Enter(prevState){
+    const curAction = this._parent._animations[this.reactAnimationName].action;
+    const mixer = curAction.getMixer();
+    mixer.addEventListener('finished', this._FinishedCallback);
+
+    if(prevState){
+      const prevAction = this._parent._animations[prevState.Name].action;
+      
+      curAction.reset();  
+      curAction.setLoop(THREE.LoopOnce, 1);
+      curAction.clampWhenFinished = true;
+      curAction.crossFadeFrom(prevAction, 0.3, true);
+    }
+    curAction.play();
+  }
+
+  _Finished() {
+    this._Cleanup();
+    this._parent.SetState('idle');
+  }
+
+  _Cleanup() {
+    const action = this._parent._animations[this.reactAnimationName].action;
+    action.getMixer().removeEventListener('finished', this._FinishedCallback);
+  }
+
+  Exit() {
+    this._Cleanup();
+  }
+
+}
+
+
+class DiveState extends State{
+
+  constructor(parent){
+    super(parent);
 
     this._FinishedCallback = () => {
       this._Finished();
@@ -649,13 +717,11 @@ class ReactState extends State{
   }
 
   get Name(){
-    return 'react';
+    return 'dive';
   }
 
   Enter(prevState){
-    const reactAnimations = ['wave', 'backflip', 'bow', 'jabcross', 'reaction', 'dance1', 'dance2', 'gangnam', 'jump'];
-    const reactAnimation = reactAnimations[Math.floor(Math.random()*reactAnimations.length)];
-    const curAction = this._parent._animations[reactAnimation].action;
+    const curAction = this._parent._animations['dive'].action;
     const mixer = curAction.getMixer();
     mixer.addEventListener('finished', this._FinishedCallback);
 
@@ -672,7 +738,6 @@ class ReactState extends State{
 
   _Finished() {
     this._Cleanup();
-    this._parent.SetState('idle');
   }
 
   _Cleanup() {
@@ -681,12 +746,7 @@ class ReactState extends State{
   }
 
   Exit() {
-    const action = this._parent._animations['spell'].action;
-    action.getMixer().removeEventListener('finished', this._FinishedCallback);
-    action.stop();
-    this._parent.SetState('idle');
   }
-
 }
 
 

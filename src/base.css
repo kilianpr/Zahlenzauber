@@ -46,7 +46,6 @@ body {
 }
 
 .info-box{
-    display: none;
     flex-direction: row;
     text-align: center;
     box-sizing: border-box;

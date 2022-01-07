@@ -1,7 +1,9 @@
 import * as THREE from 'three';
+import * as TWEEN from '@tweenjs/tween.js';
 import watertexture from '/res/particles/water.png'
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader.js';
 import portal from '/res/room/portal.obj';
+import portalGLTF from '/res/room/portal.glb';
 import stoneText from '/res/room/stonetext.jpg';
 import Constants from './constants.js';
 
@@ -49,16 +51,16 @@ class Portal{
       const positionY = position.y;
       const positionZ = position.z
 
+      const textLoader = new THREE.TextureLoader(Constants.GeneralLoadingManager);
+      var texture = textLoader.load(stoneText);
+      var mat = new THREE.MeshStandardMaterial({map:texture});
+
       const object = this;
       const objLoader = new OBJLoader(Constants.GeneralLoadingManager);
-      const textLoader = new THREE.TextureLoader(Constants.GeneralLoadingManager);
-      objLoader.load(portal, function(obj){
+      objLoader.load(portal, (obj) => {
 
-          object._object = obj;
-  
+          this._object = obj;  
           //set stone texture of portal
-          var texture = textLoader.load(stoneText);
-          var mat = new THREE.MeshStandardMaterial({map:texture});
           obj["children"][0].material = mat;
           obj.name = "portalFrame";
   
@@ -76,14 +78,21 @@ class Portal{
           box.setFromObject(obj);
           object._innerHeight = 0.9*(box.max.y - box.min.y);
           parent._scene.add(obj);
-          object._animation = new Animation(parent, 0.75*width, object._innerHeight, positionX, positionY+object._innerHeight/2, positionZ);
-      },
-      
-      );
+          this._animation = new Animation(parent, 0.75*width, this._innerHeight, positionX, positionY+this._innerHeight/2, positionZ);
+      });
+
+      this._checkpoint = new CheckPoint(5);
+      this._checkpoint.show();
+      this._checkpoint._element.position.set(positionX, 0, 45);
+      parent._scene.add(this._checkpoint._element);
     }
 
     showAnimation(){
       this._animation.visible = true;
+    }
+
+    getCheckPointMesh(){
+      return this._checkpoint._element;
     }
     
 }
@@ -135,6 +144,33 @@ class Animation{
     this._material.uniforms.time.value += timeElapsed*10;
   }
     
+}
+
+
+  class CheckPoint {
+    constructor(radius){
+      this._radius = radius
+      this._create();
+  }
+
+    _create(){
+        const geometry = new THREE.CylinderGeometry(this._radius, this._radius, .5, 32, 1);
+        const material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0, color: 0xFFD700});
+        this._element = new THREE.Mesh(geometry, material);
+        this._element.name = "checkpoint";
+    }
+
+    show(){
+        new TWEEN.Tween(this._element.material, Constants.TweenGroup.Opacity)
+        .to({opacity: 1}, 2000)
+        .start();
+    }
+
+    hide(){
+        new TWEEN.Tween(this._element.material, Constants.TweenGroup.Opacity)
+        .to({opacity: 0},2000)
+        .start();
+    }
 }
 
      

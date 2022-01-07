@@ -23,7 +23,7 @@ class ClickNavigation{
 
 
     constructor(world, controls){
-        this._ground = world._ground;
+        this._world = world;
         this._controls = controls;
         this._renderer = world._threejs;
         this._camera = world._camera;
@@ -36,35 +36,68 @@ class ClickNavigation{
     addClickActions(){
         this._bindFuncDouble =  this._onDoubleClick.bind(this);
         this._bindFuncSingle =  this._onSingleClick.bind(this);
-        this._renderer.domElement.addEventListener('dblclick', this._bindFuncDouble, false);
-        this._renderer.domElement.addEventListener('click', this._bindFuncSingle, false);
+        document.body.addEventListener('dblclick', this._bindFuncDouble, false);
+        document.body.addEventListener('click', this._bindFuncSingle, false);
+        console.log('added click actions')
     }
 
     removeClickActions(){
-        this._renderer.domElement.removeEventListener('dblclick', this._bindFuncDouble, false);
-        this._renderer.domElement.removeEventListener('click', this._bindFuncSingle, false);
+        document.body.removeEventListener('dblclick', this._bindFuncDouble, false);
+        document.body.removeEventListener('click', this._bindFuncSingle, false);
     }
 
 
     _onDoubleClick(){
+        console.log('dblclick')
         this._onClick(40, 'run');
     }
 
     
     _onSingleClick(){
+        console.log('sglclick')
         this._onClick(25, 'walk');
     }
 
     _onClick(velocity, animationName){
-        const intersects = Constants.Raycaster.intersectObject(this._ground, false);
+        console.log('on click')
+
+        const _onFinishPortalClick = () =>{
+            this._controls.idle();
+            this.rotateToDefault();
+        }
+
+        let intersects = Constants.Raycaster.intersectObjects([this._world.getPortalPlane('Left'), this._world._portalA.getCheckPointMesh()], false);
+        if (intersects.length > 0){
+            Constants.TweenGroup.ModelMovement.removeAll();
+            this.moveToPoint(new THREE.Vector3(Constants.PortalPositions.Left.x, 0, 45), 25, 'walk', _onFinishPortalClick);
+            return;
+        }
+        intersects = Constants.Raycaster.intersectObjects([this._world.getPortalPlane('Mid'), this._world._portalB.getCheckPointMesh()], false);
+        if (intersects.length > 0){
+            Constants.TweenGroup.ModelMovement.removeAll();
+            this.moveToPoint(new THREE.Vector3(Constants.PortalPositions.Mid.x, 0, 45), 25, 'walk', _onFinishPortalClick);
+            return;
+        }
+        intersects = Constants.Raycaster.intersectObjects([this._world.getPortalPlane('Right'), this._world._portalC.getCheckPointMesh()], false);
+        if (intersects.length > 0){
+            Constants.TweenGroup.ModelMovement.removeAll();
+            this.moveToPoint(new THREE.Vector3(Constants.PortalPositions.Right.x, 0, 45), 25, 'walk', _onFinishPortalClick);
+            return;
+        }
+
+        intersects = Constants.Raycaster.intersectObject(this._world._ground, false); //add checkpoints which must first be implemented into World (index.js), maybe as part of Portals?
         if (intersects.length > 0){
             const p = intersects[0].point;
             if (p.z > 44.5){
                 p.z = 44.5;
             }
+
             Constants.TweenGroup.ModelMovement.removeAll();
             this.moveToPoint(p, velocity, animationName, () => {this._controls.idle()});
-            }
+            return;
+        }
+
+
     }
 
 

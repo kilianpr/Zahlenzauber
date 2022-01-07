@@ -3,9 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
     <title>Zahlenzauber</title>
 </head>
 <body>
+    <div id='overlay'>
+        <div id='interaction-wrapper'>
+            <div id='lastbubblenext-wrapper'>
+                <div id='last-btn' class='button-inactive img-btn'>
+                    <img src="arrow-left.png"> 
+                </div>
+                <div id='bubble'>
+                    <div id='bubble-text' class='text'>
+                        Klicke auf START, um loszulegen!
+                    </div>
+                </div>
+                <div id='next-btn' class='button-inactive img-btn'>
+                    <img src="res/icons/arrow-right.png"> 
+                </div>
+            </div>
+            <div id='start-btn' class='button-inactive txt-btn'>
+                START
+            </div>
+        </div>
+
+
+        <div id='back-btn' class='button-inactive img-btn'>
+            <img src="icons/arrow-left.png"> 
+        </div>
+
+        <div id='info-box'>
+            <img id='info-img' src="icons/info.svg"> 
+            <div id='info-text'>
+                Bewege dich zu den Portalen, um zu navigieren! </br>
+                Klicke hierfür auf den Boden oder die Portale.
+            </div>
+        </div>
+
+        <div id='confrej-wrapper'>
+            <div id='question'>
+                Eintreten?
+            </div>
+            <div id='confrej-btn-wrapper'>
+                <div id='confirm-btn' class='button-inactive img-btn'>
+                    <img src="icons/confirm.png"> 
+                </div>
+                <div id='reject-btn' class='button-inactive img-btn'>
+                    <img src="icons/reject.png"> 
+                </div>
+            </div>
+        </div>
+    </div>
 <script defer src="bundle.js"></script></body>
 </html>

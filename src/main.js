@@ -1,11 +1,11 @@
 import { World} from "./index";
 import * as THREE from 'three';
+import '/src/styles.css';
 import * as TWEEN from '@tweenjs/tween.js';
 import {InteractionBlocks} from './interaction-blocks.js';
 import {InteractionFiniteStateMachine} from './interaction-fsm.js';
 import {AnimationManager} from './animation-manager.js'
 import Constants from './constants';
-
 class Main{
 
     _world;
@@ -28,11 +28,6 @@ class Main{
         this._world._makeFire();
         this._AddWindowEventListeners();
         Constants.GeneralLoadingManager.onLoad = function(){
-            /*parent._world._scene.traverse( function( object ) {
-
-                object.frustumCulled = false;
-            
-            } );*/
             parent._interactionBlocks = new InteractionBlocks(parent._world, parent._controls);
             parent._interactionFSM = new InteractionFiniteStateMachine(parent._world, parent._interactionBlocks, parent._controls);
             parent._RAF()
@@ -47,7 +42,7 @@ class Main{
         const delta = this._clock.getDelta();
         if (this._controls.isReady() && this._interactionBlocks){
             let position = new THREE.Vector3(this._controls.getPosition().x,this._controls.getPosition().y+5, this._controls.getPosition().z);
-            this._interactionBlocks.move(this._interactionBlocks._wrapper, position);
+            this._interactionBlocks.move(this._interactionBlocks._wrapper._element, position);
         }
         this._world._threejs.render(this._world._scene, this._world._camera);
         this._Step(delta);
@@ -89,22 +84,26 @@ class Main{
             this._OnWindowResize();
         }, false);
         let updateMousePosBind = this._updateMousePosition.bind(this);
-        this._world._threejs.domElement.addEventListener('click', updateMousePosBind, false);
-        this._world._threejs.domElement.addEventListener('dblclick', updateMousePosBind, false);
+        document.body.addEventListener('click', updateMousePosBind, false);
+        document.body.addEventListener('dblclick', updateMousePosBind, false);
     }
     
     _updateMousePosition(event){
-        Constants.Mouse.x = (event.clientX / this._world._threejs.domElement.clientWidth) * 2 -1;
-        Constants.Mouse.y = -(event.clientY / this._world._threejs.domElement.clientHeight) * 2 +1;
+        Constants.Mouse.x = (event.clientX /  document.body.clientWidth) * 2 -1;
+        Constants.Mouse.y = -(event.clientY /  document.body.clientHeight) * 2 +1;
         Constants.Raycaster.setFromCamera(Constants.Mouse, this._world._camera);
     }
 
     //updates the camera and renderer size
     _OnWindowResize() {
-        this._world._camera.aspect = window.innerWidth / window.innerHeight;
-        this._world._camera.updateProjectionMatrix();
-        this._world._threejs.setSize(window.innerWidth, window.innerHeight);
-        this._interactionBlocks.move(this._interactionBlocks._wrapper, new THREE.Vector3(0,7,0));
+        if (this._world){
+            this._world._camera.aspect = window.innerWidth / window.innerHeight;
+            this._world._camera.updateProjectionMatrix();
+            this._world._threejs.setSize(window.innerWidth, window.innerHeight);
+        }
+        if (this._interactionBlocks){
+            this._interactionBlocks.move(this._interactionBlocks._wrapper._element, new THREE.Vector3(0,7,0));
+        }
       }
 }
 

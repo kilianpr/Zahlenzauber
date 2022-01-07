@@ -71,7 +71,7 @@ class Fire {
             value: new THREE.TextureLoader(Constants.GeneralLoadingManager).load(fire)
         },
         pointMultiplier: {
-            value: window.innerHeight / (2.0 * Math.tan(0.5 * 60.0 * Math.PI / 180.0))
+            value: 1000 / (2.0 * Math.tan(0.5 * 60.0 * Math.PI / 180.0))
         }
     };
 

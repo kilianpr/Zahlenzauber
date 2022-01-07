@@ -22,6 +22,7 @@ class InteractionFiniteStateMachine {
         this._states = {};
         this._currentState = null;
         this._controls = controls;
+        this._clickNavigation = new ClickNavigation(this._world, this._controls)
         this._Init();
     }
 
@@ -31,8 +32,7 @@ class InteractionFiniteStateMachine {
         this._AddState('secondMessage', SecondMessageState);
         this._AddState('lastMessage', LastMessageState);
         this._AddState('navigation', NavigationState);
-        this._AddState('transitionAnimation', TransitionAnimationState);
-        
+        this._AddState('transitionAnimation', TransitionAnimationState);        
     }
   
     _AddState(name, type) {
@@ -81,21 +81,13 @@ class TransitionInState extends InteractionState {
 
     Enter(prevState){
         this._parent._controls.idle();
-        const parent = this;
-
-        setTimeout(function(){
-            parent._parent._interactionBlocks._loadingScreen.hide();
-            setTimeout(function(){
-                parent._parent._interactionBlocks.remove(parent._parent._interactionBlocks._loadingScreen._element);
-            }, 2000);
-        }, 1);
-
+        this._parent._interactionBlocks._loadingScreen.hide();
         let toPos = new THREE.Vector3(0, 12, -20);
         let toLook = new THREE.Vector3(0, 12,  50);
         const tween = new CamTween(this._parent._world, toPos, toLook, 3000).getTween();
         tween
-        .onComplete(function(){
-            parent._parent.SetState('firstMessage');
+        .onComplete(() => {
+            this._parent.SetState('firstMessage');
         })
         .start();
     }
@@ -115,14 +107,17 @@ class FirstMessageState extends InteractionState{
 
     Enter(prevState){
         this._parent._controls.wave();
+
+        this._parent._interactionBlocks._speechBubble.setText('Herzlich Willkommen')
+        this._parent._interactionBlocks._wrapper.show();
+        this._parent._interactionBlocks._speechBubble.show();
+        this._parent._interactionBlocks._nextButton.show();
+        this._parent._interactionBlocks._nextButton.setAction(() => {this._parent.SetState('secondMessage')});
+
         if (prevState.Name == 'secondMessage'){
             this._parent._interactionBlocks._lastButton.hide();
             this._parent._interactionBlocks._lastButton.removeAction();
         }
-        this._parent._interactionBlocks._speechBubble.setText(firstMessageText);
-        this._parent._interactionBlocks._speechBubble.show();
-        this._parent._interactionBlocks._nextButton.show();
-        this._parent._interactionBlocks._nextButton.setAction(() => {this._parent.SetState('secondMessage')});
     }
 
     Exit(){
@@ -142,7 +137,6 @@ class SecondMessageState extends InteractionState{
 
     Enter(prevState){
         if (prevState.Name == 'firstMessage'){
-            this._parent._interactionBlocks._lastButton.show();
             if (!SecondMessageState._visited){
                 setTimeout(() => {
                     this._parent._controls.spell();
@@ -156,17 +150,17 @@ class SecondMessageState extends InteractionState{
                 }, 1000);
                 SecondMessageState._visited = true;
             }
+
+            this._parent._interactionBlocks._lastButton.show();
         }
         else if (prevState.Name == 'lastMessage'){
             this._parent._interactionBlocks._nextButton.show();
             this._parent._interactionBlocks._startButton.hide();
             this._parent._interactionBlocks._startButton.removeAction();
         }
+
         this._parent._interactionBlocks._speechBubble.setText(secondMessageText);
         this._parent._interactionBlocks._speechBubble.show();
-        this._parent._interactionBlocks._nextButton.show();
-
-
         this._parent._interactionBlocks._lastButton.setAction(() => {this._parent.SetState('firstMessage')});
         this._parent._interactionBlocks._nextButton.setAction(() => {this._parent.SetState('lastMessage')});
     }
@@ -188,13 +182,12 @@ class LastMessageState extends InteractionState{
     Enter(prevState){
         const parent = this;
         if (prevState.Name == 'secondMessage'){
-            console.log("HIDE");
             this._parent._interactionBlocks._nextButton.hide();
             this._setOnClickListeners();
         }
         else if (prevState.Name == 'navigation'){
             this._parent._clickNavigation.removeClickActions();
-            this._parent._interactionBlocks.putBack(this._parent._interactionBlocks._wrapper, 'block');
+            this._parent._interactionBlocks._wrapper.show();
             this._parent._interactionBlocks._lastButton.show();
             this._parent._interactionBlocks._backButton.hide();
             this._parent._interactionBlocks._backButton.removeAction();
@@ -265,11 +258,7 @@ class NavigationState extends InteractionState{
         if (prevState.Name == 'lastMessage'){
             this._parent._interactionBlocks._lastButton.removeAction();
             this._parent._interactionBlocks._startButton.removeAction();
-            this._parent._clickNavigation = new ClickNavigation(this._parent._world, this._parent._controls);
-            this._parent._interactionBlocks._lastButton.hide();
-            setTimeout(() => {
-                this._parent._interactionBlocks.remove(this._parent._interactionBlocks._wrapper);
-            }, 1000);
+            this._parent._interactionBlocks._wrapper.hide();
             setTimeout(() => {
                 this._parent._clickNavigation.setRotSpeed(Math.PI/2);
                 this._parent._controls.turnRight();
@@ -296,6 +285,18 @@ class NavigationState extends InteractionState{
     Exit(){
         this._parent._interactionBlocks._navigationInfo.hide();
     }
+}
+
+
+class ConfirmState extends InteractionState{
+    constructor(parent){
+        super(parent);
+    }
+
+    get Name(){
+        return 'confirm';
+    }
+
 }
 
 class TransitionAnimationState extends InteractionState{

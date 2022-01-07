@@ -16,7 +16,7 @@ module.exports = {
         rules: [
         { 
             test: /\.(gltf|glb|bin|fbx|obj)$/,
-            use: 'file-loader',
+            type: 'asset/resource',
         },
         {
             test: /\.css$/i,
@@ -25,6 +25,9 @@ module.exports = {
         {
             test: /\.(png|svg|jpg|jpeg|gif)$/i,
             type: 'asset/resource',
+            generator: {
+                filename: 'img/[name][ext]'
+            }
         }
         ],
       },
