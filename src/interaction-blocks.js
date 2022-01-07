@@ -45,6 +45,7 @@ class InteractionBlocks{
         this._initBackButton();
         this._initNavigationInfo();
         this._initInteractiveModel();
+        this._initConfRej();
     }
 
     _initLoadingScreen(){
@@ -74,6 +75,12 @@ class InteractionBlocks{
     _initInteractiveModel(){
         this._interactiveModel = new InteractiveModel(this._controls, this._world);
         this._interactiveModel.addClickAction();
+    }
+
+    _initConfRej(){
+        this._confrej = new HTMLInteractionBlock(document.getElementById('confrej-wrapper'), true, 'block');
+        this._confButton = new Button(document.getElementById('confirm-btn'), false, 'block');
+        this._rejButton = new Button(document.getElementById('reject-btn'), false, 'block');
     }
 
     move(element, position){
@@ -113,9 +120,7 @@ class InteractiveModel{
 
     _onClick(){
         const intersects = Constants.Raycaster.intersectObjects(this._targetMeshes, true);
-        console.log(this._controls.getCurrentState());
         if (intersects.length > 0 && Constants.TweenGroup.ModelMovement.getAll().length == 0 && Constants.TweenGroup.CamMovement.getAll().length == 0 && this._controls.getCurrentState()=='idle'){
-            console.log('Make a reaction')
             this._controls.react();
         }
     }
@@ -159,10 +164,8 @@ class HTMLInteractionBlock extends InteractionBlock{
         if (!this._onScreen){
             this._element.style.display = this._display;
             this._onScreen = true;
-            console.log('display set');
             setTimeout(() => {
                     this._element.style.opacity = "1";
-                    console.log('opacity set');
             }, 1000);
         }
     }

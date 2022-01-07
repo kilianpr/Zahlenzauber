@@ -190,6 +190,10 @@ class AnimationManager{
         this._stateMachine.SetState('react');
     }
 
+    dive(){
+        this._stateMachine.SetState('dive');
+    }
+
     getPosition(){
         return this._target.position;
     }
@@ -741,7 +745,7 @@ class DiveState extends State{
   }
 
   _Cleanup() {
-    const action = this._parent._animations['spell'].action;
+    const action = this._parent._animations['dive'].action;
     action.getMixer().removeEventListener('finished', this._FinishedCallback);
   }
 

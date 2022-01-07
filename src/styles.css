@@ -1,6 +1,6 @@
 :root{
     --widthInteractionWrapper : 900px;
-    --widthInfoBox : 800px;
+    --widthInfoBox : 900px;
     --widthBackBtn : 100px;
     --fs-small : 3rem;
     --fs-medium: 3.5rem;
@@ -12,7 +12,7 @@
         --fs-small : 2.5rem;
         --fs-medium: 2.5rem;
         --fs-large: 4.5rem;
-        --widthInfoBox : 650px;
+        --widthInfoBox : 800px;
     }
 }
 
@@ -20,7 +20,7 @@
     :root{
         --fs-small : 2rem;
         --fs-medium: 2rem;
-        --widthInfoBox : 500px;
+        --widthInfoBox : 650px;
     }
 }
 

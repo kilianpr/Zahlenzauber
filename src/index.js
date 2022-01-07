@@ -54,8 +54,8 @@ class World{
       this._light.position.set(50, 50, -20);
       this._scene.add(this._light);
 
-      /*const orbitControls = new OrbitControls(
-          this._camera, document.body);*/
+      const orbitControls = new OrbitControls(
+          this._camera, document.body);
 
       //const helper = new THREE.AxesHelper(100);
       //this._scene.add(helper);

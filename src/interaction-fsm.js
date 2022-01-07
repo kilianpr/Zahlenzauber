@@ -32,6 +32,7 @@ class InteractionFiniteStateMachine {
         this._AddState('secondMessage', SecondMessageState);
         this._AddState('lastMessage', LastMessageState);
         this._AddState('navigation', NavigationState);
+        this._AddState('confirm', ConfirmState);
         this._AddState('transitionAnimation', TransitionAnimationState);        
     }
   
@@ -180,17 +181,13 @@ class LastMessageState extends InteractionState{
     }
 
     Enter(prevState){
-        const parent = this;
         if (prevState.Name == 'secondMessage'){
             this._parent._interactionBlocks._nextButton.hide();
             this._setOnClickListeners();
         }
         else if (prevState.Name == 'navigation'){
-            this._parent._clickNavigation.removeClickActions();
             this._parent._interactionBlocks._wrapper.show();
             this._parent._interactionBlocks._lastButton.show();
-            this._parent._interactionBlocks._backButton.hide();
-            this._parent._interactionBlocks._backButton.removeAction();
             let toPos = new THREE.Vector3(0, 12, -20);
             let toLook = new THREE.Vector3(0, 12,  50);
             Constants.TweenGroup.CamMovement.removeAll();
@@ -254,7 +251,9 @@ class NavigationState extends InteractionState{
     }
 
     Enter(prevState){
-        const parent = this;
+        this._parent._interactionBlocks._navigationInfo.show();
+        this._parent._interactionBlocks._backButton.show();
+
         if (prevState.Name == 'lastMessage'){
             this._parent._interactionBlocks._lastButton.removeAction();
             this._parent._interactionBlocks._startButton.removeAction();
@@ -265,13 +264,10 @@ class NavigationState extends InteractionState{
                 this._parent._clickNavigation._targetQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), 0);
                 setTimeout(() => {
                     this._parent._controls.idle();
-                    this._parent._clickNavigation.setRotSpeed(Math.PI * 4);
-                    this._parent._clickNavigation.addClickActions();
-                    this._parent._interactionBlocks._backButton.setAction(() => {this._parent.SetState('lastMessage')});
+                    this._setClickActions();
                 }, 2000);
             }, 700);
-            this._parent._interactionBlocks._navigationInfo.show();
-            this._parent._interactionBlocks._backButton.show();
+
             let toPos = new THREE.Vector3(42, 12, -12);
             let toLook = new THREE.Vector3(0, 12, 50);
             Constants.TweenGroup.CamMovement.removeAll();
@@ -280,10 +276,28 @@ class NavigationState extends InteractionState{
             .delay(700)
             .start();
         }
+
+        else if (prevState.Name == 'confirm'){
+            this._parent._interactionBlocks._interactiveModel.addClickAction();
+            this._setClickActions();
+        }
+    }
+
+    _setClickActions(){
+        this._parent._clickNavigation.setRotSpeed(Math.PI * 4);
+            this._parent._clickNavigation.addClickActions(() => {
+                this._parent._controls.idle();
+                this._parent._clickNavigation.rotateToDefault();
+                this._parent.SetState('confirm');
+            });
+            this._parent._interactionBlocks._backButton.setAction(() => {this._parent.SetState('lastMessage')});
     }
 
     Exit(){
         this._parent._interactionBlocks._navigationInfo.hide();
+        this._parent._interactionBlocks._backButton.hide();
+        this._parent._interactionBlocks._backButton.removeAction();
+        this._parent._clickNavigation.removeClickActions();
     }
 }
 
@@ -297,6 +311,25 @@ class ConfirmState extends InteractionState{
         return 'confirm';
     }
 
+    Enter(prevState){
+        this._parent._interactionBlocks._interactiveModel.removeClickAction();
+        this._parent._interactionBlocks._confrej.show();
+        this._parent._interactionBlocks._confButton.show();
+        this._parent._interactionBlocks._confButton.setAction(() => {
+            this._parent.SetState('transitionAnimation');
+        });
+        this._parent._interactionBlocks._rejButton.show();
+        this._parent._interactionBlocks._rejButton.setAction(() => {
+            setTimeout(() => {
+                this._parent.SetState('navigation');
+            }, 100);
+        });
+    }
+
+    Exit(){
+        this._parent._interactionBlocks._confrej.hide();
+    }
+
 }
 
 class TransitionAnimationState extends InteractionState{
@@ -306,6 +339,19 @@ class TransitionAnimationState extends InteractionState{
 
     get Name(){
         return 'transitionAnimation';
+    }
+
+    Enter(prevState){
+        const targetPos = this._parent._controls._target.position;
+        this._parent._clickNavigation.moveToPoint(
+            new THREE.Vector3(targetPos.x, 0, targetPos.z-20),
+            25, 'walk', () =>{
+                this._parent._clickNavigation.rotateToOppositeDefault();
+                this._parent._controls.idle();
+                setTimeout(() => {
+                    this._parent._controls.dive();
+                }, 1000);
+            })
     }
 }
 

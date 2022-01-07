@@ -33,12 +33,11 @@ class ClickNavigation{
         this.setRotSpeed(4*Math.PI);
     }
 
-    addClickActions(){
-        this._bindFuncDouble =  this._onDoubleClick.bind(this);
-        this._bindFuncSingle =  this._onSingleClick.bind(this);
+    addClickActions(onFinishPortalClick){
+        this._bindFuncDouble =  this._onDoubleClick.bind(this, onFinishPortalClick);
+        this._bindFuncSingle =  this._onSingleClick.bind(this, onFinishPortalClick);
         document.body.addEventListener('dblclick', this._bindFuncDouble, false);
         document.body.addEventListener('click', this._bindFuncSingle, false);
-        console.log('added click actions')
     }
 
     removeClickActions(){
@@ -47,20 +46,16 @@ class ClickNavigation{
     }
 
 
-    _onDoubleClick(){
-        console.log('dblclick')
-        this._onClick(40, 'run');
+    _onDoubleClick(onFinishPortalClick){
+        this._onClick(40, 'run', onFinishPortalClick);
     }
 
     
-    _onSingleClick(){
-        console.log('sglclick')
-        this._onClick(25, 'walk');
+    _onSingleClick(onFinishPortalClick){
+        this._onClick(25, 'walk', onFinishPortalClick);
     }
 
-    _onClick(velocity, animationName){
-        console.log('on click')
-
+    _onClick(velocity, animationName, onFinishPortalClick){
         const _onFinishPortalClick = () =>{
             this._controls.idle();
             this.rotateToDefault();
@@ -69,19 +64,19 @@ class ClickNavigation{
         let intersects = Constants.Raycaster.intersectObjects([this._world.getPortalPlane('Left'), this._world._portalA.getCheckPointMesh()], false);
         if (intersects.length > 0){
             Constants.TweenGroup.ModelMovement.removeAll();
-            this.moveToPoint(new THREE.Vector3(Constants.PortalPositions.Left.x, 0, 45), 25, 'walk', _onFinishPortalClick);
+            this.moveToPoint(new THREE.Vector3(Constants.PortalPositions.Left.x, 0, 45), velocity, animationName, onFinishPortalClick);
             return;
         }
         intersects = Constants.Raycaster.intersectObjects([this._world.getPortalPlane('Mid'), this._world._portalB.getCheckPointMesh()], false);
         if (intersects.length > 0){
             Constants.TweenGroup.ModelMovement.removeAll();
-            this.moveToPoint(new THREE.Vector3(Constants.PortalPositions.Mid.x, 0, 45), 25, 'walk', _onFinishPortalClick);
+            this.moveToPoint(new THREE.Vector3(Constants.PortalPositions.Mid.x, 0, 45), velocity, animationName, onFinishPortalClick);
             return;
         }
         intersects = Constants.Raycaster.intersectObjects([this._world.getPortalPlane('Right'), this._world._portalC.getCheckPointMesh()], false);
         if (intersects.length > 0){
             Constants.TweenGroup.ModelMovement.removeAll();
-            this.moveToPoint(new THREE.Vector3(Constants.PortalPositions.Right.x, 0, 45), 25, 'walk', _onFinishPortalClick);
+            this.moveToPoint(new THREE.Vector3(Constants.PortalPositions.Right.x, 0, 45), velocity, animationName, onFinishPortalClick);
             return;
         }
 
@@ -109,6 +104,10 @@ class ClickNavigation{
 
     rotateToDefault(){
         this._targetQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);;
+    }
+
+    rotateToOppositeDefault(){
+        this._targetQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), 0);;
     }
 
     moveToPoint(p, velocity, animationName, onFinish){
