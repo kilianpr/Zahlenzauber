@@ -197,6 +197,7 @@ class LastMessageState extends InteractionState{
             .onComplete(() => {
                 this._parent._interactionBlocks._wrapper.show(0);
                 this._parent._interactionBlocks._lastButton.show(0);
+                this._parent._interactionBlocks.move(this._parent._interactionBlocks._wrapper._element, new THREE.Vector3(0,5,0));
             })
             .start();
 

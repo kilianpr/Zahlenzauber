@@ -70,9 +70,9 @@ class InteractionBlocks{
     }
 
     _initConfRej(){
-        this._confrej = new HTMLInteractionBlock(document.getElementById('confrej-wrapper'), true, 'block');
-        this._confButton = new Button(document.getElementById('confirm-btn'), false, 'block');
-        this._rejButton = new Button(document.getElementById('reject-btn'), false, 'block');
+        this._confrej = new HTMLInteractionBlock(document.getElementById('confrej-wrapper'), true, 'flex');
+        this._confButton = new Button(document.getElementById('confirm-btn'), true, 'block');
+        this._rejButton = new Button(document.getElementById('reject-btn'), true, 'block');
     }
 
     move(element, position){

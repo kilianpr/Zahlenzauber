@@ -231,29 +231,28 @@ canvas{
 
 #confrej-wrapper{
     display: none;
+    margin-bottom: calc(var(--fs-large)/3);
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
     font-size: var(--fs-large);
 }
 
 #question{
-    padding: calc(var(--fs-large) / 3);
-    background: #FFFFFF;
+    background-color: rgba(255, 255, 255, 0.4);    
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
     border-radius: 10px;
-    border: #7F7F7F solid 3px;
+    border: #000000 solid 3px;
     box-sizing: border-box;
     overflow: none;
     text-align: center;
     vertical-align: middle;
+    height: calc(1.5 * var(--fs-large));
+    line-height: calc(1.5 * var(--fs-large));
 }
 
-#confrej-btn-wrapper{
-    display: flex;
-    margin-top: 5%;
-    flex-direction: row;
-    justify-content: space-around;
-    width: 100%;
-}
 
 #confirm-btn{
     width: var(--widthIconBtn);

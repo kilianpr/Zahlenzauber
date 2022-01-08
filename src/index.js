@@ -44,7 +44,7 @@ class World{
       const near = 0.1;
       const far = 1000.0;
       this._camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-      this._camera.position.set(0, 200, -10);
+      this._camera.position.set(0, 140, -10);
       this._cameraLook = {x: 0, y:0, z:0}
       this._camera.lookAt(this._cameraLook.x, this._cameraLook.y, this._cameraLook.z);
       this._camera.updateWorldMatrix( true, false );
@@ -55,9 +55,6 @@ class World{
 
       /*const orbitControls = new OrbitControls(
           this._camera, document.body)*/
-
-      //const helper = new THREE.AxesHelper(100);
-      //this._scene.add(helper);
     }
 
 

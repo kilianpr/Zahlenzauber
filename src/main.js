@@ -40,10 +40,6 @@ class Main{
     _RAF(){
         requestAnimationFrame(() => {this._RAF()});
         const delta = this._clock.getDelta();
-        /*if (this._controls.isReady() && this._interactionBlocks){
-            let position = new THREE.Vector3(this._controls.getPosition().x,this._controls.getPosition().y+5, this._controls.getPosition().z);
-            this._interactionBlocks.move(this._interactionBlocks._wrapper._element, position);
-        }*/
         this._world._threejs.render(this._world._scene, this._world._camera);
         this._Step(delta);
         TWEEN.update();
