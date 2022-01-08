@@ -22,7 +22,7 @@ class InteractionFiniteStateMachine {
         this._states = {};
         this._currentState = null;
         this._controls = controls;
-        this._clickNavigation = new ClickNavigation(this._world, this._controls)
+        this._clickNavigation = new ClickNavigation(this._world, this._controls);
         this._Init();
     }
 
@@ -82,6 +82,7 @@ class TransitionInState extends InteractionState {
 
     Enter(prevState){
         this._parent._controls.idle();
+        this._parent._clickNavigation.activateModelInteraction();
         this._parent._interactionBlocks._loadingScreen.hide();
         let toPos = new THREE.Vector3(0, 12, -20);
         let toLook = new THREE.Vector3(0, 12,  50);
@@ -89,6 +90,7 @@ class TransitionInState extends InteractionState {
         tween
         .onComplete(() => {
             this._parent.SetState('firstMessage');
+            this._parent._interactionBlocks.move(this._parent._interactionBlocks._wrapper._element, new THREE.Vector3(0, 5, 0));
         })
         .start();
     }
@@ -109,7 +111,7 @@ class FirstMessageState extends InteractionState{
     Enter(prevState){
         this._parent._controls.wave();
 
-        this._parent._interactionBlocks._speechBubble.setText('Herzlich Willkommen')
+        this._parent._interactionBlocks._speechBubble.setText(firstMessageText)
         this._parent._interactionBlocks._wrapper.show();
         this._parent._interactionBlocks._speechBubble.show();
         this._parent._interactionBlocks._nextButton.show();
@@ -186,14 +188,16 @@ class LastMessageState extends InteractionState{
             this._setOnClickListeners();
         }
         else if (prevState.Name == 'navigation'){
-            this._parent._interactionBlocks._wrapper.show();
-            this._parent._interactionBlocks._lastButton.show();
             let toPos = new THREE.Vector3(0, 12, -20);
             let toLook = new THREE.Vector3(0, 12,  50);
             Constants.TweenGroup.CamMovement.removeAll();
             const tween = new CamTween(this._parent._world, toPos, toLook, 3000).getTween();
             tween
             .delay(700)
+            .onComplete(() => {
+                this._parent._interactionBlocks._wrapper.show(0);
+                this._parent._interactionBlocks._lastButton.show(0);
+            })
             .start();
 
             if (this._modelStillInPlace()){
@@ -261,7 +265,7 @@ class NavigationState extends InteractionState{
             setTimeout(() => {
                 this._parent._clickNavigation.setRotSpeed(Math.PI/2);
                 this._parent._controls.turnRight();
-                this._parent._clickNavigation._targetQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), 0);
+                this._parent._clickNavigation.rotateToOppositeDefault();
                 setTimeout(() => {
                     this._parent._controls.idle();
                     this._setClickActions();
@@ -278,14 +282,14 @@ class NavigationState extends InteractionState{
         }
 
         else if (prevState.Name == 'confirm'){
-            this._parent._interactionBlocks._interactiveModel.addClickAction();
+            this._parent._clickNavigation.activateModelInteraction();
             this._setClickActions();
         }
     }
 
     _setClickActions(){
         this._parent._clickNavigation.setRotSpeed(Math.PI * 4);
-            this._parent._clickNavigation.addClickActions(() => {
+            this._parent._clickNavigation.activateNavInteraction(() => {
                 this._parent._controls.idle();
                 this._parent._clickNavigation.rotateToDefault();
                 this._parent.SetState('confirm');
@@ -297,7 +301,7 @@ class NavigationState extends InteractionState{
         this._parent._interactionBlocks._navigationInfo.hide();
         this._parent._interactionBlocks._backButton.hide();
         this._parent._interactionBlocks._backButton.removeAction();
-        this._parent._clickNavigation.removeClickActions();
+        this._parent._clickNavigation.disableNavInteraction();
     }
 }
 
@@ -312,7 +316,7 @@ class ConfirmState extends InteractionState{
     }
 
     Enter(prevState){
-        this._parent._interactionBlocks._interactiveModel.removeClickAction();
+        this._parent._clickNavigation.disableModelInteraction();
         this._parent._interactionBlocks._confrej.show();
         this._parent._interactionBlocks._confButton.show();
         this._parent._interactionBlocks._confButton.setAction(() => {

@@ -22,15 +22,16 @@ varying vec3 vPosition;
   }
 `;
 
-const _SPortalNone = `
+const _VSPortalPerformant = `
 uniform float randomMultiplier;
 uniform float time;
 varying vec2 vUv;
 varying vec3 vPosition;
-  void main(){
-
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
-`
+`;
 
 const _FSPortal = `
 uniform float time;
@@ -105,34 +106,38 @@ class Animation{
 
         this.visible = false;
 
-    const uniforms = {
-      myTexture: {
-          value: new THREE.TextureLoader(Constants.GeneralLoadingManager).load(watertexture),
-      },
-      time: {
-        value: 0
-      },
+        const uniforms = {
+          myTexture: {
+              value: new THREE.TextureLoader(Constants.GeneralLoadingManager).load(watertexture),
+          },
+          time: {
+            value: 0
+          },
 
-    };
+        };
 
     this._material = new THREE.ShaderMaterial({
       uniforms: uniforms,
       side: THREE.DoubleSide,
       fragmentShader: _FSPortal,
-      vertexShader: _VSPortal,
+      vertexShader: _VSPortalPerformant,
       shadowSide: THREE.DoubleSide,
       blending: THREE.NormalBlending,
     })
-    this._plane = new THREE.Mesh(this._geometry, this._material);
-    this._plane.position.set(positionX, positionY, positionZ-.8);
-    this._plane.name = "portalInside";
 
-    this._light = new THREE.RectAreaLight( 0xffffff, 1,  width, height );
-    this._light.position.set(positionX, positionY, positionZ);
-    this._light.lookAt(positionX, 0, 0);
+      this._plane = new THREE.Mesh(this._geometry, this._material);
+      this._plane.position.set(positionX, positionY, positionZ-.8);
+      this._plane.name = "portalInside";
+  
+      //this._light = new THREE.RectAreaLight( 0xffffff, 1,  width, height );
+      //this._light.position.set(positionX, positionY, positionZ);
+      //this._light.lookAt(positionX, 0, 0);
+  
+      parent._scene.add(this._plane);
+      //parent._scene.add(this._light);
+      console.log(this);
+    
 
-    parent._scene.add(this._plane);
-    parent._scene.add(this._light);
 }
 
 
@@ -172,12 +177,6 @@ class Animation{
         .start();
     }
 }
-
-     
-  
-
-
-
 
 
 

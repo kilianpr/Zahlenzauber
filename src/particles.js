@@ -79,9 +79,9 @@ class Fire {
     this._camera = params.camera;
     this._scene = params.scene;
 
-    this._light = new THREE.PointLight(0xe25822, 0, 100);
+    /*this._light = new THREE.PointLight(0xe25822, 0, 100);
     this._light.position.set(this._centerPos.x, this._centerPos.y, this._centerPos.z);
-    this._scene.add(this._light);
+    this._scene.add(this._light);*/
 
 
 
@@ -135,10 +135,10 @@ class Fire {
 
   show() {
     this.visible = true;
-    new TWEEN.Tween(this._light)
+    /*new TWEEN.Tween(this._light)
     .to({intensity: 5}, 2000)
     .easing(TWEEN.Easing.Quadratic.Out)
-    .start();
+    .start();*/
     
   }
 

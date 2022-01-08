@@ -7,11 +7,14 @@
     <title>Zahlenzauber</title>
 </head>
 <body>
+    <div id='loading'>
+        
+    </div>
     <div id='overlay'>
         <div id='interaction-wrapper'>
             <div id='lastbubblenext-wrapper'>
                 <div id='last-btn' class='button-inactive img-btn'>
-                    <img src="arrow-left.png"> 
+                    <img draggable="false" ondragstart="return false;" src=img/arrow-left.png> 
                 </div>
                 <div id='bubble'>
                     <div id='bubble-text' class='text'>
@@ -19,7 +22,7 @@
                     </div>
                 </div>
                 <div id='next-btn' class='button-inactive img-btn'>
-                    <img src="res/icons/arrow-right.png"> 
+                    <img draggable="false" ondragstart="return false;" src="img/arrow-right.png"> 
                 </div>
             </div>
             <div id='start-btn' class='button-inactive txt-btn'>
@@ -29,13 +32,13 @@
 
 
         <div id='back-btn' class='button-inactive img-btn'>
-            <img src="icons/arrow-left.png"> 
+            <img draggable="false" ondragstart="return false;" src="img/arrow-left.png"> 
         </div>
 
         <div id='info-box'>
-            <img id='info-img' src="icons/info.svg"> 
+            <img draggable="false" ondragstart="return false;" id='info-img' src="img/info.svg"> 
             <div id='info-text'>
-                Bewege dich zu den Portalen, um zu navigieren! </br>
+                Bewege dich zu den Portalen, um zu navigieren! <br>
                 Klicke hierfür auf den Boden oder die Portale.
             </div>
         </div>
@@ -46,10 +49,10 @@
             </div>
             <div id='confrej-btn-wrapper'>
                 <div id='confirm-btn' class='button-inactive img-btn'>
-                    <img src="icons/confirm.png"> 
+                    <img draggable="false" ondragstart="return false;" src="img/confirm.png"> 
                 </div>
                 <div id='reject-btn' class='button-inactive img-btn'>
-                    <img src="icons/reject.png"> 
+                    <img draggable="false" ondragstart="return false;" src="img/reject.png"> 
                 </div>
             </div>
         </div>

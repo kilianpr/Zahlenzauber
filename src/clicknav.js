@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
 import Constants from './constants.js'
+import { Vector3 } from 'three';
 TWEEN.Easing.myCustom = {};
 TWEEN.Easing.myCustom.myEasingOut = function(k){
     var t = (k*100);
@@ -20,6 +21,8 @@ class ClickNavigation{
     _velocity;
     _targetQuaternion;
     _rotSpeed;
+    _modelInteraction = false;
+    _navigationAction = false;
 
 
     constructor(world, controls){
@@ -31,68 +34,101 @@ class ClickNavigation{
         this._raycaster = new THREE.Raycaster();
         this.rotateToDefault();
         this.setRotSpeed(4*Math.PI);
+        this.addAllClickActions();
     }
 
-    addClickActions(onFinishPortalClick){
-        this._bindFuncDouble =  this._onDoubleClick.bind(this, onFinishPortalClick);
-        this._bindFuncSingle =  this._onSingleClick.bind(this, onFinishPortalClick);
+    addAllClickActions(){
+        this._bindFuncDouble =  this._onDoubleClick.bind(this);
+        this._bindFuncSingle =  this._onSingleClick.bind(this);
         document.body.addEventListener('dblclick', this._bindFuncDouble, false);
         document.body.addEventListener('click', this._bindFuncSingle, false);
     }
 
-    removeClickActions(){
+    removeAllClickActions(){
         document.body.removeEventListener('dblclick', this._bindFuncDouble, false);
         document.body.removeEventListener('click', this._bindFuncSingle, false);
     }
 
 
-    _onDoubleClick(onFinishPortalClick){
-        this._onClick(40, 'run', onFinishPortalClick);
+    _onDoubleClick(){
+        this._onClick(40, 'run');
     }
 
     
-    _onSingleClick(onFinishPortalClick){
-        this._onClick(25, 'walk', onFinishPortalClick);
+    _onSingleClick(){
+        this._onClick(25, 'walk');
     }
 
-    _onClick(velocity, animationName, onFinishPortalClick){
-        const _onFinishPortalClick = () =>{
-            this._controls.idle();
-            this.rotateToDefault();
+    activateModelInteraction(){
+        this._modelInteraction = true;
+    }
+
+    disableModelInteraction(){
+        this._modelInteraction = false;
+    }
+
+    activateNavInteraction(onFinishPortalClick){
+        this._navigationAction = true;
+        this._onFinishPortalClick = onFinishPortalClick;
+    }
+
+    disableNavInteraction(){
+        this._navigationAction = false;
+    }
+
+    _onClick(velocity, animationName){
+        let intersects;
+
+        if (this._navigationAction || this._modelInteraction){
+            Constants.Mouse.x = (event.clientX /  document.body.clientWidth) * 2 -1;
+            Constants.Mouse.y = -(event.clientY /  document.body.clientHeight) * 2 +1;
+            Constants.Raycaster.setFromCamera(Constants.Mouse, this._world._camera);
         }
 
-        let intersects = Constants.Raycaster.intersectObjects([this._world.getPortalPlane('Left'), this._world._portalA.getCheckPointMesh()], false);
-        if (intersects.length > 0){
-            Constants.TweenGroup.ModelMovement.removeAll();
-            this.moveToPoint(new THREE.Vector3(Constants.PortalPositions.Left.x, 0, 45), velocity, animationName, onFinishPortalClick);
-            return;
-        }
-        intersects = Constants.Raycaster.intersectObjects([this._world.getPortalPlane('Mid'), this._world._portalB.getCheckPointMesh()], false);
-        if (intersects.length > 0){
-            Constants.TweenGroup.ModelMovement.removeAll();
-            this.moveToPoint(new THREE.Vector3(Constants.PortalPositions.Mid.x, 0, 45), velocity, animationName, onFinishPortalClick);
-            return;
-        }
-        intersects = Constants.Raycaster.intersectObjects([this._world.getPortalPlane('Right'), this._world._portalC.getCheckPointMesh()], false);
-        if (intersects.length > 0){
-            Constants.TweenGroup.ModelMovement.removeAll();
-            this.moveToPoint(new THREE.Vector3(Constants.PortalPositions.Right.x, 0, 45), velocity, animationName, onFinishPortalClick);
-            return;
-        }
 
-        intersects = Constants.Raycaster.intersectObject(this._world._ground, false); //add checkpoints which must first be implemented into World (index.js), maybe as part of Portals?
-        if (intersects.length > 0){
-            const p = intersects[0].point;
-            if (p.z > 44.5){
-                p.z = 44.5;
+        if (this._navigationAction){
+            intersects = Constants.Raycaster.intersectObjects([this._world.getPortalPlane('Left'), this._world._portalA.getCheckPointMesh()], false);
+            if (intersects.length > 0){
+                Constants.TweenGroup.ModelMovement.removeAll();
+                this.moveToPoint(new THREE.Vector3(Constants.PortalPositions.Left.x, 0, 45), velocity, animationName, this._onFinishPortalClick);
+                return;
             }
-
-            Constants.TweenGroup.ModelMovement.removeAll();
-            this.moveToPoint(p, velocity, animationName, () => {this._controls.idle()});
-            return;
+            intersects = Constants.Raycaster.intersectObjects([this._world.getPortalPlane('Mid'), this._world._portalB.getCheckPointMesh()], false);
+            if (intersects.length > 0){
+                Constants.TweenGroup.ModelMovement.removeAll();
+                this.moveToPoint(new THREE.Vector3(Constants.PortalPositions.Mid.x, 0, 45), velocity, animationName, this._onFinishPortalClick);
+                return;
+            }
+            intersects = Constants.Raycaster.intersectObjects([this._world.getPortalPlane('Right'), this._world._portalC.getCheckPointMesh()], false);
+            if (intersects.length > 0){
+                Constants.TweenGroup.ModelMovement.removeAll();
+                this.moveToPoint(new THREE.Vector3(Constants.PortalPositions.Right.x, 0, 45), velocity, animationName, this._onFinishPortalClick);
+                return;
+            }
+    
+            intersects = Constants.Raycaster.intersectObject(this._world._ground, false);
+            if (intersects.length > 0){
+                const p = intersects[0].point;
+                if (p.z > 44.5){
+                    p.z = 44.5;
+                }
+    
+                Constants.TweenGroup.ModelMovement.removeAll();
+                this.moveToPoint(p, velocity, animationName, () => {this._controls.idle()});
+                return;
+            }
         }
 
 
+        if (this._modelInteraction){
+            if (Constants.TweenGroup.ModelMovement.getAll().length == 0 && Constants.TweenGroup.CamMovement.getAll().length == 0 && this._controls.getCurrentState()=='idle'){
+                intersects = Constants.Raycaster.intersectObject(this._controls._targetMesh, false);
+                if (intersects.length > 0){
+                    this._controls.react();
+                    return;
+                }
+            }
+        }
     }
 
 

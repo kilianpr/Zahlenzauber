@@ -50,12 +50,11 @@ class World{
       this._camera.updateWorldMatrix( true, false );
       this._scene = new THREE.Scene();
       
-      this._light = new THREE.DirectionalLight(0xfff5b6, 0.2);
-      this._light.position.set(50, 50, -20);
+      this._light = new THREE.AmbientLight(0xFCF9D9, .4);
       this._scene.add(this._light);
 
-      const orbitControls = new OrbitControls(
-          this._camera, document.body);
+      /*const orbitControls = new OrbitControls(
+          this._camera, document.body)*/
 
       //const helper = new THREE.AxesHelper(100);
       //this._scene.add(helper);
@@ -144,9 +143,9 @@ class World{
 
     getPortalPlane(portal){
       switch(portal){
-        case 'Left': return this._portalA._animation._plane; break;
-        case 'Mid': return this._portalB._animation._plane; break;
-        case 'Right': return this._portalC._animation._plane; break;
+        case 'Left': return this._portalA._animation._plane;
+        case 'Mid': return this._portalB._animation._plane; 
+        case 'Right': return this._portalC._animation._plane;
       }
     }
 }

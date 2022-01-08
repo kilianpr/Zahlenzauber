@@ -1,31 +1,12 @@
 import * as THREE from 'three';
 import Constants from './constants.js';
-import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
-import wizard from '/res/models/wizard.fbx';
-import walk from '/res/anim/walk.fbx';
-import walkbackwards from '/res/anim/walkbackwards.fbx';
-import run from '/res/anim/run.fbx';
-import runbackwards from '/res/anim/runbackwards.fbx';
-import jump from '/res/anim/jump.fbx';
-import wave from '/res/anim/wave.fbx';
-import idle from '/res/anim/idle.fbx';
-import spell from '/res/anim/spell.fbx';
-import turn from '/res/anim/turn.fbx';
-import rightturn from '/res/anim/rightturn.fbx';
-import leftturn from '/res/anim/leftturn.fbx';
-import backflip from '/res/anim/backflip.fbx';
-import bow from '/res/anim/bow.fbx';
-import jabcross from '/res/anim/jabcross.fbx';
-import reaction from '/res/anim/reaction.fbx';
-import dance1 from '/res/anim/sillydance1.fbx';
-import dance2 from '/res/anim/sillydance2.fbx';
 import wizardGLTF from '/res/anim/wizard.glb';
 
 class AnimationManager{
     _animations; //dict to store all the animations in the form of {animName : {clip: clip , action: action}}
     _target; // gltf.scene model
-    _targetMeshes = []; //all meshes of the gltf.scene model
+    _targetMesh; //mesh of the gltf.scene model
     _scence;
     _stateMachine;
     _mixer;
@@ -36,70 +17,20 @@ class AnimationManager{
     this._LoadModelsGLTF();
   }
 
-  _LoadModels(){
-    const loader = new FBXLoader(Constants.GeneralLoadingManager);
-    loader.load(wizard, (fbx) => {
-        fbx.scale.setScalar(0.1);
-        fbx.traverse(c => {
-          c.castShadow = true;
-        });
-        //const helper = new THREE.AxesHelper(50);
-        //helper.material.linewidth = 10;
-        //fbx.add(helper);
-        this._target = fbx;
-        this._target.name = "Merlin";
-        this._stateMachine = new CharacterFSM(this._animations, this._target);
-        this._target.position.set(0,0,0);
-        this._target.rotateY(Math.PI);
-        this._scene.add(this._target);
-
-        this._mixer = new THREE.AnimationMixer(this._target);
-
-        const _OnLoad = (animName, anim) => {
-            const clip = anim.animations[0];
-            const action = this._mixer.clipAction(clip);
-
-            console.log('loaded:' + animName)
-            this._animations[animName] = {
-                clip: clip,
-                action: action
-            };
-        };
-        
-        const loader = new FBXLoader(Constants.GeneralLoadingManager);
-        loader.load(walk, (a) => {_OnLoad('walk', a);});
-        loader.load(walkbackwards, (a) => {_OnLoad('walkbackwards', a);});
-        loader.load(idle, (a) => {_OnLoad('idle', a)});
-        loader.load(run, (a) => {_OnLoad('run', a);});
-        loader.load(runbackwards, (a) => {_OnLoad('runbackwards', a);});
-        loader.load(jump, (a) => {_OnLoad('jump', a);});
-        loader.load(wave, (a) => {_OnLoad('wave', a);});
-        loader.load(spell, (a) => {_OnLoad('spell', a);});
-        loader.load(turn, (a) => {_OnLoad('turn', a);});
-        loader.load(rightturn, (a) => {_OnLoad('rightturn', a);});
-        loader.load(leftturn, (a) => {_OnLoad('leftturn', a);});
-        loader.load(backflip, (a) => {_OnLoad('backflip', a);});
-        loader.load(bow, (a) => {_OnLoad('bow', a);});
-        loader.load(jabcross, (a) => {_OnLoad('jabcross', a);});
-        loader.load(reaction, (a) => {_OnLoad('reaction', a);});
-        loader.load(dance1, (a) => {_OnLoad('dance1', a);});
-        loader.load(dance2, (a) => {_OnLoad('dance2', a);});
-    });
-    }
 
     _LoadModelsGLTF(){
       const loader = new GLTFLoader(Constants.GeneralLoadingManager);
       loader.load(wizardGLTF, ( gltf ) => {
         gltf.scene.scale.setScalar(10);
         this._target = gltf.scene;
-        const nullSphere = new THREE.Sphere(undefined, Infinity);
+        let nullSphere = new THREE.Sphere(undefined, Infinity);
+        console.log(this._target);
         this._target.traverse( (object) => {
           if (object.isMesh) {
-            object.castShadow = true;
-
+            //object.castShadow = true;
             object.geometry.boundingSphere = nullSphere; //in order for the raycaster to detect clicks on the target
             object.geometry.boundingBox = null;
-            this._targetMeshes.push(object);
+            this._targetMesh = object;
           }
           object.frustumCulled = false; //in order to make the wizard render in all positions
         });

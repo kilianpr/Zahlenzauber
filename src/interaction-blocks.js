@@ -44,18 +44,15 @@ class InteractionBlocks{
         this._initWrapper();
         this._initBackButton();
         this._initNavigationInfo();
-        this._initInteractiveModel();
         this._initConfRej();
     }
 
     _initLoadingScreen(){
         this._loadingScreen = new LoadingScreen();
-        document.body.appendChild(this._loadingScreen._element);
     }
 
     _initWrapper(){
         this._wrapper = new HTMLInteractionBlock(document.getElementById('interaction-wrapper'), true, 'block');
-        this.move(this._wrapper._element, new THREE.Vector3(0, 7, 0));
 
         this._lastButton = new Button(document.getElementById('last-btn'), false, 'block');
         this._speechBubble = new TextBlock(document.getElementById('bubble'), false, 'block', 0, '');
@@ -70,11 +67,6 @@ class InteractionBlocks{
 
     _initNavigationInfo(){
         this._navigationInfo = new TextBlock(document.getElementById('info-box'), true, 'flex', 0, "Bewege den Magier, indem du auf die Portale klickst oder WASD drückst!");
-    }
-
-    _initInteractiveModel(){
-        this._interactiveModel = new InteractiveModel(this._controls, this._world);
-        this._interactiveModel.addClickAction();
     }
 
     _initConfRej(){
@@ -102,31 +94,6 @@ class InteractionBlock{
 }
 
 
-class InteractiveModel{
-    constructor(controls, world){
-        this._controls = controls;
-        this._renderer = world._threejs;
-        this._targetMeshes = this._controls._targetMeshes
-        this._bindFunction =  this._onClick.bind(this);
-    }
-
-    addClickAction(){
-        document.body.addEventListener('click', this._bindFunction, false);
-    }
-
-    removeClickAction(){
-        document.body.removeEventListener('click', this._bindFunction, false);
-    }
-
-    _onClick(){
-        const intersects = Constants.Raycaster.intersectObjects(this._targetMeshes, true);
-        if (intersects.length > 0 && Constants.TweenGroup.ModelMovement.getAll().length == 0 && Constants.TweenGroup.CamMovement.getAll().length == 0 && this._controls.getCurrentState()=='idle'){
-            this._controls.react();
-        }
-    }
-}
-
-
 
 
 class LoadingScreen {
@@ -137,14 +104,14 @@ class LoadingScreen {
     }
 
     _Init(){
-        this._element = document.createElement('div');
-        this._element.classList.add("loading")
+        this._element = document.getElementById('loading');
     }
 
     hide(){
         this._element.style.opacity="0";
         setTimeout(() => {
             this._element.style.display="none";
+            document.getElementById('overlay').style.display='flex';
         }, 2000);
     }
 }
@@ -160,24 +127,24 @@ class HTMLInteractionBlock extends InteractionBlock{
         this._element.style.opacity = 0;
     }
 
-    show(){
+    show(delay=1000){
         if (!this._onScreen){
             this._element.style.display = this._display;
             this._onScreen = true;
             setTimeout(() => {
                     this._element.style.opacity = "1";
-            }, 1000);
+            }, delay);
         }
     }
 
-    hide(){
+    hide(delay=1000){
         if (this._onScreen){
             this._element.style.opacity = "0";
             this._onScreen = false;
             if (this._allowNone){
                 setTimeout(() => {
                     this._element.style.display = 'none';
-                }, 1000)
+                }, delay)
             }
         }
     }
