@@ -91,8 +91,8 @@ class AnimatedBackground{
       let question = document.createElement('div');
       question.innerHTML = 'Bereit?';
       question.style.cssText = `
-        font-size: var(--fs-medium);
-        padding: calc(var(--fs-medium) * 0.5);
+        font-size: var(--fs-gigantic);
+        padding: calc(var(--fs-large) * 0.5);
         background-color: white;
         border: 5px solid;
         border-radius: 10px;
@@ -106,6 +106,7 @@ class AnimatedBackground{
         display: block;
         bottom: 2%;
         margin: auto;
+        width: calc(2 * var(--fs-gigantic));
       `
       confirmBtn.classList.add('button');
       confirmBtn.addEventListener('click', () => {
@@ -139,7 +140,6 @@ class AnimatedBackground{
         requestAnimationFrame(() => {this._RAF()});
         this._threejs.render( this._scene, this._camera);
         this._Step(this._clock.getDelta());
-
     }
 
     _InitBackBtn(){

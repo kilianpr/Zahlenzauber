@@ -2,6 +2,7 @@
     --fs-small : 1.5rem;
     --fs-medium: 2.5rem;
     --fs-large : 3.5rem;
+    --fs-gigantic: 7rem;
     --top-left-nav: 15rem;
 }
 
@@ -16,6 +17,7 @@
         --fs-small : 1.25rem;
         --fs-medium: 1.8rem;
         --fs-large: 2.5rem;
+        --fs-gigantic: 4rem;
         --top-left-nav: 10rem;
     }
 }
@@ -25,6 +27,7 @@
         --fs-small : 1rem;
         --fs-medium: 1.5rem;
         --fs-large: 2rem;
+        --fs-gigantic: 3rem;
         --top-left-nav: 7rem;
     }
 }
@@ -63,13 +66,23 @@
     animation-fill-mode: forwards;
 }
 
+html{
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    overflow-x: hidden;
+}
+
 body{
     font-family: lora;
-    margin: auto;
     top: 0;
     left: 0;
-    height: 100vh;
-    width: 100vw;
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    overflow-x: hidden;
     justify-content: center;
     align-items: center;
     flex-direction: column;
@@ -84,7 +97,6 @@ canvas{
 
 .button{
     cursor: pointer;
-    width: calc(2 * var(--fs-medium));
 }
 
 
@@ -93,6 +105,7 @@ canvas{
 }
 
 #back-btn{
+    width: calc(1.5 * var(--fs-large));
     position: absolute;
     top: 0;
     left: 0;
