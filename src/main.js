@@ -1,6 +1,7 @@
-import { World} from "./index";
+import { World} from "./index.js";
 import * as THREE from 'three';
 import '/src/styles.css';
+import '/res/fonts/Lora.ttf';
 import * as TWEEN from '@tweenjs/tween.js';
 import {InteractionBlocks} from './interaction-blocks.js';
 import {InteractionFiniteStateMachine} from './interaction-fsm.js';
@@ -20,6 +21,8 @@ class Main{
     }
 
     main(){
+        Constants.isOnMobile = this._isUserOnMobile();
+        console.log("User on mobile" + Constants.isOnMobile);
         const parent = this;
         this._clock = new THREE.Clock();
         this._world = new World();
@@ -32,7 +35,7 @@ class Main{
             parent._interactionFSM = new InteractionFiniteStateMachine(parent._world, parent._interactionBlocks, parent._controls);
             parent._RAF()
             parent._world._threejs.compile(parent._world._scene, parent._world._camera);
-            parent._interactionFSM.SetState('transitionIn');
+            parent._interactionFSM.SetState('prereqFullscreen');
         };
     }
 
@@ -101,6 +104,14 @@ class Main{
             this._interactionBlocks.move(this._interactionBlocks._wrapper._element, new THREE.Vector3(0,5,0));
         }
       }
+
+    _isUserOnMobile(){
+        var UA = navigator.userAgent;
+        return(
+            /\b(BlackBerry|webOS|iPhone|IEMobile)\b/i.test(UA) ||
+            /\b(Android|Windows Phone|iPad|iPod)\b/i.test(UA)
+        );
+    }
 }
 
 let _APP = null;

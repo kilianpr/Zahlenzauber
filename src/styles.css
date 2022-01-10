@@ -8,6 +8,11 @@
     --fs-large : 5rem;
 }
 
+@font-face {
+    font-family: lora;
+    src: url(/res/fonts/Lora.ttf);
+}
+
 @media (max-width: 1000px), (max-height: 800px) {
     :root{
         --fs-small : 2.5rem;
@@ -29,10 +34,12 @@
 
 html {
     font-size: 10px;
+    font-family: lora;
 }
 
 html > *{
     user-select: none;
+    transition: opacity 2s;
 }
 
 body {
@@ -46,17 +53,83 @@ body {
 }
 
 #loading{
-    display: block;
-    height: 100vh;
-    width: 100vw;
-    background-color: black;
-    position: absolute;
+    text-align: center;
+    height: 100%;
+    width: 100%;
+    background-color: #062E7A;
+    position: fixed;
     top: 0;
     left: 0;
     opacity: 1;
     transition: opacity 2s;
     z-index: 2;
+    font-size: var(--fs-medium);
+    color: white;
 }
+
+#prereq-wrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50%;
+}
+
+#logo-wrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50%;
+}
+
+#logo{
+    height: 50%;
+    display: inline !important;
+}
+
+#loadtxt{
+    display: block;
+}
+
+.container{
+    height: 15px;
+    width: 105px;
+    display: flex;
+    position: relative;
+  }
+
+.circle{
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: #fff;
+    animation: move 500ms linear 0ms infinite;
+    margin-right: 30px;
+  }
+
+  .circle:first-child{
+    position: absolute;
+    top:0;
+    left:0;
+    animation: grow 500ms linear 0ms infinite;
+  }
+  
+  .circle:last-child{
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-right: 0;
+    animation: grow 500ms linear 0s infinite reverse;
+  }
+  
+  @keyframes grow {
+    from {transform: scale(0,0); opacity: 0;}
+    to {transform: scale(1,1); opacity: 1;}
+  }
+  
+  @keyframes move {
+    from {transform: translateX(0px)}
+    to {transform: translateX(45px)}
+  }
 
 canvas{
     position: absolute;
@@ -76,9 +149,10 @@ canvas{
     justify-content: center;
 }
 
-#overlay *{
+#overlay *, #loading *{
     transition: opacity 1s;
 }
+
 
 
 
@@ -94,19 +168,12 @@ canvas{
     border: black solid 2px;
     border-radius: 25px;
     background-color: white;
+    color: black;
     font-size: var(--fs-large);
 }
 
-.button-inactive:hover{
+.button:hover{
     filter: invert();
-}
-
-.button-inactive{
-    cursor: default;
-}
-
-.button-active{
-    cursor: pointer;
 }
 
 

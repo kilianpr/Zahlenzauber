@@ -27,6 +27,8 @@ class InteractionFiniteStateMachine {
     }
 
     _Init(){
+        this._AddState('prereqFullscreen', PrereqFullscreenState);
+        this._AddState('prereqLandscape', PrereqLandscapeState);
         this._AddState('transitionIn', TransitionInState);
         this._AddState('firstMessage', FirstMessageState);
         this._AddState('secondMessage', SecondMessageState);
@@ -69,6 +71,70 @@ class InteractionState {
     Enter() {}
     Exit() {}
 }
+
+
+class PrereqFullscreenState extends InteractionState {
+    constructor(parent){
+        super(parent);
+    }
+
+    get Name(){
+        return 'prereqFullscreen';
+    }
+
+    Enter(prevState){
+        if (!Constants.isOnMobile || Document.fullscreenElement != null && screen.availHeight < screen.availWidth){
+            this._parent.SetState('transitionIn');
+        }
+        else if (Document.fullscreenElement != null && screen.availHeight >= screen.availWidth){
+            this._parent.SetState('prereqLandscape');
+        }
+        else{
+            this._parent._interactionBlocks._loadAnim._element.style.display='none';
+            this._parent._interactionBlocks._prereqFullscreen.show();
+            this._parent._interactionBlocks._goFullscreenBtn.show();
+            this._parent._interactionBlocks._goFullscreenBtn.setAction(() => {
+                var elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) { /* Safari */
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) { /* IE11 */
+                    elem.msRequestFullscreen();
+                }
+                screen.orientation.lock("landscape")
+                .then(() => {
+                    this._parent.SetState('transitionIn')
+                })
+                .catch((err) => { 
+                    console.log(err) ;
+                    this._parent.SetState('prereqLandscape');
+                });
+            })
+        }
+    }
+}
+
+class PrereqLandscapeState extends InteractionState {
+    constructor(parent){
+        super(parent);
+    }
+
+    get Name(){
+        return 'prereqLandscape';
+    }
+
+    Enter(prevState){
+        this._parent._interactionBlocks._prereqFullscreen._element.style.display = 'none';
+        this._parent._interactionBlocks._prereqLandscape.show();
+        this._parent._interactionBlocks._startTransBtn.show();
+        this._parent._interactionBlocks._startTransBtn.setAction(() => {
+            this._parent.SetState('transitionIn');
+        })
+    }
+}
+
+
 
 
 class TransitionInState extends InteractionState {
@@ -355,6 +421,21 @@ class TransitionAnimationState extends InteractionState{
                 this._parent._controls.idle();
                 setTimeout(() => {
                     this._parent._controls.dive();
+                    setTimeout(() => {
+                        document.body.style.opacity = 0;
+                        setTimeout(() => {
+                            if (Constants.curPortal == 'Left'){
+                                window.location.href = "./exercises.html";
+                            } else if (Constants.curPortal == 'Right'){
+                                window.location.href = "./about.html";
+                            } else if (Constants.curPortal == 'Mid'){
+                                window.location.href = "./videos.html";
+                            } else{
+                                console.log("No Portal selectec, going to videos by default");
+                                window.location.href = "./videos.html";
+                            }
+                        }, 2000)
+                    }, 2000);
                 }, 1000);
             })
     }

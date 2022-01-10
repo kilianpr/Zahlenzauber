@@ -1,12 +1,13 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+let subHtmlPlugins = []
 
 module.exports = {
-    entry: './src/main.js',
-    output: {
-        filename: 'bundle.js',
-        path: path.resolve(__dirname, 'dist'),
-        clean: true,
+    entry: {
+        main: './src/main.js',
+        video: './src/subpages/video.js',
+        background: './src/subpages/background.js',
+        background: './src/subpages/background.js',
     },
     devServer: {
         static: './dist',
@@ -15,7 +16,7 @@ module.exports = {
 
         rules: [
         { 
-            test: /\.(gltf|glb|bin|fbx|obj)$/,
+            test: /\.(gltf|glb|bin|fbx|obj|ttf)$/,
             type: 'asset/resource',
         },
         {
@@ -36,6 +37,22 @@ module.exports = {
             template: './src/index.html',
             filename: 'index.html',
             inject: 'body',
+            chunks: ['main']
+        }),
+        new HtmlWebpackPlugin({
+            template: './src/subpages/videos.html',
+            filename: 'videos.html',
+            chunks: ['background', 'video']
+        }), 
+        new HtmlWebpackPlugin({
+            template: './src/subpages/exercises.html',
+            filename: 'exercises.html',
+            chunks: ['background']
+        }),
+        new HtmlWebpackPlugin({
+            template: './src/subpages/about.html',
+            filename: 'about.html',
+            chunks: ['background']
         })
     ],
     mode: 'development'

@@ -2,10 +2,13 @@ import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
 import watertexture from '/res/particles/water.png'
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader.js';
+import {FontLoader} from 'three/examples/jsm/loaders/FontLoader.js';
+import {TextGeometry} from 'three/examples/jsm/geometries/TextGeometry.js';
 import portal from '/res/room/portal.obj';
-import portalGLTF from '/res/room/portal.glb';
 import stoneText from '/res/room/stonetext.jpg';
 import Constants from './constants.js';
+import Lora from '/res/fonts/Lora.json';
+import checkpointText from '/res/room/checkpointText.jpg';
 
 
 const _VSPortal = `
@@ -47,7 +50,7 @@ varying vec3 vPosition;
 
 class Portal{
 
-    constructor(parent, width, position) {
+    constructor(parent, width, position, text) {
       const positionX = position.x;
       const positionY = position.y;
       const positionZ = position.z
@@ -86,7 +89,13 @@ class Portal{
       this._checkpoint.show();
       this._checkpoint._element.position.set(positionX, 0, 45);
       parent._scene.add(this._checkpoint._element);
-    }
+
+      this._text = new Text(text);
+      console.log(this._text.getWidth())
+      this._text._element.position.set(positionX+(this._text.getWidth()/2), 30, 49);
+      parent._scene.add(this._text._element);
+      
+    } 
 
     showAnimation(){
       this._animation.visible = true;
@@ -129,12 +138,8 @@ class Animation{
       this._plane.position.set(positionX, positionY, positionZ-.8);
       this._plane.name = "portalInside";
   
-      //this._light = new THREE.RectAreaLight( 0xffffff, 1,  width, height );
-      //this._light.position.set(positionX, positionY, positionZ);
-      //this._light.lookAt(positionX, 0, 0);
   
       parent._scene.add(this._plane);
-      //parent._scene.add(this._light);
       console.log(this);
     
 
@@ -159,8 +164,9 @@ class Animation{
   }
 
     _create(){
+        const loader = new THREE.TextureLoader();
         const geometry = new THREE.CylinderGeometry(this._radius, this._radius, .5, 32, 1);
-        const material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0, color: 0xFFD700});
+        const material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0, map: loader.load(checkpointText)});
         this._element = new THREE.Mesh(geometry, material);
         this._element.name = "checkpoint";
     }
@@ -176,6 +182,38 @@ class Animation{
         .to({opacity: 0},2000)
         .start();
     }
+}
+
+
+class Text{
+  constructor(text){
+    this._text = text;
+    this._Init();
+  }
+
+  _Init(){
+    let fontLoader = new FontLoader();
+    let font = fontLoader.parse(Lora);
+      
+    const geometry = new TextGeometry( this._text, {
+      font: font,
+      size: 3,
+      height: 0.5,
+      curveSegments: 20,
+    })
+    const material = new THREE.MeshPhongMaterial( 
+      { color: 0x3c81da}
+    );
+    this._element = new THREE.Mesh( geometry, material );
+    this._element.rotateY(Math.PI);
+
+  }
+
+  getWidth(){
+    let box = new THREE.Box3().setFromObject(this._element);
+    return box.max.x - box.min.x;
+  }
+
 }
 
 

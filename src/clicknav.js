@@ -91,18 +91,21 @@ class ClickNavigation{
             if (intersects.length > 0){
                 Constants.TweenGroup.ModelMovement.removeAll();
                 this.moveToPoint(new THREE.Vector3(Constants.PortalPositions.Left.x, 0, 45), velocity, animationName, this._onFinishPortalClick);
+                Constants.curPortal = 'Left';
                 return;
             }
             intersects = Constants.Raycaster.intersectObjects([this._world.getPortalPlane('Mid'), this._world._portalB.getCheckPointMesh()], false);
             if (intersects.length > 0){
                 Constants.TweenGroup.ModelMovement.removeAll();
                 this.moveToPoint(new THREE.Vector3(Constants.PortalPositions.Mid.x, 0, 45), velocity, animationName, this._onFinishPortalClick);
+                Constants.curPortal = 'Mid';
                 return;
             }
             intersects = Constants.Raycaster.intersectObjects([this._world.getPortalPlane('Right'), this._world._portalC.getCheckPointMesh()], false);
             if (intersects.length > 0){
                 Constants.TweenGroup.ModelMovement.removeAll();
                 this.moveToPoint(new THREE.Vector3(Constants.PortalPositions.Right.x, 0, 45), velocity, animationName, this._onFinishPortalClick);
+                Constants.curPortal = 'Right';
                 return;
             }
     

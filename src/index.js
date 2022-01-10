@@ -5,6 +5,7 @@ import {Portal} from './portal.js';
 import bricksText from '/res/room/blue-bricks.jpg';
 import floorText from '/res/room/floorText.jpg';
 import Constants from './constants.js';
+import Logo from '/res/icons/logo.png';
 
 
 
@@ -118,10 +119,16 @@ class World{
         wall4.position.set(0, 50, -50);
         wall1.name = "wall4";
 
+        const logoGeometry = new THREE.PlaneGeometry(20, 11.25);
+        const logoMaterial = new THREE.MeshBasicMaterial({map: textLoader.load(Logo)});
+        this._logo = new THREE.Mesh(logoGeometry, logoMaterial);
+        this._logo.position.set(0, 40, 49);
+        this._logo.rotateY(Math.PI);
+        this._scene.add(this._logo);
 
-        this._portalA = new Portal(this, 20, Constants.PortalPositions.Left);
-        this._portalB = new Portal(this, 20, Constants.PortalPositions.Mid);
-        this._portalC = new Portal(this, 20, Constants.PortalPositions.Right);
+        this._portalA = new Portal(this, 20, Constants.PortalPositions.Left, 'Übungen');
+        this._portalB = new Portal(this, 20, Constants.PortalPositions.Mid, 'Videos');
+        this._portalC = new Portal(this, 20, Constants.PortalPositions.Right, 'About');
       }
 
 

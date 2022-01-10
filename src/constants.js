@@ -24,6 +24,8 @@ const Constants = {
         Right: rightPortalPos
     },
     Mouse : mouse,
-    Raycaster : raycaster
+    Raycaster : raycaster,
+    isOnMobile: false,
+    curPortal: null
 }
 export default Constants;

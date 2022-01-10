@@ -8,12 +8,33 @@
 </head>
 <body>
     <div id='loading'>
-        
+        <div id='logo-wrapper'>
+            <img id="logo" draggable="false" ondragstart="return false;" src=img/logo.svg style="display:none">
+        </div>
+        <div id='prereq-wrapper'>
+            <div id='loadAnim'>
+                <div id='loadtxt' style="display: none">Lade</div>
+                <div class="container">
+                    <span class="circle"></span>
+                    <span class="circle"></span>
+                    <span class="circle"></span>
+                    <span class="circle"></span>
+                </div>
+            </div>
+            <div id='prereqFullscreen' style="display:none">
+                <div>Um auf diese Seite zu besuchen, solltest im Vollbild-Modus sein.</div>
+                <div id="fullscreenBtn" class='txt-btn button'>Starte Vollbild</div>
+            </div>
+            <div id='prereqLandscape' style="display:none">
+                <div>Außerdem musst du dein Smartphone oder Tablet im Querformat halten!</div>
+                <div id='startTrans' class='txt-btn button'>Los</div>
+            </div>
+        </div>
     </div>
-    <div id='overlay'>
+    <div id='overlay' style="display:none">
         <div id='interaction-wrapper'>
             <div id='lastbubblenext-wrapper'>
-                <div id='last-btn' class='button-inactive img-btn'>
+                <div id='last-btn' class='button img-btn'>
                     <img draggable="false" ondragstart="return false;" src=img/arrow-left.png> 
                 </div>
                 <div id='bubble'>
@@ -21,17 +42,17 @@
                         Klicke auf START, um loszulegen!
                     </div>
                 </div>
-                <div id='next-btn' class='button-inactive img-btn'>
+                <div id='next-btn' class='button img-btn'>
                     <img draggable="false" ondragstart="return false;" src="img/arrow-right.png"> 
                 </div>
             </div>
-            <div id='start-btn' class='button-inactive txt-btn'>
+            <div id='start-btn' class='button txt-btn'>
                 START
             </div>
         </div>
 
 
-        <div id='back-btn' class='button-inactive img-btn'>
+        <div id='back-btn' class='button img-btn'>
             <img draggable="false" ondragstart="return false;" src="img/arrow-left.png"> 
         </div>
 
@@ -44,13 +65,13 @@
         </div>
 
         <div id='confrej-wrapper'>
-            <div id='confirm-btn' class='button-inactive img-btn'>
+            <div id='confirm-btn' class='button img-btn'>
                 <img draggable="false" ondragstart="return false;" src="img/confirm.png"> 
             </div>
             <div id='question'>
                 Eintreten?
             </div>
-            <div id='reject-btn' class='button-inactive img-btn'>
+            <div id='reject-btn' class='button img-btn'>
                 <img draggable="false" ondragstart="return false;" src="img/reject.png"> 
             </div>
         </div>

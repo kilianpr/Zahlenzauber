@@ -5,6 +5,7 @@ import infoIcon from '/res/icons/info.svg';
 import Constants from './constants.js';
 import check from '/res/icons/confirm.png';
 import cross from '/res/icons/reject.png';
+import logo from '/res/icons/logo.svg'
 
 class InteractionBlocks{
     /*
@@ -49,6 +50,11 @@ class InteractionBlocks{
 
     _initLoadingScreen(){
         this._loadingScreen = new LoadingScreen();
+        this._loadAnim = new HTMLInteractionBlock(document.getElementById('loadAnim'), true, 'flex');
+        this._prereqFullscreen = new HTMLInteractionBlock(document.getElementById('prereqFullscreen'), true, 'block');
+        this._goFullscreenBtn = new Button(document.getElementById('fullscreenBtn'), true, 'block');
+        this._prereqLandscape = new HTMLInteractionBlock(document.getElementById('prereqLandscape'), true, 'block');
+        this._startTransBtn = new Button(document.getElementById('startTrans'), true, 'block');
     }
 
     _initWrapper(){
@@ -118,6 +124,7 @@ class LoadingScreen {
 
 
 
+
 class HTMLInteractionBlock extends InteractionBlock{
     constructor(element, allowNone, display){ //allowNone is a boolean which indicates whether display may be set to 'none'
         super();
@@ -132,7 +139,7 @@ class HTMLInteractionBlock extends InteractionBlock{
             this._element.style.display = this._display;
             this._onScreen = true;
             setTimeout(() => {
-                    this._element.style.opacity = "1";
+                this._element.style.opacity = "1";
             }, delay);
         }
     }
