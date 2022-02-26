@@ -126,13 +126,12 @@ class HTMLInteractionBlock extends InteractionBlock{
     }
 
     show(delay=1000){
-        if (!this._onScreen){
-            this._element.style.display = this._display;
-            this._onScreen = true;
-            setTimeout(() => {
-                this._element.style.opacity = "1";
-            }, delay);
-        }
+        this._element.style.display = this._display;
+        this._onScreen = true;
+        setTimeout(() => {
+            this._element.style.opacity = "1";
+            console.log("show")
+        }, delay);
     }
 
     hide(delay=1000){
