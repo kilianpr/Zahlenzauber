@@ -1,12 +1,3 @@
-import * as THREE from 'three';
-import arrowRight from '/res/icons/arrow-right.png'
-import arrowLeft from '/res/icons/arrow-left.png';
-import infoIcon from '/res/icons/info.svg';
-import Constants from './constants.js';
-import check from '/res/icons/confirm.png';
-import cross from '/res/icons/reject.png';
-import logo from '/res/icons/logo.svg'
-
 class InteractionBlocks{
     /*
     this class creates all objects, they are however invisible until "show" is called on them
