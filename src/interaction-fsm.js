@@ -422,17 +422,23 @@ class TransitionAnimationState extends InteractionState{
                 setTimeout(() => {
                     this._parent._controls.dive();
                     setTimeout(() => {
-                        document.body.style.opacity = 0;
+                        //document.body.style.opacity = 0;
                         setTimeout(() => {
                             if (Constants.curPortal == 'Left'){
-                                window.location.href = "./exercises.html";
+                                const tween = new CamTween(this._parent._world, new THREE.Vector3(25, 12, 45), new THREE.Vector3(25, 12, 50), 1000).getTween();
+                                tween.start();
+                                //window.location.href = "./exercises.html";
                             } else if (Constants.curPortal == 'Right'){
-                                window.location.href = "./about.html";
+                                const tween = new CamTween(this._parent._world, new THREE.Vector3(-25, 12, 45), new THREE.Vector3(-25, 12, 50), 1000).getTween();
+                                tween.start();
+                                //window.location.href = "./about.html";
                             } else if (Constants.curPortal == 'Mid'){
-                                window.location.href = "./videos.html";
+                                const tween = new CamTween(this._parent._world, new THREE.Vector3(0, 12, 45), new THREE.Vector3(0, 12, 50), 1000).getTween();
+                                tween.start();
+                                //window.location.href = "./videos.html";
                             } else{
-                                console.log("No Portal selectec, going to videos by default");
-                                window.location.href = "./videos.html";
+                                console.log("No Portal selected, going to videos by default");
+                                //window.location.href = "./videos.html";
                             }
                         }, 2000)
                     }, 2000);

@@ -83,7 +83,6 @@ class Main{
             this._OnWindowResize();
         }, false);
         window.addEventListener('focus', () =>{
-            console.log("FOCUS");
             setTimeout(() =>{
                 this._interactionBlocks.move(this._interactionBlocks._wrapper._element, new THREE.Vector3(0,5,0));
             }, 1000);
