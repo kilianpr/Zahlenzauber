@@ -1,12 +1,15 @@
 import { World} from "./index.js";
 import * as THREE from 'three';
 import '/src/styles.css';
+import '/src/subpages/substyles.css';
 import '/res/fonts/Lora.ttf';
 import * as TWEEN from '@tweenjs/tween.js';
 import {InteractionBlocks} from './interaction-blocks.js';
 import {InteractionFiniteStateMachine} from './interaction-fsm.js';
 import {AnimationManager} from './animation-manager.js'
 import Constants from './constants';
+import { include_html } from "./include-subpages.js";
+
 class Main{
 
     _world;
@@ -30,6 +33,7 @@ class Main{
         this._world._BuildRoom();
         this._world._makeFire();
         this._AddWindowEventListeners();
+        include_html();
         Constants.GeneralLoadingManager.onLoad = function(){
             parent._interactionBlocks = new InteractionBlocks(parent._world, parent._controls);
             parent._interactionFSM = new InteractionFiniteStateMachine(parent._world, parent._interactionBlocks, parent._controls);

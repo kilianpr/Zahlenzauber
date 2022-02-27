@@ -4,10 +4,7 @@ let subHtmlPlugins = []
 
 module.exports = {
     entry: {
-        main: './src/main.js',
-        video: './src/subpages/video.js',
-        background: './src/subpages/background.js',
-        background: './src/subpages/background.js',
+        main: './src/main.js'
     },
     devServer: {
         static: './dist',
@@ -24,6 +21,13 @@ module.exports = {
             use: ['style-loader', 'css-loader'],
         },
         {
+            test: /\.html$/i,
+            loader: "html-loader",
+            generator: {
+                filename: '[name][ext]'
+            }
+          },
+        {
             test: /\.(png|svg|jpg|jpeg|gif)$/i,
             type: 'asset/resource',
             generator: {
@@ -39,21 +43,6 @@ module.exports = {
             inject: 'body',
             chunks: ['main']
         }),
-        new HtmlWebpackPlugin({
-            template: './src/subpages/videos.html',
-            filename: 'videos.html',
-            chunks: ['background', 'video']
-        }), 
-        new HtmlWebpackPlugin({
-            template: './src/subpages/exercises.html',
-            filename: 'exercises.html',
-            chunks: ['background']
-        }),
-        new HtmlWebpackPlugin({
-            template: './src/subpages/about.html',
-            filename: 'about.html',
-            chunks: ['background']
-        })
     ],
     mode: 'development'
 };

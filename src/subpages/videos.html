@@ -1,22 +1,11 @@
-<!DOCTYPE html>
-<html lang="de" translate="no">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Videos | Zahlenzauber</title>
-</head>
-<body style="display:none;">
-    <div id='back-btn' class='button img-btn' style="display:none;">
-        <img draggable="false" ondragstart="return false;" src="img/arrow-left.png"> 
+<div class='sub-wrapper' id='videos'style="display:none">
+    <div class='header'>
+        <div class='header-item' id='left-nav'><span class='subpage-btn' id='videos-exercises-btn'>&larr; Übungen</span></div>
+        <div class='header-item' id='cur-nav'><span>Videos</span></div>
+        <div class='header-item' id='right-nav'><span class='subpage-btn' id='videos-about-btn'>About &rarr;</span></div>
     </div>
-    <div id='wrapper' style="display:none;">
-        <div id='header'>
-            <div class='header-item' id='left-nav'><span onclick="transitionToPage('exercises.html')">&larr; Übungen</span></div>
-            <div class='header-item' id='cur-nav'><span>Videos</span></div>
-            <div class='header-item' id='right-nav'><span  onclick="transitionToPage('about.html')">About &rarr;</span></div>
-        </div>
-        <div id='side-navbar'>
+    <div class='page'>
+        <div class='side-navbar'>
             <div class='nav-item' >
                 <a href="#flaecheninhalte">Flächeninhalte</a>
             </div>
@@ -24,37 +13,36 @@
                 <a href="#thema2">Thema 2</a>
             </div>
         </div>
-            <div id='content'>
-                <div class='video-wrapper'>
-                    <div id='flaecheninhalte' class='title'>
-                        Flächeninhalte
-                    </div>
-                    <div class='video'>
-                        <div id='video-placeholder'>
-                            <img class='play-btn' id='play-btn1'>
-                        </div>
-                        <iframe id='video1-frame' src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                    </div>
-                    <div class='caption'>
-                        In diesem Video zeigen wir, wie man Flächeninhalte berechnet.
-                    </div>
+        <div class='content'>
+            <div class='video-wrapper'>
+                <div id='flaecheninhalte' class='title'>
+                    Flächeninhalte
                 </div>
-                
-                <div class='video-wrapper'>
-                    <div id='thema2' class='title'>
-                        Thema 2
+                <div class='video'>
+                    <div id='video-placeholder'>
+                        <img class='play-btn' id='play-btn1'>
                     </div>
-                    <div class='video'>
-                        <div id='video-placeholder'>
-                            <img class='play-btn' id='play-btn2'>
-                        </div>
-                        <iframe id='video2-frame' src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <iframe id='video1-frame' src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+                <div class='caption'>
+                    In diesem Video zeigen wir, wie man Flächeninhalte berechnet.
+                </div>
+            </div>
+            
+            <div class='video-wrapper'>
+                <div id='thema2' class='title'>
+                    Thema 2
+                </div>
+                <div class='video'>
+                    <div id='video-placeholder'>
+                        <img class='play-btn' id='play-btn2'>
                     </div>
-                    <div class='caption'>
-                        Ein weiteres Zahlenzauber-Erklärvideo.
-                    </div>
-                </div>        
-            </div>     
-    </div>
-</body>
-</html>
+                    <iframe id='video2-frame' src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+                <div class='caption'>
+                    Ein weiteres Zahlenzauber-Erklärvideo.
+                </div>
+            </div>        
+        </div>
+    </div>   
+</div>

@@ -179,8 +179,8 @@ window.transitionToPage = function(href){
   }, 2000);
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+/*window.addEventListener('DOMContentLoaded', () => {
     const animtedBg = new AnimatedBackground();
     animtedBg._onLoad();
     console.log('loaded')
-});
+});*/

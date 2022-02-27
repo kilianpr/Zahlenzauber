@@ -2,6 +2,7 @@ import {CamTween} from "./camtween";
 import Constants from './constants.js';
 import * as THREE from 'three';
 import {ClickNavigation} from './clicknav.js';
+import { transitionToSubpage } from "./subpages/subpages";
 
 
 const firstMessageText = "Herzlich Willkommen!";
@@ -422,26 +423,26 @@ class TransitionAnimationState extends InteractionState{
                 setTimeout(() => {
                     this._parent._controls.dive();
                     setTimeout(() => {
-                        //document.body.style.opacity = 0;
-                        setTimeout(() => {
-                            if (Constants.curPortal == 'Left'){
-                                const tween = new CamTween(this._parent._world, new THREE.Vector3(25, 12, 45), new THREE.Vector3(25, 12, 50), 1000).getTween();
-                                tween.start();
-                                //window.location.href = "./exercises.html";
-                            } else if (Constants.curPortal == 'Right'){
-                                const tween = new CamTween(this._parent._world, new THREE.Vector3(-25, 12, 45), new THREE.Vector3(-25, 12, 50), 1000).getTween();
-                                tween.start();
-                                //window.location.href = "./about.html";
-                            } else if (Constants.curPortal == 'Mid'){
-                                const tween = new CamTween(this._parent._world, new THREE.Vector3(0, 12, 45), new THREE.Vector3(0, 12, 50), 1000).getTween();
-                                tween.start();
-                                //window.location.href = "./videos.html";
-                            } else{
-                                console.log("No Portal selected, going to videos by default");
-                                //window.location.href = "./videos.html";
-                            }
-                        }, 2000)
-                    }, 2000);
+                        if (Constants.curPortal == 'Left'){
+                            const tween = new CamTween(this._parent._world, new THREE.Vector3(25, 12, 45), new THREE.Vector3(25, 12, 50), 1000).getTween();
+                            tween.onComplete(()=>{
+                                transitionToSubpage('exercises');
+                            })
+                            .start()
+                        } else if (Constants.curPortal == 'Right'){
+                            const tween = new CamTween(this._parent._world, new THREE.Vector3(-25, 12, 45), new THREE.Vector3(-25, 12, 50), 1000).getTween();
+                            tween.onComplete(()=>{
+                                transitionToSubpage('about');
+                            })
+                            .start()
+                        } else if (Constants.curPortal == 'Mid'){
+                            const tween = new CamTween(this._parent._world, new THREE.Vector3(0, 12, 45), new THREE.Vector3(0, 12, 50), 1000).getTween();
+                            tween.onComplete(()=>{
+                                transitionToSubpage('videos');
+                            })
+                            .start()
+                        }
+                    }, 2000)
                 }, 1000);
             })
     }

@@ -54,8 +54,8 @@ class World{
       this._light = new THREE.AmbientLight(0xFCF9D9, .4);
       this._scene.add(this._light);
 
-      const orbitControls = new OrbitControls(
-          this._camera, document.body)
+      /*const orbitControls = new OrbitControls(
+          this._camera, document.body)*/
     }
 
 
