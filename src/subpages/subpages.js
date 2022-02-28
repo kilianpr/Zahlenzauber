@@ -96,7 +96,7 @@ const init_videos = () => {
     addAskForCookiePermission(link2, 'play-btn2', 'video2-frame');
 };
 
-const fromSubpageToSubpage = (oldId, newId) =>{
+const fadeOutOldFadeInNew = (oldId, newId) =>{
     let oldSubpage = document.getElementById(oldId);
     oldSubpage.style.opacity = 0;
     let newSubpage = document.getElementById(newId);
@@ -113,25 +113,21 @@ const transitionToSubpage = (newId) =>{
     newSubpage.style.opacity = 1;
 }
 
-const init_links = () =>{
-    document.getElementById('videos-exercises-btn').addEventListener('click', () => {
-        fromSubpageToSubpage('videos', 'exercises');
-    });
-    document.getElementById('videos-about-btn').addEventListener('click', () => {
-        fromSubpageToSubpage('videos', 'about');
-    });
-    document.getElementById('about-exercises-btn').addEventListener('click', () => {
-        fromSubpageToSubpage('about', 'exercises');
-    });
-    document.getElementById('about-videos-btn').addEventListener('click', () => {
-        fromSubpageToSubpage('about', 'videos');
-    });
-    document.getElementById('exercises-videos-btn').addEventListener('click', () => {
-        fromSubpageToSubpage('exercises', 'videos');
-    });
-    document.getElementById('exercises-about-btn').addEventListener('click', () => {
-        fromSubpageToSubpage('exercises', 'about');
-    });
+const init_links = (stateMachine) =>{
+    let btns = document.getElementsByClassName('subpage-btn');
+    for (let i = 0; i < btns.length; i++){
+        let btn = btns[i];
+        btn.addEventListener('click', () => {
+            stateMachine.SetState(btn.classList[1].split('-')[1]);
+        });
+    }
 }
 
-export {init_videos, init_links, transitionToSubpage};
+
+const change_params = (param) =>{
+    let params = new URLSearchParams(window.location.search);
+    params.set('page', param);
+    window.history.replaceState(null, null, "?"+params);
+}
+
+export {init_videos, init_links, transitionToSubpage, change_params, fadeOutOldFadeInNew};

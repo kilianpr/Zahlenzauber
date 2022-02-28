@@ -157,6 +157,7 @@ a{
     overflow-y: auto;
     height: 100%;
     margin-right: var(--sub-fs-small);
+    scroll-behavior: smooth;
 }
 
 #about-section{
@@ -193,7 +194,7 @@ a{
     display: none;
 }
 
-#video-placeholder{
+.video-placeholder{
     display: flex;
     align-items: center;
     justify-content: center;
