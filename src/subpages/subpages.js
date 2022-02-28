@@ -96,22 +96,23 @@ const init_videos = () => {
     addAskForCookiePermission(link2, 'play-btn2', 'video2-frame');
 };
 
-const fadeOutOldFadeInNew = (oldId, newId) =>{
-    let oldSubpage = document.getElementById(oldId);
-    oldSubpage.style.opacity = 0;
-    let newSubpage = document.getElementById(newId);
+
+const fadeInSubpage = (id) =>{
+    let newSubpage = document.getElementById(id);
     newSubpage.style.display = 'block';
-    setTimeout(() =>{
-        oldSubpage.style.display = 'none';
+    setTimeout(() => {
         newSubpage.style.opacity = 1;
     }, 1000);
 }
 
-const transitionToSubpage = (newId) =>{
-    let newSubpage = document.getElementById(newId);
-    newSubpage.style.display = 'block';
-    newSubpage.style.opacity = 1;
+const fadeOutSubpage = (id) => {
+    let oldSubpage = document.getElementById(id);
+    oldSubpage.style.opacity = 0;
+    setTimeout(() =>{
+        oldSubpage.style.display = 'none';
+    }, 1000);
 }
+
 
 const init_links = (stateMachine) =>{
     let btns = document.getElementsByClassName('subpage-btn');
@@ -130,4 +131,4 @@ const change_params = (param) =>{
     window.history.replaceState(null, null, "?"+params);
 }
 
-export {init_videos, init_links, transitionToSubpage, change_params, fadeOutOldFadeInNew};
+export {init_videos, init_links, change_params, fadeOutSubpage, fadeInSubpage};

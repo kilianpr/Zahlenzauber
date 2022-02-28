@@ -91,7 +91,6 @@ class Portal{
       parent._scene.add(this._checkpoint._element);
 
       this._text = new Text(text);
-      console.log(this._text.getWidth())
       this._text._element.position.set(positionX+(this._text.getWidth()/2), 30, 49);
       parent._scene.add(this._text._element);
       
@@ -140,9 +139,6 @@ class Animation{
   
   
       parent._scene.add(this._plane);
-      console.log(this);
-    
-
 }
 
 

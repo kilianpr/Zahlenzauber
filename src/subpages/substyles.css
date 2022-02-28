@@ -81,7 +81,7 @@
 .sub-wrapper{
     width: 80%;
     height: 80%;
-    box-shadow: 0 0 30px 30px black;
+    box-shadow: 0 0 var(--sub-fs-small) var(--sub-fs-small) black;
     position: fixed;
     background-color: rgba(255, 255, 255, 0.8);
     opacity: 0;
@@ -109,7 +109,8 @@
     flex: 1;
     background-color: #3c81da;
     font-size: var(--sub-fs-small);
-    box-shadow: 10px 10px 5px;
+    font-weight: bold;
+    box-shadow: 0 0 calc(0.5*var(--sub-fs-tiny)) calc(0.5*var(--sub-fs-tiny)) black;
     margin: var(--sub-fs-medium);
 }
 

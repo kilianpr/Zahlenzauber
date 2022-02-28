@@ -53,6 +53,10 @@ body {
     overflow: hidden;
 }
 
+canvas{
+    transition: opacity 1s;
+}
+
 #loading{
     text-align: center;
     height: 100%;

@@ -24,7 +24,6 @@ class AnimationManager{
         gltf.scene.scale.setScalar(10);
         this._target = gltf.scene;
         let nullSphere = new THREE.Sphere(undefined, Infinity);
-        console.log(this._target);
         this._target.traverse( (object) => {
           if (object.isMesh) {
             //object.castShadow = true;
@@ -72,8 +71,6 @@ class AnimationManager{
         _OnLoad('walk', animations[15]);
         _OnLoad('walkbackwards', animations[16]);
         _OnLoad('wave', animations[17]);
-        
-        console.log(animations);
       })
     }
 
@@ -178,7 +175,6 @@ class FiniteStateMachine {
         const state = new this._states[name](this);
 
         this._currentState = state;
-        console.log(this._currentState.Name);
         state.Enter(prevState);
     }
 }

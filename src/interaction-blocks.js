@@ -3,6 +3,8 @@ class InteractionBlocks{
     this class creates all objects, they are however invisible until "show" is called on them
     */
 
+    _canvas; //the three.js renderer dom element
+
     _speechBubble; //the actual speechBubble
     _nextButton; //the button to skip to the next message
     _lastButton; //the button to skip to the last message
@@ -37,6 +39,11 @@ class InteractionBlocks{
         this._initBackButton();
         this._initNavigationInfo();
         this._initConfRej();
+        this._initCanvas();
+    }
+
+    _initCanvas(){
+        this._canvas = new HTMLInteractionBlock(document.getElementsByTagName('canvas')[0], true, 'block');
     }
 
     _initLoadingScreen(){
@@ -130,7 +137,6 @@ class HTMLInteractionBlock extends InteractionBlock{
         this._onScreen = true;
         setTimeout(() => {
             this._element.style.opacity = "1";
-            console.log("show")
         }, delay);
     }
 

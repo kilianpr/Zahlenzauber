@@ -10,6 +10,9 @@ const rightPortalPos = new THREE.Vector3(-25, 0, 50);
 const leftPortalPos = new THREE.Vector3(25, 0, 50);
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
+const _catchClickEvents = (event) => {
+    event.stopImmediatePropagation();
+}
 
 const Constants = {
     GeneralLoadingManager: manager,
@@ -26,6 +29,8 @@ const Constants = {
     Mouse : mouse,
     Raycaster : raycaster,
     isOnMobile: false,
-    curPortal: null
+    curPortal: null,
+    hasTransitioned: false,
+    catchClickEvents: _catchClickEvents
 }
 export default Constants;

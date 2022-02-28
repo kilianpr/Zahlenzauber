@@ -2,7 +2,7 @@ import {CamTween} from "./camtween";
 import Constants from './constants.js';
 import * as THREE from 'three';
 import {ClickNavigation} from './clicknav.js';
-import {transitionToSubpage, change_params, init_videos, init_links, fadeOutOldFadeInNew} from "./subpages/subpages";
+import {change_params, init_videos, init_links, fadeInSubpage, fadeOutSubpage} from "./subpages/subpages";
 import { include_html } from "./include-subpages";
 
 
@@ -172,6 +172,8 @@ class TransitionInState extends InteractionState {
         this._parent._controls.idle();
         this._parent._clickNavigation.activateModelInteraction();
         this._parent._interactionBlocks._loadingScreen.hide();
+        this._parent._interactionBlocks._canvas._element.style.opacity = 1;
+        this._parent._interactionBlocks._canvas._onScreen = true;
         let toPos = new THREE.Vector3(0, 12, -20);
         let toLook = new THREE.Vector3(0, 12,  50);
         const tween = new CamTween(this._parent._world, toPos, toLook, 3000).getTween();
@@ -370,20 +372,33 @@ class NavigationState extends InteractionState{
             .start();
         }
 
-        else if (prevState.Name == 'confirm'){
+        else if (prevState.Name == 'confirm' || prevState.Name == 'videos' || prevState.Name == 'exercises' || prevState.Name == 'about'){
             this._parent._clickNavigation.activateModelInteraction();
             this._setClickActions();
+            if (prevState.Name != 'confirm'){
+                this._parent._interactionBlocks._canvas.show();
+                let toPos = new THREE.Vector3(42, 12, -12);
+                let toLook = new THREE.Vector3(0, 12, 50);
+                Constants.TweenGroup.CamMovement.removeAll();
+                const tween = new CamTween(this._parent._world, toPos, toLook, 1000).getTween();
+                tween.onComplete(() => {
+                    this._parent._controls.react();
+                })
+                .delay(1000)
+                .start();
+            }
         }
+
     }
 
     _setClickActions(){
         this._parent._clickNavigation.setRotSpeed(Math.PI * 4);
-            this._parent._clickNavigation.activateNavInteraction(() => {
-                this._parent._controls.idle();
-                this._parent._clickNavigation.rotateToDefault();
-                this._parent.SetState('confirm');
-            });
-            this._parent._interactionBlocks._backButton.setAction(() => {this._parent.SetState('lastMessage')});
+        this._parent._clickNavigation.activateNavInteraction(() => {
+            this._parent._controls.idle();
+            this._parent._clickNavigation.rotateToDefault();
+            this._parent.SetState('confirm');
+        });
+        this._parent._interactionBlocks._backButton.setAction(() => {this._parent.SetState('lastMessage')});
     }
 
     Exit(){
@@ -444,6 +459,7 @@ class TransitionAnimationState extends InteractionState{
                 setTimeout(() => {
                     this._parent._controls.dive();
                     setTimeout(() => {
+                        Constants.hasTransitioned = true;
                         if (Constants.curPortal == 'Left'){
                             const tween = new CamTween(this._parent._world, new THREE.Vector3(25, 12, 45), new THREE.Vector3(25, 12, 50), 1000).getTween();
                             tween.onComplete(()=>{
@@ -470,7 +486,57 @@ class TransitionAnimationState extends InteractionState{
 }
 
 
-class ExercisesState extends InteractionState{
+class SubpageState extends InteractionState{
+    constructor(parent){
+        super(parent);
+    }
+
+    Enter(prevState){
+        if (prevState != 'exercise' && prevState != 'about' && prevState != 'videos'){
+            this._parent._interactionBlocks._canvas.hide();
+            this._parent._interactionBlocks._backButton.show();
+            this._parent._interactionBlocks._backButton.setAction(() => {
+                this._goStateBack();
+            });
+        } 
+        if (prevState.Name == 'prereqFullscreen' || prevState.Name == 'prereqLandscape'){
+            this._parent._interactionBlocks._loadingScreen.hide();
+        }
+
+        window.addEventListener('click', Constants.catchClickEvents, true);
+        fadeInSubpage(this.Name);
+        setTimeout(()=>{
+            window.removeEventListener('click', Constants.catchClickEvents, true);
+        }, 1000);
+        change_params(this.Name);
+    }
+
+
+    Exit(){
+        fadeOutSubpage(this.Name);
+    }
+
+    _goStateBack(){
+        window.removeEventListener('click', Constants.catchClickEvents, true);
+        if (Constants.hasTransitioned){
+            const target = this._parent._controls._target;
+            target.position.set(target.position.x, target.position.y, target.position.z + 20);            
+            this._parent._clickNavigation.rotateToDefault();
+            this._parent._controls.idle();
+            this._parent._clickNavigation.activateModelInteraction();
+            setTimeout(() =>{
+                this._parent.SetState('navigation');
+            }, 200);
+        }
+        else{
+            this._parent.SetState('transitionIn');
+            this._parent._interactionBlocks._backButton.hide();
+        }
+    }
+}
+
+
+class ExercisesState extends SubpageState{
     constructor(parent){
         super(parent);
     }
@@ -480,24 +546,12 @@ class ExercisesState extends InteractionState{
     }
 
     Enter(prevState){
-        if (prevState.Name == 'prereqFullscreen' || prevState.Name == 'prereqLandscape'){
-            this._parent._controls.idle();
-            this._parent._clickNavigation.activateModelInteraction();
-            this._parent._interactionBlocks._loadingScreen.hide();
-        }
-        if (prevState.Name == 'transitionAnimation' || prevState.Name == 'prereqFullscreen' || prevState.Name == 'prereqLandscape'){
-            transitionToSubpage('exercises');
-            change_params('exercises');
-        }
-        else{
-            fadeOutOldFadeInNew(prevState.Name, 'exercises');
-            change_params('exercises');
-        }
+        super.Enter(prevState);
     }
 }
 
 
-class AboutState extends InteractionState{
+class AboutState extends SubpageState{
     constructor(parent){
         super(parent);
     }
@@ -507,25 +561,13 @@ class AboutState extends InteractionState{
     }
 
     Enter(prevState){
-        if (prevState.Name == 'prereqFullscreen' || prevState.Name == 'prereqLandscape'){
-            this._parent._controls.idle();
-            this._parent._clickNavigation.activateModelInteraction();
-            this._parent._interactionBlocks._loadingScreen.hide();
-        }
-        if (prevState.Name == 'transitionAnimation' || prevState.Name == 'prereqFullscreen' || prevState.Name == 'prereqLandscape'){
-            transitionToSubpage('about');
-            change_params('about');
-        }
-        else{
-            fadeOutOldFadeInNew(prevState.Name, 'about');
-            change_params('about');
-        }
+        super.Enter(prevState);
     }
 }
 
 
 
-class VideosState extends InteractionState{
+class VideosState extends SubpageState{
     constructor(parent){
         super(parent);
     }
@@ -535,17 +577,7 @@ class VideosState extends InteractionState{
     }
 
     Enter(prevState){
-        if (prevState.Name == 'prereqFullscreen' || prevState.Name == 'prereqLandscape'){
-            this._parent._interactionBlocks._loadingScreen.hide();
-        }
-        if (prevState.Name == 'transitionAnimation' || prevState.Name == 'prereqFullscreen' || prevState.Name == 'prereqLandscape'){
-            transitionToSubpage('videos');
-            change_params('videos');
-        }
-        else{
-            fadeOutOldFadeInNew(prevState.Name, 'videos');
-            change_params('videos');
-        }
+        super.Enter(prevState);
     }
 }
 
