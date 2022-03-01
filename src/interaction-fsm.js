@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import {ClickNavigation} from './clicknav.js';
 import {change_params, init_videos, init_links, fadeInSubpage, fadeOutSubpage} from "./subpages/subpages";
 import { include_html } from "./include-subpages";
+import { _APP } from "./main";
 
 
 
@@ -147,6 +148,7 @@ class PrereqLandscapeState extends InteractionState {
         this._parent._interactionBlocks._prereqLandscape.show();
         this._parent._interactionBlocks._startTransBtn.show();
         this._parent._interactionBlocks._startTransBtn.setAction(() => {
+            let page = new URLSearchParams(document.location.search).get("page");
             if (page == "videos" || page == "exercises" || page == "about"){
                 this._parent.SetState(page);
             } else{
@@ -502,12 +504,13 @@ class SubpageState extends InteractionState{
         if (prevState.Name == 'prereqFullscreen' || prevState.Name == 'prereqLandscape'){
             this._parent._interactionBlocks._loadingScreen.hide();
         }
+        _APP.stopRenderer();
 
-        window.addEventListener('click', Constants.catchClickEvents, true);
+        //window.addEventListener('click', Constants.catchClickEvents, true);
         fadeInSubpage(this.Name);
-        setTimeout(()=>{
+        /*setTimeout(()=>{
             window.removeEventListener('click', Constants.catchClickEvents, true);
-        }, 1000);
+        }, 1000);*/
         change_params(this.Name);
     }
 
@@ -517,7 +520,8 @@ class SubpageState extends InteractionState{
     }
 
     _goStateBack(){
-        window.removeEventListener('click', Constants.catchClickEvents, true);
+        //window.removeEventListener('click', Constants.catchClickEvents, true);
+        _APP.startRenderer();
         if (Constants.hasTransitioned){
             const target = this._parent._controls._target;
             target.position.set(target.position.x, target.position.y, target.position.z + 20);            

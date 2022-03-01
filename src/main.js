@@ -17,6 +17,7 @@ class Main{
     _curStatus = 0;
     _interactionBlocks = null;
     _interactionFSM = null;
+    _mainRendererPaused = false;
 
     constructor(){
         this.main();
@@ -35,7 +36,7 @@ class Main{
         Constants.GeneralLoadingManager.onLoad = function(){
             parent._interactionBlocks = new InteractionBlocks(parent._world, parent._controls);
             parent._interactionFSM = new InteractionFiniteStateMachine(parent._world, parent._interactionBlocks, parent._controls);
-            parent._RAF()
+            parent.startRenderer();
             parent._world._threejs.compile(parent._world._scene, parent._world._camera);
             parent._interactionFSM.SetState('prereqFullscreen');
         };
@@ -43,14 +44,17 @@ class Main{
 
 
     _RAF(){
-        requestAnimationFrame(() => {this._RAF()});
-        const delta = this._clock.getDelta();
-        this._world._threejs.render(this._world._scene, this._world._camera);
-        this._Step(delta);
-        TWEEN.update();
-        Constants.TweenGroup.Opacity.update();
-        Constants.TweenGroup.CamMovement.update();
-        Constants.TweenGroup.ModelMovement.update();
+        if (!this._mainRendererPaused){
+            console.log("render");
+            requestAnimationFrame(() => {this._RAF()});
+            const delta = this._clock.getDelta();
+            this._world._threejs.render(this._world._scene, this._world._camera);
+            this._Step(delta);
+            TWEEN.update();
+            Constants.TweenGroup.Opacity.update();
+            Constants.TweenGroup.CamMovement.update();
+            Constants.TweenGroup.ModelMovement.update();
+        }
     }
 
     _Step(timeElapsed){
@@ -78,6 +82,15 @@ class Main{
             }
         }
         
+    }
+
+    stopRenderer(){
+        this._mainRendererPaused = true;
+    }
+
+    startRenderer(){
+        this._mainRendererPaused = false;
+        this._RAF();
     }
 
     _AddWindowEventListeners(){
@@ -121,11 +134,15 @@ class Main{
     }
 }
 
+
+
 let _APP = null;
   
 window.addEventListener('DOMContentLoaded', () => {
     _APP = new Main();
 });
+
+export{_APP}
 
 
 

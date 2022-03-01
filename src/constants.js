@@ -31,6 +31,7 @@ const Constants = {
     isOnMobile: false,
     curPortal: null,
     hasTransitioned: false,
-    catchClickEvents: _catchClickEvents
+    catchClickEvents: _catchClickEvents,
+    cooldownActive: false
 }
 export default Constants;

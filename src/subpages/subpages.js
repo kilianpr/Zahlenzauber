@@ -1,3 +1,4 @@
+import Constants from '../constants';
 import playIcon from '/res/icons/play-circle.svg';
 let curLink, curIframeID;
 const link1 = 'https://www.youtube-nocookie.com/embed/EYbvhWEG6kE';
@@ -119,7 +120,13 @@ const init_links = (stateMachine) =>{
     for (let i = 0; i < btns.length; i++){
         let btn = btns[i];
         btn.addEventListener('click', () => {
-            stateMachine.SetState(btn.classList[1].split('-')[1]);
+            if (!Constants.cooldownActive){
+                Constants.cooldownActive = true;
+                setTimeout(() =>{
+                    Constants.cooldownActive = false;
+                }, 1000);
+                stateMachine.SetState(btn.classList[1].split('-')[1]);
+            }
         });
     }
 }

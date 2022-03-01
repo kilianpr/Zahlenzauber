@@ -264,6 +264,7 @@ canvas{
     left: 0;
     top: 0;
     width: var(--widthIconBtn);
+    z-index: 999;
 }
 
 
