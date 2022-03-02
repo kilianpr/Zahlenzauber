@@ -13,7 +13,6 @@ TWEEN.Easing.myCustom.myEasingOut = function(k){
 
 class ClickNavigation{
     _ground;
-    _renderer;
     _camera;
     _target;
     _controls;
@@ -28,7 +27,6 @@ class ClickNavigation{
     constructor(world, controls){
         this._world = world;
         this._controls = controls;
-        this._renderer = world._threejs;
         this._camera = world._camera;
         this._target = this._controls._target;
         this._raycaster = new THREE.Raycaster();
@@ -147,13 +145,14 @@ class ClickNavigation{
     }
 
     rotateToOppositeDefault(){
+        console.log('rotate');
         this._targetQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), 0);;
     }
 
     moveToPoint(p, velocity, animationName, onFinish){
-        const distance = this._target.position.distanceTo(p)
+        const distance = this._controls._target.position.distanceTo(p)
         const rotationMatrix = new THREE.Matrix4();
-        rotationMatrix.lookAt(p, this._target.position, this._target.up);
+        rotationMatrix.lookAt(p, this._controls._target.position, this._controls._target.up);
         this._targetQuaternion.setFromRotationMatrix(rotationMatrix);
         if (animationName=='walk'){
             this._controls.walk();
@@ -161,7 +160,7 @@ class ClickNavigation{
         else if (animationName == 'run'){
             this._controls.run();
         }
-        new TWEEN.Tween(this._target.position, Constants.TweenGroup.ModelMovement)
+        new TWEEN.Tween(this._controls._target.position, Constants.TweenGroup.ModelMovement)
         .to({
             x: p.x,
             y: p.y,
@@ -176,8 +175,8 @@ class ClickNavigation{
 
 
     Update(timeInSeconds){
-        if (!this._target.quaternion.equals(this._targetQuaternion)) {
-            this._target.quaternion.rotateTowards(
+        if (!this._controls._target.quaternion.equals(this._targetQuaternion)) {
+            this._controls._target.quaternion.rotateTowards(
                 this._targetQuaternion,
                 timeInSeconds * (this._rotSpeed)
             )

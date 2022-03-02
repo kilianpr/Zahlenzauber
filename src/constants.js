@@ -10,16 +10,13 @@ const rightPortalPos = new THREE.Vector3(-25, 0, 50);
 const leftPortalPos = new THREE.Vector3(25, 0, 50);
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
-const _catchClickEvents = (event) => {
-    event.stopImmediatePropagation();
-}
 
 const Constants = {
     GeneralLoadingManager: manager,
     TweenGroup : {
         CamMovement : groupA,
         ModelMovement : groupB,
-        Opacity: groupC,
+        Opacity: groupC
     },
     PortalPositions : {
         Left : leftPortalPos,
@@ -31,7 +28,6 @@ const Constants = {
     isOnMobile: false,
     curPortal: null,
     hasTransitioned: false,
-    catchClickEvents: _catchClickEvents,
     cooldownActive: false
 }
 export default Constants;

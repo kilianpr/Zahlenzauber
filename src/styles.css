@@ -54,7 +54,7 @@ body {
 }
 
 canvas{
-    transition: opacity 1s;
+    transition: opacity 2s;
 }
 
 #loading{
@@ -159,8 +159,6 @@ canvas{
 #overlay *, #loading *{
     transition: opacity 1s;
 }
-
-
 
 
 .img-btn img{

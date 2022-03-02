@@ -31,14 +31,16 @@ class World{
     }
 
     _Initialize(){
-      this._threejs = new THREE.WebGLRenderer({
+      /*this._threejs = new THREE.WebGLRenderer({
           antialias: true,
       });
       this._threejs.outputEncoding = THREE.sRGBEncoding; //for more accurate colors
       this._threejs.setPixelRatio(window.devicePixelRatio);
       this._threejs.setSize(window.innerWidth, window.innerHeight);
       
-      document.body.appendChild(this._threejs.domElement);
+      this._threejs.domElement.setAttribute('id', 'main-renderer');
+      this._threejs.domElement.style.opacity = 0;
+      document.body.appendChild(this._threejs.domElement);*/
       
       const fov = 60;
       const aspect = window.innerWidth / window.innerHeight;
@@ -151,7 +153,7 @@ class World{
         case 'Mid': return this._portalB._animation._plane; 
         case 'Right': return this._portalC._animation._plane;
       }
-    }
+    }    
 }
 
 export{World};

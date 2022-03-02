@@ -1,17 +1,20 @@
 import '/src/subpages/substyles.css';
 import * as THREE from 'three';
 import watertexture from '/res/particles/water24.png';
+import displacementImg from '/res/particles/displacement.png';
 import '/res/fonts/Lora.ttf';
-import confirm from '/res/icons/confirm.png';
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
+import Constants from '../constants';
 
 
 const _VSPortalPerformant = `
-uniform float randomMultiplier;
 uniform float time;
 varying vec2 vUv;
 varying vec3 vPosition;
+
   void main() {
     vUv = uv;
+    vPosition = position;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
@@ -19,52 +22,82 @@ varying vec3 vPosition;
 const _FSPortal = `
 uniform float time;
 uniform sampler2D myTexture;
+uniform sampler2D displacement;
 varying vec2 vUv;
+uniform vec3 pointer;
+uniform vec2 windowSize;
 varying vec3 vPosition;
+
+  float map(float value, float min1, float max1, float min2, float max2) {
+    return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
+  }
+
   void main() {
-    vec2 displacedUV = vec2(vUv.x + 0.1 * sin(vUv.y*100. + time), vUv.y);
-    gl_FragColor = texture2D(myTexture, displacedUV);
-    gl_FragColor.a = 0.8;
+    vec4 displace = texture2D(displacement, vUv);
+
+    //displacedUV.y = mix(vUv.y, displace.r-0.2, sin(time*0.01));
+
+
+    vec3 normPointer = vec3(map(pointer.x, 0., windowSize.x, 0., windowSize.x/30.), map(pointer.y, 0., windowSize.y, 0., windowSize.y/30.), 0.0);
+    float dist = length(vPosition - normPointer);
+    //float prox = 1. - map(dist, 0., 0.2, 0. , 1.);
+
+    vec2 displacedUV = vec2(vUv.x + 0.1 * sin(100. * pow(2.71, -1. * pow(dist, 2.0))+ 0.3*time), vUv.y);
+
+    vec4 color = texture2D(myTexture, displacedUV);
+
+    gl_FragColor = color;
   }
 `;
 
 
 class AnimatedBackground{
-    constructor(){
-        this._InitScene();
-        this._InitBackBtn();
+    _rendererPaused = true;
+
+    constructor(renderer){
+      this._renderer = renderer;
+      this._InitScene();
     }
 
     _InitScene(){
         const parent = this;
         this._clock = new THREE.Clock();
-        this._threejs = new THREE.WebGLRenderer({
+        /*this._threejs = new THREE.WebGLRenderer({
             antialias: true,
         });
         this._threejs.outputEncoding = THREE.sRGBEncoding; //for more accurate colors
         this._threejs.setPixelRatio(window.devicePixelRatio);
         this._threejs.setSize(window.innerWidth, window.innerHeight);
         
-        document.body.appendChild(this._threejs.domElement);
+        this._threejs.domElement.setAttribute('id', 'sub-renderer');
+        this._threejs.domElement.style.display = 'none';
         this._threejs.domElement.style.opacity = 0;
+        document.body.appendChild(this._threejs.domElement);*/
 
-        
-        this._camera = new THREE.OrthographicCamera( -1, 1, 1, -1, 0, 1 );
         this._scene = new THREE.Scene();
 
-        window.addEventListener( 'resize', function(e) {
-            parent._threejs.setSize( window.innerWidth, window.innerHeight, 2 );
-          });
+        
+        this._texture = new THREE.TextureLoader().load(watertexture);
+        this._aspectVector = new THREE.Vector2(window.innerWidth, window.innerHeight);
 
         const uniforms = {
             myTexture: {
-                value: new THREE.TextureLoader().load(watertexture),
+                value: parent._texture
             },
             time: {
               value: 0
             },
-          };
-  
+            displacement: {
+              value: new THREE.TextureLoader().load(displacementImg)
+            },
+            pointer: {
+              value: new THREE.Vector3()
+            }, 
+            windowSize: {
+              value: parent._aspectVector
+            }
+      }
+      
       this._material = new THREE.ShaderMaterial({
         uniforms: uniforms,
         side: THREE.DoubleSide,
@@ -73,60 +106,89 @@ class AnimatedBackground{
         shadowSide: THREE.DoubleSide,
       });
 
-        
+
+      var frustumSize = 1;
+      var aspect = window.innerHeight / window.innerWidth;
+      this._camera = new THREE.OrthographicCamera( frustumSize  / - 2, frustumSize / 2, frustumSize * aspect / 2, frustumSize * aspect / - 2, 0.1, 100 );
+      this._camera.position.z = 1;
       
-        const quad = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2, 2, 1, 1 ), this._material );
-        this._scene.add( quad );
-        this._RAF();
+      this._mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(1, 1), this._material );
+      this._scene.add( this._mesh );
+  
+      this._onWindowResize();
+      window.addEventListener( 'resize', () =>{
+        this._onWindowResize();
+      }, false );
+
+      this._raycaster = new THREE.Raycaster();
+      this._pointer = new THREE.Vector2();
+      if (Constants.isOnMobile){
+        window.addEventListener( 'touchmove', (event) => {this._onPointerMove(event);});
+      }
+      else{
+        window.addEventListener( 'mousemove', (event) => {this._onPointerMove(event)});
+      }
+      let renderTargetParameters = { encoding: THREE.sRGBEncoding};
+	    this._fbo = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, renderTargetParameters );
     }
 
-    _onLoad(){
-      console.log('lol')
-      document.body.style.display = 'flex';
-      this._threejs.domElement.classList.add('fadeIn');
-      this._askQuestion();
+    _onWindowResize(){
+      var frustumSize = 1;
+      var aspect = window.innerHeight / window.innerWidth;
+      
+      if (aspect > 1){
+        //this._mesh.scale.set(aspect, aspect, aspect);
+        this._camera.left = frustumSize * 1/aspect / - 2;
+        this._camera.right = frustumSize * 1/aspect / 2;
+        this._camera.top = frustumSize / 2;
+        this._camera.bottom = - frustumSize / 2;
+      }else{
+        //this._mesh.scale.set(1, 1, 1);
+        this._camera.left = frustumSize / - 2;
+        this._camera.right = frustumSize / 2;
+        this._camera.top = frustumSize * aspect / 2;
+        this._camera.bottom = - frustumSize * aspect / 2;
+      }
+    
+      this._aspectVector = new THREE.Vector2(window.innerWidth, window.innerHeight);
+      this._camera.updateProjectionMatrix();
+      //this._threejs.setSize( window.innerWidth, window.innerHeight );
     }
 
-    _askQuestion(){
-      let question = document.createElement('div');
-      question.innerHTML = 'Bereit?';
-      question.style.cssText = `
-        font-size: var(--fs-gigantic);
-        padding: calc(var(--fs-large) * 0.5);
-        background-color: white;
-        border: 5px solid;
-        border-radius: 10px;
-        opacity: 0;
-      `
-      let confirmBtn = document.createElement('img');
-      confirmBtn.src = confirm;
-      confirmBtn.style.cssText = `
-        opacity:0;
-        position: fixed;
-        display: block;
-        bottom: 2%;
-        margin: auto;
-        width: calc(2 * var(--fs-gigantic));
-      `
-      confirmBtn.classList.add('button');
-      confirmBtn.addEventListener('click', () => {
-        this._requestFullscreen();
-        let wrapper = document.getElementById('wrapper');
-        let backBtn = document.getElementById('back-btn');
-        wrapper.style.display = 'block';
-        backBtn.style.display = 'block';
-        wrapper.classList.add('fadeIn');
-        backBtn.classList.add('fadeIn');
-        question.style.display = 'none';
-        confirmBtn.style.display = 'none';
-      });
-      document.body.appendChild(question);
-      document.body.appendChild(confirmBtn);
-      question.classList.add('fadeIn');
-      setTimeout(() => {
-        confirmBtn.classList.add('fadeIn');
-      }, 1000);
 
+    _onPointerMove(event){
+      let x, y;
+      if(event.type == 'touchmove'){
+        var evt = (typeof event.originalEvent === 'undefined') ? event : event.originalEvent;
+        var touch = evt.touches[0] || evt.changedTouches[0];
+        x = touch.pageX;
+        y = touch.pageY;
+      } else if (event.type == 'mousemove') {
+        x = event.clientX;
+        y = event.clientY;
+      }
+      this._pointer.x = (x / window.innerWidth) * 2 - 1;
+	    this._pointer.y = - (y / window.innerHeight) * 2 + 1;
+      this._raycaster.setFromCamera(this._pointer, this._camera);
+      const intersects = this._raycaster.intersectObjects(this._scene.children);
+      if (intersects.length > 0){
+        this._material.uniforms.pointer.value = intersects[0].point;
+      }
+    }
+  
+
+    render(delta, alone){
+      //console.log('render bg');
+      this._Step(delta);
+      if (alone){
+        this._renderer.setRenderTarget(this._fbo);
+        this._renderer.clear();
+        this._renderer.render( this._scene, this._camera);
+      }
+      else{
+        this._renderer.setRenderTarget(null);
+        this._renderer.render( this._scene, this._camera);
+      }
     }
 
     _Step(timeElapsed) {
@@ -136,51 +198,7 @@ class AnimatedBackground{
         this._material.uniforms.time.value += timeElapsed*10;
       }
 
-    _RAF(){
-        requestAnimationFrame(() => {this._RAF()});
-        this._threejs.render( this._scene, this._camera);
-        this._Step(this._clock.getDelta());
-    }
-
-    _InitBackBtn(){
-        let backBtn = document.getElementById('back-btn');
-        backBtn.addEventListener('click', () => {
-            window.location.href = './';
-        })
-    }
-
-    _requestFullscreen(){
-        if (this._isUserOnMobile()){
-            var elem = document.documentElement;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen();
-            } else if (elem.webkitRequestFullscreen) { /* Safari */
-                elem.webkitRequestFullscreen();
-            } else if (elem.msRequestFullscreen) { /* IE11 */
-                elem.msRequestFullscreen();
-            }
-            screen.orientation.lock("landscape")
-        }
-    }
-
-    _isUserOnMobile(){
-        var UA = navigator.userAgent;
-        return(
-            /\b(BlackBerry|webOS|iPhone|IEMobile)\b/i.test(UA) ||
-            /\b(Android|Windows Phone|iPad|iPod)\b/i.test(UA)
-        );
-    }
 }
 
-window.transitionToPage = function(href){
-  document.body.classList.add('fadeOut');
-  setTimeout(() => {
-    window.location.href = href;
-  }, 2000);
-}
 
-/*window.addEventListener('DOMContentLoaded', () => {
-    const animtedBg = new AnimatedBackground();
-    animtedBg._onLoad();
-    console.log('loaded')
-});*/
+export{AnimatedBackground}

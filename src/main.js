@@ -1,4 +1,3 @@
-import { World} from "./index.js";
 import * as THREE from 'three';
 import '/src/styles.css';
 import '/src/subpages/substyles.css';
@@ -6,18 +5,22 @@ import '/res/fonts/Lora.ttf';
 import * as TWEEN from '@tweenjs/tween.js';
 import {InteractionBlocks} from './interaction-blocks.js';
 import {InteractionFiniteStateMachine} from './interaction-fsm.js';
-import {AnimationManager} from './animation-manager.js'
 import Constants from './constants';
+import { AnimatedBackground } from "./subpages/background.js";
+import { AnimatedRoom } from './animated-room.js';
+import {Transition} from './transition.js';
 
 class Main{
 
-    _world;
-    _previousRAF = null;
+    _renderer;
     _clock;
-    _curStatus = 0;
+    _animatedRoom;
+    _animatedBackground;
+    _transition;
+
     _interactionBlocks = null;
     _interactionFSM = null;
-    _mainRendererPaused = false;
+
 
     constructor(){
         this.main();
@@ -25,73 +28,35 @@ class Main{
 
     main(){
         Constants.isOnMobile = this._isUserOnMobile();
-        console.log("User on mobile" + Constants.isOnMobile);
+
         const parent = this;
+
+        this._renderer =new THREE.WebGLRenderer({
+            antialias: true,
+        });
+        this._renderer.outputEncoding = THREE.sRGBEncoding; //for more accurate colors
+        this._renderer.setPixelRatio(window.devicePixelRatio);
+        this._renderer.setSize(window.innerWidth, window.innerHeight);
+        this._renderer.domElement.setAttribute('id', 'renderer');
+        this._renderer.domElement.style.opacity = 0;
+        document.body.appendChild(this._renderer.domElement);
+
         this._clock = new THREE.Clock();
-        this._world = new World();
-        this._controls = new AnimationManager(this._world._scene);
-        this._world._BuildRoom();
-        this._world._makeFire();
+
+        this._animatedRoom = new AnimatedRoom(this._renderer);
+        this._animatedBackground = new AnimatedBackground(this._renderer);
+        this._transition = new Transition(this._animatedRoom, this._animatedBackground, this._renderer);
+
         this._AddWindowEventListeners();
         Constants.GeneralLoadingManager.onLoad = function(){
-            parent._interactionBlocks = new InteractionBlocks(parent._world, parent._controls);
-            parent._interactionFSM = new InteractionFiniteStateMachine(parent._world, parent._interactionBlocks, parent._controls);
-            parent.startRenderer();
-            parent._world._threejs.compile(parent._world._scene, parent._world._camera);
+            parent._interactionBlocks = new InteractionBlocks(parent._animatedRoom);
+            parent._interactionFSM = new InteractionFiniteStateMachine(parent._interactionBlocks, parent._animatedRoom, parent._animatedBackground, parent._transition);
+            parent._renderer.compile(parent._animatedRoom._world._scene, parent._animatedRoom._world._camera);
+            parent._animate();
             parent._interactionFSM.SetState('prereqFullscreen');
         };
     }
 
-
-    _RAF(){
-        if (!this._mainRendererPaused){
-            console.log("render");
-            requestAnimationFrame(() => {this._RAF()});
-            const delta = this._clock.getDelta();
-            this._world._threejs.render(this._world._scene, this._world._camera);
-            this._Step(delta);
-            TWEEN.update();
-            Constants.TweenGroup.Opacity.update();
-            Constants.TweenGroup.CamMovement.update();
-            Constants.TweenGroup.ModelMovement.update();
-        }
-    }
-
-    _Step(timeElapsed){
-        if (this._controls) {
-            this._controls.Update(timeElapsed);
-        }
-        
-        if (this._interactionFSM && this._interactionFSM._clickNavigation){
-            this._interactionFSM._clickNavigation.Update(timeElapsed);
-        }
-
-
-        if (this._world._fireRight.visible&&this._world._fireLeft.visible){
-            this._world._fireLeft.Step(timeElapsed);
-            this._world._fireRight.Step(timeElapsed);
-        }
-        
-
-        //Null-check supresses error message since _Step may be called before the model is actually loaded causing a NullPointerException
-        if (this._world._portalA._animation && this._world._portalB._animation && this._world._portalC._animation){
-            if (this._world._portalA._animation.visible && this._world._portalB._animation.visible && this._world._portalC._animation.visible){
-                this._world._portalA._animation.Step(timeElapsed);
-                this._world._portalB._animation.Step(timeElapsed);
-                this._world._portalC._animation.Step(timeElapsed);
-            }
-        }
-        
-    }
-
-    stopRenderer(){
-        this._mainRendererPaused = true;
-    }
-
-    startRenderer(){
-        this._mainRendererPaused = false;
-        this._RAF();
-    }
 
     _AddWindowEventListeners(){
         window.addEventListener('resize', () => {
@@ -110,15 +75,15 @@ class Main{
     _updateMousePosition(event){
         Constants.Mouse.x = (event.clientX /  document.body.clientWidth) * 2 -1;
         Constants.Mouse.y = -(event.clientY /  document.body.clientHeight) * 2 +1;
-        Constants.Raycaster.setFromCamera(Constants.Mouse, this._world._camera);
+        Constants.Raycaster.setFromCamera(Constants.Mouse, this._animatedRoom._world._camera);
     }
 
     //updates the camera and renderer size
     _OnWindowResize() {
-        if (this._world){
-            this._world._camera.aspect = window.innerWidth / window.innerHeight;
-            this._world._camera.updateProjectionMatrix();
-            this._world._threejs.setSize(window.innerWidth, window.innerHeight);
+        if (this._animatedRoom){
+            this._animatedRoom._world._camera.aspect = window.innerWidth / window.innerHeight;
+            this._animatedRoom._world._camera.updateProjectionMatrix();
+            this._renderer.setSize(window.innerWidth, window.innerHeight);
         }
         if (this._interactionBlocks){
             this._interactionBlocks.move(this._interactionBlocks._wrapper._element, new THREE.Vector3(0,5,0));
@@ -131,6 +96,11 @@ class Main{
             /\b(BlackBerry|webOS|iPhone|IEMobile)\b/i.test(UA) ||
             /\b(Android|Windows Phone|iPad|iPod)\b/i.test(UA)
         );
+    }
+
+    _animate(){
+        requestAnimationFrame(() => {this._animate();});
+        this._transition.render(this._clock.getDelta());
     }
 }
 

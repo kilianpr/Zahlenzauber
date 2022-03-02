@@ -98,12 +98,12 @@ const init_videos = () => {
 };
 
 
-const fadeInSubpage = (id) =>{
+const fadeInSubpage = (id, delay=1000) =>{
     let newSubpage = document.getElementById(id);
     newSubpage.style.display = 'block';
     setTimeout(() => {
         newSubpage.style.opacity = 1;
-    }, 1000);
+    }, delay);
 }
 
 const fadeOutSubpage = (id) => {

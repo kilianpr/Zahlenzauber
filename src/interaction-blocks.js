@@ -3,7 +3,8 @@ class InteractionBlocks{
     this class creates all objects, they are however invisible until "show" is called on them
     */
 
-    _canvas; //the three.js renderer dom element
+    _mainRendererCanvas; //the three.js renderer dom element of the main scene
+    _subRendererCanvas; //the three.js renderer dom element of the background for the subpages
 
     _speechBubble; //the actual speechBubble
     _nextButton; //the button to skip to the next message
@@ -24,12 +25,10 @@ class InteractionBlocks{
 
     _world; //the three.js scene
     _controls; //the instance of the AnimationManager
-    _clickNavigation;
 
-    constructor(world, controls, clickNavigation){
-        this._world = world;
-        this._controls = controls;
-        this._clickNavigation = clickNavigation;
+    constructor(animatedRoom){
+        this._world = animatedRoom._world;
+        this._controls = animatedRoom._controls;
         this._initBlocks();
     }
 
@@ -43,7 +42,7 @@ class InteractionBlocks{
     }
 
     _initCanvas(){
-        this._canvas = new HTMLInteractionBlock(document.getElementsByTagName('canvas')[0], true, 'block');
+        this._mainRendererCanvas = new HTMLInteractionBlock(document.getElementById('renderer'), false, 'block');
     }
 
     _initLoadingScreen(){
@@ -130,6 +129,9 @@ class HTMLInteractionBlock extends InteractionBlock{
         this._display = display;
         this._allowNone = allowNone;
         this._element.style.opacity = 0;
+        if (allowNone){
+            this._element.style.display = 'none';
+        }
     }
 
     show(delay=1000){
