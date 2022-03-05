@@ -114,19 +114,24 @@ class PrereqFullscreenState extends InteractionState {
                 } else if (elem.msRequestFullscreen) {
                     elem.msRequestFullscreen();
                 } else if (elem.webkitEnterFullscreen) {
-                    elem.webkitEnterFullscreen(); //for iphone this code worked
-                } else{
-                    console.log("no fullscreen available");
+                    elem.webkitEnterFullscreen();
                 }
-                screen.orientation.lock("landscape")
-                .then(() => {
-                    console.log("landscape available");
-                    this.transitionToNextState();
-                })
-                .catch((err) => { 
-                    console.log("no landscape available");
+                if (screen.orientation){
+                    console.log("screen.orientation api available");
+                    screen.orientation.lock("landscape")
+                    .then(() => {
+                        console.log("landscape available");
+                        this.transitionToNextState();
+                    })
+                    .catch((err) => { 
+                        console.log("no landscape available");
+                        this._parent.SetState('prereqLandscape');
+                    });
+                } else{
+                    console.log("screen.orientation api not available");
                     this._parent.SetState('prereqLandscape');
-                });
+                }
+                
             })
         }
     }
