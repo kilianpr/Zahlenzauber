@@ -5,7 +5,6 @@ import '/src/subpages/substyles.css';
 import '/res/fonts/Lora.ttf';
 
 import watertexture from '/res/particles/water24.png';
-import displacementImg from '/res/particles/displacement.png';
 
 
 const _VSPortalPerformant = `
@@ -23,7 +22,6 @@ varying vec3 vPosition;
 const _FSPortal = `
 uniform float time;
 uniform sampler2D myTexture;
-uniform sampler2D displacement;
 varying vec2 vUv;
 uniform vec3 pointer;
 uniform vec2 windowSize;
@@ -34,11 +32,6 @@ varying vec3 vPosition;
   }
 
   void main() {
-    vec4 displace = texture2D(displacement, vUv);
-
-    //displacedUV.y = mix(vUv.y, displace.r-0.2, sin(time*0.01));
-
-
     vec3 normPointer = vec3(map(pointer.x, 0., windowSize.x, 0., windowSize.x/30.), map(pointer.y, 0., windowSize.y, 0., windowSize.y/30.), 0.0);
     float dist = length(vPosition - normPointer);
     //float prox = 1. - map(dist, 0., 0.2, 0. , 1.);
@@ -87,9 +80,6 @@ class AnimatedBackground{
             },
             time: {
               value: 0
-            },
-            displacement: {
-              value: new THREE.TextureLoader().load(displacementImg)
             },
             pointer: {
               value: new THREE.Vector3()
