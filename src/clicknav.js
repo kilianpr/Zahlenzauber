@@ -85,7 +85,6 @@ class ClickNavigation{
 
 
         if (this._navigationAction){
-            console.log('click');
             intersects = Constants.Raycaster.intersectObjects([this._world.getPortalPlane('Left'), this._world._portalA.getCheckPointMesh()], false);
             if (intersects.length > 0){
                 Constants.TweenGroup.ModelMovement.removeAll();
@@ -145,7 +144,6 @@ class ClickNavigation{
     }
 
     rotateToOppositeDefault(){
-        console.log('rotate');
         this._targetQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), 0);;
     }
 

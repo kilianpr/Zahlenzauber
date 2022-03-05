@@ -45,7 +45,7 @@ class AnimationManager{
           const clip = anim;
           const action = this._mixer.clipAction(clip);
 
-          console.log('loaded:' + animName)
+          //console.log('loaded:' + animName)
           this._animations[animName] = {
               clip: clip,
               action: action

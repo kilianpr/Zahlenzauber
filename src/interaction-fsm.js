@@ -107,17 +107,24 @@ class PrereqFullscreenState extends InteractionState {
                 var elem = document.documentElement;
                 if (elem.requestFullscreen) {
                     elem.requestFullscreen();
-                } else if (elem.webkitRequestFullscreen) { /* Safari */
-                    elem.webkitRequestFullscreen();
-                } else if (elem.msRequestFullscreen) { /* IE11 */
+                } else if (elem.webkitRequestFullScreen) {
+                    elem.webkitRequestFullScreen();
+                } else if (elem.mozRequestFullScreen) {
+                    elem.mozRequestFullScreen();
+                } else if (elem.msRequestFullscreen) {
                     elem.msRequestFullscreen();
+                } else if (elem.webkitEnterFullscreen) {
+                    elem.webkitEnterFullscreen(); //for iphone this code worked
+                } else{
+                    console.log("no fullscreen available");
                 }
                 screen.orientation.lock("landscape")
                 .then(() => {
+                    console.log("landscape available");
                     this.transitionToNextState();
                 })
                 .catch((err) => { 
-                    console.log(err) ;
+                    console.log("no landscape available");
                     this._parent.SetState('prereqLandscape');
                 });
             })
@@ -353,9 +360,10 @@ class NavigationState extends InteractionState{
     }
 
     Enter(prevState){
-        this._parent._interactionBlocks._navigationInfo.show();
-        this._parent._interactionBlocks._backButton.show();
-
+        if (prevState.Name == 'confirm' || prevState.Name == 'lastMessage'){
+            this._parent._interactionBlocks._navigationInfo.show();
+            this._parent._interactionBlocks._backButton.show();
+        }
         if (prevState.Name == 'lastMessage'){
             this._parent._interactionBlocks._lastButton.removeAction();
             this._parent._interactionBlocks._startButton.removeAction();
@@ -379,20 +387,25 @@ class NavigationState extends InteractionState{
             .start();
         }
 
-        else if (prevState.Name == 'confirm' || prevState.Name == 'videos' || prevState.Name == 'exercises' || prevState.Name == 'about'){
+        else if (prevState.Name == 'videos' || prevState.Name == 'exercises' || prevState.Name == 'about') {
+            let toPos = new THREE.Vector3(42, 12, -12);
+            let toLook = new THREE.Vector3(0, 12, 50);
+            Constants.TweenGroup.CamMovement.removeAll();
+            const tween = new CamTween(this._parent._world, toPos, toLook, 1500).getTween();
+            tween.onComplete(() => {
+                this._parent._controls.react();
+                this._parent._clickNavigation.activateModelInteraction();
+                this._setClickActions();
+                this._parent._interactionBlocks._navigationInfo.show();
+            })
+            .delay(1500)
+            .start();
+            }
+        else if (prevState.Name == 'confirm'){
             this._parent._clickNavigation.activateModelInteraction();
             this._setClickActions();
-            if (prevState.Name != 'confirm'){
-                let toPos = new THREE.Vector3(42, 12, -12);
-                let toLook = new THREE.Vector3(0, 12, 50);
-                Constants.TweenGroup.CamMovement.removeAll();
-                const tween = new CamTween(this._parent._world, toPos, toLook, 1500).getTween();
-                tween.onComplete(() => {
-                    this._parent._controls.react();
-                })
-                .start();
-            }
         }
+        
 
     }
 
@@ -534,10 +547,10 @@ class SubpageState extends InteractionState{
             this._parent._clickNavigation.rotateToDefault();
             this._parent._controls.idle();
             this._parent._clickNavigation.activateModelInteraction();
-            setTimeout(() =>{
-                this._parent.SetState('navigation');
-            }, 200);
-            this._parent._transition.startTransition(true);
+            this._parent.SetState('navigation');
+            setTimeout(() => {
+                this._parent._transition.startTransition(true);
+            }, 1500);
         }
         else{
             this._parent.SetState('transitionIn');
