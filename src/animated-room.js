@@ -1,8 +1,8 @@
+import * as THREE from 'three';
+import * as TWEEN from '@tweenjs/tween.js';
 import { World} from "./index.js";
 import {AnimationManager} from './animation-manager.js';
 import Constants from './constants';
-import * as THREE from 'three';
-import * as TWEEN from '@tweenjs/tween.js';
 import {ClickNavigation} from './clicknav.js';
 
 

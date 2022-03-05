@@ -1,6 +1,5 @@
 import fire from '/res/particles/fire.png'
 import * as THREE from 'three';
-import * as TWEEN from '@tweenjs/tween.js';
 import Constants from './constants.js';
 
 
@@ -135,11 +134,6 @@ class Fire {
 
   show() {
     this.visible = true;
-    /*new TWEEN.Tween(this._light)
-    .to({intensity: 5}, 2000)
-    .easing(TWEEN.Easing.Quadratic.Out)
-    .start();*/
-    
   }
 
 

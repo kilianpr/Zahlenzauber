@@ -1,8 +1,4 @@
 import * as THREE from 'three';
-import '/src/styles.css';
-import '/src/subpages/substyles.css';
-import '/res/fonts/Lora.ttf';
-import * as TWEEN from '@tweenjs/tween.js';
 import {InteractionBlocks} from './interaction-blocks.js';
 import {InteractionFiniteStateMachine} from './interaction-fsm.js';
 import Constants from './constants';
@@ -10,6 +6,9 @@ import { AnimatedBackground } from "./subpages/background.js";
 import { AnimatedRoom } from './animated-room.js';
 import {Transition} from './transition.js';
 
+import '/src/styles.css';
+import '/src/subpages/substyles.css';
+import '/res/fonts/Lora.ttf';
 class Main{
 
     _renderer;

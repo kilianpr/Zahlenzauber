@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import Constants from './constants.js';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+
 import wizardGLTF from '/res/anim/wizardCompressedFINAL.glb';
 
 class AnimationManager{

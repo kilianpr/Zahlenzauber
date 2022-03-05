@@ -1,14 +1,16 @@
 import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
-import watertexture from '/res/particles/water.png'
+
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader.js';
 import {FontLoader} from 'three/examples/jsm/loaders/FontLoader.js';
 import {TextGeometry} from 'three/examples/jsm/geometries/TextGeometry.js';
-import portal from '/res/room/portal.obj';
-import stoneText from '/res/room/stonetext.jpg';
 import Constants from './constants.js';
+
+import portal from '/res/room/portal.obj';
 import Lora from '/res/fonts/Lora.json';
-import checkpointText from '/res/room/checkpointText.jpg';
+import checkpointText from '/res/room/checkpoint.png';
+import watertexture from '/res/particles/water.png'
+import stoneText from '/res/room/portalrock.png';
 
 
 const _VSPortal = `
@@ -58,6 +60,7 @@ class Portal{
       const textLoader = new THREE.TextureLoader(Constants.GeneralLoadingManager);
       var texture = textLoader.load(stoneText);
       var mat = new THREE.MeshStandardMaterial({map:texture});
+      texture.repeat.set( 1, 11 );
 
       const object = this;
       const objLoader = new OBJLoader(Constants.GeneralLoadingManager);
@@ -86,7 +89,6 @@ class Portal{
       });
 
       this._checkpoint = new CheckPoint(5);
-      this._checkpoint.show();
       this._checkpoint._element.position.set(positionX, 0, 45);
       parent._scene.add(this._checkpoint._element);
 
@@ -162,7 +164,8 @@ class Animation{
     _create(){
         const loader = new THREE.TextureLoader();
         const geometry = new THREE.CylinderGeometry(this._radius, this._radius, .5, 32, 1);
-        const material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0, map: loader.load(checkpointText)});
+        const text = loader.load(checkpointText);
+        const material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0, map: text});
         this._element = new THREE.Mesh(geometry, material);
         this._element.name = "checkpoint";
     }

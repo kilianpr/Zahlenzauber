@@ -1,10 +1,11 @@
 import * as THREE from 'three';
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
+//import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {Fire} from './particles.js';
 import {Portal} from './portal.js';
-import bricksText from '/res/room/blue-bricks.jpg';
-import floorText from '/res/room/floorText.jpg';
 import Constants from './constants.js';
+
+import bricksText from '/res/room/bricks.png';
+import floorText from '/res/room/woodenfloor.png';
 import Logo from '/res/icons/logo.png';
 
 
@@ -68,13 +69,13 @@ class World{
         const floor = textLoader.load(floorText);
         floor.wrapS = THREE.RepeatWrapping;
         floor.wrapT = THREE.RepeatWrapping;
-        floor.repeat.set( 4, 4 );
+        floor.repeat.set( 2, 2 );
 
         const planeGeo = new THREE.PlaneGeometry(100, 100)
         this._ground = new THREE.Mesh(
             planeGeo,
             new THREE.MeshStandardMaterial({
-                color: 0x808080,
+                color: 0x3d3d3d,
                 map: floor
               }));
         this._ground.castShadow = false;
@@ -86,7 +87,7 @@ class World{
         const bricks = textLoader.load(bricksText);
         bricks.wrapS = THREE.RepeatWrapping;
         bricks.wrapT = THREE.RepeatWrapping;
-        bricks.repeat.set( 4, 4 );
+        bricks.repeat.set( 1, 1 );
 
         const wall1 = new THREE.Mesh(
             planeGeo,

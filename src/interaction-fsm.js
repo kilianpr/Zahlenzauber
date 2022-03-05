@@ -1,6 +1,6 @@
+import * as THREE from 'three';
 import {CamTween} from "./camtween";
 import Constants from './constants.js';
-import * as THREE from 'three';
 import {change_params, init_videos, init_links, fadeInSubpage, fadeOutSubpage} from "./subpages/subpages";
 import { include_html } from "./include-subpages";
 
@@ -255,9 +255,11 @@ class SecondMessageState extends InteractionState{
                     setTimeout(() =>{
                         this._parent._world._fireLeft.show();
                         this._parent._world._fireRight.show();
-                        this._parent._world._portalA.showAnimation();
-                        this._parent._world._portalB.showAnimation();
-                        this._parent._world._portalC.showAnimation();
+                        let portals = [this._parent._world._portalA, this._parent._world._portalB, this._parent._world._portalC]
+                        for (let i = 0; i < 3; i++){
+                            portals[i].showAnimation();
+                            portals[i]._checkpoint.show();
+                        }
                     }, 1000);
                 }, 1000);
                 SecondMessageState._visited = true;

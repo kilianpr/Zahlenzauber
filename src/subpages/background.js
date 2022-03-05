@@ -1,10 +1,11 @@
-import '/src/subpages/substyles.css';
 import * as THREE from 'three';
+import Constants from '../constants';
+
+import '/src/subpages/substyles.css';
+import '/res/fonts/Lora.ttf';
+
 import watertexture from '/res/particles/water24.png';
 import displacementImg from '/res/particles/displacement.png';
-import '/res/fonts/Lora.ttf';
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
-import Constants from '../constants';
 
 
 const _VSPortalPerformant = `

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
 import Constants from './constants.js'
-import { Vector3 } from 'three';
+
 TWEEN.Easing.myCustom = {};
 TWEEN.Easing.myCustom.myEasingOut = function(k){
     var t = (k*100);
