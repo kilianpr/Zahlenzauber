@@ -1,11 +1,14 @@
 import Constants from '../constants';
 import playIcon from '/res/icons/play-circle.svg';
+import thumbnail1 from '/res/subpages/ThumbnailFlaechen.png';
+import thumbnail2 from '/res/subpages/ThumbnailNegativeZahlen.png';
 let curLink, curIframeID;
-const link1 = 'https://www.youtube-nocookie.com/embed/EYbvhWEG6kE';
-const link2 = 'https://www.youtube-nocookie.com/embed/EYbvhWEG6kE';
+const link1 = 'https://www.youtube-nocookie.com/embed/bGTnin-EykM';
+const link2 = 'https://www.youtube-nocookie.com/embed/bXHWmhIDlQY';
 
-const addAskForCookiePermission = function(link, btnID, iframeID){
+const addAskForCookiePermission = function(link, btnID, iframeID, thumbnail, thumbnailID){
     let button = document.getElementById(btnID);
+    document.getElementById(thumbnailID).style.backgroundImage = "url("+thumbnail+")";
     button.addEventListener('click', ()=>{
         showPopUp(link, iframeID);
     })
@@ -93,8 +96,8 @@ const init_videos = () => {
         playBtns[i].src = playIcon;
     }
     createPopUp();
-    addAskForCookiePermission(link1, 'play-btn1', 'video1-frame');
-    addAskForCookiePermission(link2, 'play-btn2', 'video2-frame');
+    addAskForCookiePermission(link1, 'play-btn1', 'video1-frame', thumbnail1, 'video1-thumbnail');
+    addAskForCookiePermission(link2, 'play-btn2', 'video2-frame', thumbnail2, 'video2-thumbnail');
 };
 
 
@@ -138,4 +141,38 @@ const change_params = (param) =>{
     window.history.replaceState(null, null, "?"+params);
 }
 
-export {init_videos, init_links, change_params, fadeOutSubpage, fadeInSubpage};
+
+const init_collapsibles = () => {
+    let coll = document.getElementsByClassName("collapsible");
+    for (let i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.maxHeight){
+        content.style.maxHeight = null;
+        } else {
+        content.style.maxHeight = content.scrollHeight + "px";
+        } 
+    });
+    }
+}
+
+const init_images = () => {
+    let images = document.getElementsByClassName("exercise-image");
+    let fullscreenDiv = document.getElementById("fullscreen-pic");
+    for (let i = 0; i < images.length; i++){
+        images[i].addEventListener("click", function() {
+            fullscreenDiv.children[0].src = images[i].src;
+            fullscreenDiv.style.zIndex = 999;
+            fullscreenDiv.classList.toggle("zoomed-in");
+        });
+    }
+    fullscreenDiv.addEventListener("click", function(e) {
+        fullscreenDiv.style.zIndex = -1;
+        fullscreenDiv.classList.toggle("zoomed-in");
+        fullscreenDiv.children[0].src = null;
+    })
+
+}
+
+export {init_videos, init_links, change_params, fadeOutSubpage, fadeInSubpage, init_collapsibles, init_images};

@@ -75,7 +75,7 @@ class World{
         this._ground = new THREE.Mesh(
             planeGeo,
             new THREE.MeshStandardMaterial({
-                color: 0x3d3d3d,
+                color: 0x808080,
                 map: floor
               }));
         this._ground.castShadow = false;
@@ -92,7 +92,7 @@ class World{
         const wall1 = new THREE.Mesh(
             planeGeo,
             new THREE.MeshStandardMaterial({
-                color: 0x070722,
+                color: 0x3c81da,
                 map: bricks
               }));
         wall1.rotation.x = 0;

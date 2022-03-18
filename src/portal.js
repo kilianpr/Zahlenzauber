@@ -201,7 +201,7 @@ class Text{
       curveSegments: 20,
     })
     const material = new THREE.MeshPhongMaterial( 
-      { color: 0x3c81da}
+      { color: 0xffffff}
     );
     this._element = new THREE.Mesh( geometry, material );
     this._element.rotateY(Math.PI);

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {CamTween} from "./camtween";
 import Constants from './constants.js';
-import {change_params, init_videos, init_links, fadeInSubpage, fadeOutSubpage} from "./subpages/subpages";
+import {change_params, init_videos, init_links, fadeInSubpage, fadeOutSubpage, init_collapsibles, init_images} from "./subpages/subpages";
 import { include_html } from "./include-subpages";
 
 
@@ -92,6 +92,8 @@ class PrereqFullscreenState extends InteractionState {
     Enter(prevState){
         include_html();
         init_videos();
+        init_collapsibles();
+        init_images();
         init_links(this._parent);
         if (!Constants.isOnMobile || Document.fullscreenElement != null && screen.availHeight < screen.availWidth){
             this.transitionToNextState();

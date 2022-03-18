@@ -80,7 +80,7 @@
 
 .sub-wrapper{
     width: 80%;
-    height: 80%;
+    height: 90%;
     box-shadow: 0 0 var(--sub-fs-small) var(--sub-fs-small) black;
     position: fixed;
     background-color: rgba(255, 255, 255, 1);
@@ -157,7 +157,7 @@ a{
     text-align: center;
     overflow-y: auto;
     height: 100%;
-    margin-right: var(--sub-fs-small);
+    padding-right: 2%;
     scroll-behavior: smooth;
 }
 
@@ -206,12 +206,21 @@ a{
     left: 0;
     right: 0;
     bottom: 0;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: contain !important;
     background-color: #3c81da;
 }
 
 .play-btn{
     cursor: pointer;
     height: 30%;
+    background-color: white;
+    border-radius: 50%;
+}
+
+.play-btn:hover{
+    filter: invert();
 }
 
 #accept-btn:hover{
@@ -232,6 +241,25 @@ a{
     background-color: lightcoral;
 }
 
+
+#fullscreen-pic{
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: -1;
+    background-color: rgba(169, 169, 169, 0.5);
+  }
+
+  #fullscreen-pic img{
+      max-height: 80%;
+      max-width: 90%;
+  }
+
 .title{
     font-weight: bold;
     font-size: var(--sub-fs-medium);
@@ -242,7 +270,7 @@ a{
 
 .caption{
     margin-top: calc(0.5 * var(--sub-fs-medium));
-    margin-bottom: calc(0.5 * var(--sub-fs-medium));
+    margin-bottom: calc(1.5 * var(--sub-fs-medium));
     font-size: var(--sub-fs-small);
 }
 
@@ -251,8 +279,78 @@ a{
     margin-bottom: calc(2*var(--sub-fs-small));
 }
 
-
 .exercise{
-    text-align: justify;
+    text-align: left;
+    margin-bottom: var(--sub-fs-small);
 }
+
+.exercise-image-wrapper{
+    text-align: center !important;
+}
+
+.exercise-image{
+    max-width: 60%;
+}
+
+.exercise-image:hover {
+    cursor: zoom-in;
+}
+
+.exercise-heading{
+    margin-bottom: calc(0.5*var(--sub-fs-small));
+    font-weight: bold;
+}
+
+.tab { margin-left: var(--sub-fs-small); }
+
+
+.collapsible {
+    background-color: #3c81da;
+    color: white;
+    cursor: pointer;
+    padding: var(--sub-fs-small);
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: var(--sub-fs-small);
+  }
+  
+  .active, .collapsible:hover {
+    background-color: #122a79;
+  }
+  
+  .collapsible-content {
+    padding: 0 18px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+    background-color: #d3d3d3;
+    box-sizing: border-box;
+  }
+
+  .collapsible:after {
+    content: '\02795'; /* Unicode character for "plus" sign (+) */
+    float: right;
+    margin-left: 5px;
+    color: white;
+  }
+  
+  .active:after {
+    content: "\2796"; /* Unicode character for "minus" sign (-) */
+  }
+
+  .zoomed-in:hover{
+      cursor: zoom-out;
+  }
+
+  .subtask{
+      margin-bottom: var(--sub-fs-small);
+  }
+
+  .subtask-heading{
+      font-weight: bold;
+  }
+
+
 
